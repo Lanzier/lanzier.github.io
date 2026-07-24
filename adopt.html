@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>领养 ZierClaw · 你的 AI 助手</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --card-bg: #111118;
+      --text: #e0e0e0;
+      --text-muted: #888;
+      --accent: #6366f1;
+      --accent-glow: #818cf8;
+      --border: #1e1e2e;
+      --green: #22c55e;
+      --gradient: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    /* Header */
+    .back-link {
+      display: inline-block;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 40px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--accent-glow); }
+    
+    .hero {
+      text-align: center;
+      padding: 40px 0 60px;
+    }
+    .hero .icon {
+      font-size: 64px;
+      display: block;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: 42px;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+    .hero .subtitle {
+      font-size: 17px;
+      color: var(--text-muted);
+    }
+    
+    /* Options */
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 60px;
+    }
+    .option-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .option-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(99,102,241,0.2);
+    }
+    .option-card.featured {
+      border-color: var(--accent);
+      box-shadow: 0 0 30px rgba(99,102,241,0.1);
+    }
+    .option-card .badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: var(--gradient);
+      color: white;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .option-card .card-icon {
+      font-size: 48px;
+      display: block;
+      margin-bottom: 16px;
+    }
+    .option-card h2 {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+    .option-card .desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      min-height: 40px;
+    }
+    .option-card ul {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+    .option-card ul li {
+      padding: 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+    }
+    .option-card ul li::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: bold;
+    }
+    .price {
+      font-size: 36px;
+      font-weight: 800;
+      margin: 16px 0 4px;
+    }
+    .price.free {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .price-note {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 12px 32px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--gradient);
+      color: white;
+    }
+    .btn-primary:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 25px rgba(99,102,241,0.4);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent-glow);
+    }
+    
+    /* FAQ */
+    .faq-section {
+      margin: 60px 0;
+    }
+    .faq-section h2 {
+      font-size: 28px;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .faq-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .faq-item h3 {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+    .faq-item p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    
+    /* Contact */
+    .contact-section {
+      text-align: center;
+      padding: 50px 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 40px;
+    }
+    .contact-section h2 {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+    .contact-section .sub {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .contact-channels {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .channel-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .channel-btn:hover {
+      border-color: var(--accent);
+      background: var(--card-bg);
+    }
+    .channel-btn.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .channel-btn .soon {
+      font-size: 10px;
+      background: var(--accent);
+      color: white;
+      padding: 1px 6px;
+      border-radius: 10px;
+      margin-left: 4px;
+    }
+    
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--accent-glow); text-decoration: none; }
+    
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 30px; }
+      .options { grid-template-columns: 1fr; }
+      .faq-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <a href="/" class="back-link">← 返回 ZierClaw 首页</a>
+
+  <!-- Hero -->
+  <section class="hero">
+    <span class="icon">🖋️</span>
+    <h1>领养你的 AI 助手</h1>
+    <p class="subtitle">免费领养 · 数据在你手里 · 越养越聪明</p>
+  </section>
+
+  <!-- Options -->
+  <div class="options">
+    <div class="option-card featured">
+      <span class="badge">推荐</span>
+      <span class="card-icon">🖥️</span>
+      <h2>本地部署</h2>
+      <p class="desc">下载到自己的电脑，数据全在你手里</p>
+      <ul>
+        <li>Windows / Mac / Linux 全支持</li>
+        <li>数据完全本地，隐私安全</li>
+        <li>免费开源，永久免费</li>
+        <li>支持自定义技能包</li>
+      </ul>
+      <div class="price free">¥0</div>
+      <div class="price-note">永久免费</div>
+      <a href="#" class="btn btn-primary" onclick="alert('部署助手即将上线！当前可扫码联系获取部署支持')">开始部署 →</a>
+    </div>
+
+    <div class="option-card">
+      <span class="card-icon">☁️</span>
+      <h2>云端托管</h2>
+      <p class="desc">7×24 云端运行，无需开机</p>
+      <ul>
+        <li>无需维护服务器</li>
+        <li>随时随地访问</li>
+        <li>自动更新 & 备份</li>
+        <li>弹性扩展能力</li>
+      </ul>
+      <div class="price" style="color: var(--text-muted);">即将推出</div>
+      <div class="price-note">敬请期待</div>
+      <a href="#" class="btn btn-outline">加入等待列表</a>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <section class="faq-section">
+    <h2>💬 常见问题</h2>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <h3>🦞 什么是 ZierClaw？</h3>
+        <p>ZierClaw 是墨驱动的 AI 私人助手。给它一台电脑，它就是你的数字员工。会聊天就会用，越养越聪明。</p>
+      </div>
+      <div class="faq-item">
+        <h3>💻 需要什么配置？</h3>
+        <p>最低 4GB 内存、Windows 10+/macOS 12+/Linux 即可。需要 Node.js 环境，我们会提供一键安装脚本。</p>
+      </div>
+      <div class="faq-item">
+        <h3>🔒 数据安全吗？</h3>
+        <p>本地部署版本所有数据都在你的电脑上，不上传任何云端。你的隐私你做主。</p>
+      </div>
+      <div class="faq-item">
+        <h3>💰 真的免费吗？</h3>
+        <p>ZierClaw 基于开源 OpenClaw 框架，本地部署完全免费。云端托管版未来会推出，价格待定。</p>
+      </div>
+      <div class="faq-item">
+        <h3>🧩 什么是技能？</h3>
+        <p>技能像手机的 App —— 装什么技能，ZierClaw 就变成什么员工。天气、邮件、文档、编码、SEO……已经 5000+ 社区技能随时安装。</p>
+      </div>
+      <div class="faq-item">
+        <h3>⏱️ 部署要多久？</h3>
+        <p>熟练的话 5 分钟。新手跟着教程 15-20 分钟。我们会提供详细文档和视频教程。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="contact-section">
+    <h2>📬 获取部署支持</h2>
+    <p class="sub">有问题？选一个你喜欢的方式联系</p>
+    <div class="contact-channels">
+      <a href="https://github.com/Lanzier/lanzier.github.io/issues" target="_blank" class="channel-btn">
+        🐙 GitHub Issues
+      </a>
+      <span class="channel-btn disabled">
+        💬 飞书群 <span class="soon">即将</span>
+      </span>
+      <span class="channel-btn disabled">
+        ✈️ Telegram <span class="soon">即将</span>
+      </span>
+    </div>
+  </section>
+
+  <footer>
+    <p>ZierClaw · 由墨驱动 · 基于 <a href="https://openclaw.ai">OpenClaw</a></p>
+    <p style="margin-top: 6px;">本站由墨独立完成，全程零人类编写代码</p>
+  </footer>
+</div>
+
+</body>
+</html>
