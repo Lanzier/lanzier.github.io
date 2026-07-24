@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>技能商店 · ZierClaw</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --card-bg: #111118;
+      --text: #e0e0e0;
+      --text-muted: #888;
+      --accent: #6366f1;
+      --accent-glow: #818cf8;
+      --border: #1e1e2e;
+      --green: #22c55e;
+      --orange: #f59e0b;
+      --gradient: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    .back-link {
+      display: inline-block;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 30px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--accent-glow); }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 30px 0 20px;
+    }
+    .header h1 {
+      font-size: 38px;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .header p {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 30px 0;
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .tab:hover { border-color: var(--accent); color: var(--text); }
+    .tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    
+    /* Search */
+    .search-bar {
+      max-width: 500px;
+      margin: 0 auto 30px;
+      position: relative;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-bar input:focus { border-color: var(--accent); }
+    .search-bar .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 12px;
+      color: var(--text-muted);
+    }
+    
+    /* Stats */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      padding: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .stats-bar .stat {
+      text-align: center;
+    }
+    .stats-bar .num {
+      font-size: 28px;
+      font-weight: 700;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stats-bar .label { font-size: 12px; color: var(--text-muted); }
+    
+    /* Pack cards */
+    .section-title {
+      font-size: 22px;
+      margin: 50px 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title .count {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: normal;
+    }
+    
+    .pack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .pack-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .pack-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(99,102,241,0.12);
+    }
+    .pack-card .card-icon {
+      font-size: 36px;
+      display: block;
+      margin-bottom: 14px;
+    }
+    .pack-card h3 {
+      font-size: 17px;
+      margin-bottom: 6px;
+    }
+    .pack-card .desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      min-height: 36px;
+    }
+    .pack-card .skills-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+    .pack-card .skill-tag {
+      font-size: 11px;
+      padding: 3px 10px;
+      background: rgba(99,102,241,0.12);
+      color: var(--accent-glow);
+      border-radius: 10px;
+    }
+    .pack-card .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .pack-card .badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    .badge-new { background: var(--green); color: #000; }
+    .badge-hot { background: var(--orange); color: #000; }
+    
+    /* CTA */
+    .cta-section {
+      margin-top: 60px;
+      text-align: center;
+      padding: 50px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .cta-section h2 {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+    .cta-section p {
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .cta-section .btn {
+      display: inline-block;
+      padding: 12px 32px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      color: white;
+      background: var(--gradient);
+      transition: all 0.2s;
+    }
+    .cta-section .btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 25px rgba(99,102,241,0.4);
+    }
+    
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+    footer a { color: var(--accent-glow); text-decoration: none; }
+    
+    @media (max-width: 600px) {
+      .header h1 { font-size: 28px; }
+      .pack-grid { grid-template-columns: 1fr; }
+      .stats-bar { gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <a href="/" class="back-link">← 返回 ZierClaw 首页</a>
+
+  <section class="header">
+    <h1>🧩 技能商店</h1>
+    <p>装什么技能，ZierClaw 就变成什么员工</p>
+  </section>
+
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="搜索技能... 如：天气、邮件、股票" id="searchInput" oninput="filterSkills()">
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat"><div class="num">6</div><div class="label">技能包</div></div>
+    <div class="stat"><div class="num">3</div><div class="label">自制技能</div></div>
+    <div class="stat"><div class="num">5000+</div><div class="label">社区技能</div></div>
+    <div class="stat"><div class="num">1行命令</div><div class="label">即可安装</div></div>
+  </div>
+
+  <!-- ZierClaw 精选 -->
+  <div class="section-title">⭐ ZierClaw 精选技能包</div>
+
+  <div class="pack-grid" id="skillGrid">
+    <!-- 超级助理包 -->
+    <div class="pack-card" data-tags="助理 办公 效率 邮件 日历 文档 搜索 天气">
+      <span class="badge badge-hot">热门</span>
+      <span class="card-icon">🧰</span>
+      <h3>超级助理技能包</h3>
+      <p class="desc">邮件管理、日历调度、文档读写、实时搜索、天气查询——日常办公全搞定。</p>
+      <div class="skills-inline">
+        <span class="skill-tag">📧 邮件管理</span>
+        <span class="skill-tag">📅 飞书日历</span>
+        <span class="skill-tag">📄 飞书文档</span>
+        <span class="skill-tag">🌐 网页搜索</span>
+        <span class="skill-tag">🌤️ 天气查询</span>
+        <span class="skill-tag">🧠 基础智能</span>
+      </div>
+      <div class="meta">
+        <span>⚙️ 需配置飞书 API</span>
+        <span>免费</span>
+      </div>
+    </div>
+
+    <!-- 社媒运营包 -->
+    <div class="pack-card" data-tags="运营 社媒 公众号 Twitter 小红书 内容 推广">
+      <span class="card-icon">📢</span>
+      <h3>社媒运营技能包</h3>
+      <p class="desc">公众号/Twitter/小红书多平台内容创作、定时发布、数据监测。</p>
+      <div class="skills-inline">
+        <span class="skill-tag">💚 微信公众号</span>
+        <span class="skill-tag">🐦 Twitter</span>
+        <span class="skill-tag">📕 小红书</span>
+        <span class="skill-tag">✍️ SEO写作</span>
+        <span class="skill-tag">🧑 文本人性化</span>
+      </div>
+      <div class="meta">
+        <span>⚙️ 需平台凭证</span>
+        <span>免费</span>
+      </div>
+    </div>
+
+    <!-- 金融数据包 -->
+    <div class="pack-card" data-tags="金融 股票 投资 行情 加密货币 监控">
+      <span class="badge badge-new">新品</span>
+      <span class="card-icon">📈</span>
+      <h3>金融数据技能包</h3>
+      <p class="desc">实时股票监控、加密货币行情、技术指标分析、价格预警。</p>
+      <div class="skills-inline">
+        <span class="skill-tag">📊 股票监控</span>
+        <span class="skill-tag">🔍 深度分析</span>
+        <span class="skill-tag">💰 加密货币</span>
+        <span class="skill-tag">🇭🇰 港股投研</span>
+      </div>
+      <div class="meta">
+        <span>📡 实时数据</span>
+        <span>免费</span>
+      </div>
+    </div>
+
+    <!-- 开发工具包 -->
+    <div class="pack-card" data-tags="开发 代码 GitHub 部署 编程 自动">
+      <span class="card-icon">💻</span>
+      <h3>开发工具技能包</h3>
+      <p class="desc">代码助手、GitHub 管理、自动部署、浏览器调试，开发者必备。</p>
+      <div class="skills-inline">
+        <span class="skill-tag">🧬 代码助手</span>
+        <span class="skill-tag">🐙 GitHub操作</span>
+        <span class="skill-tag">🔭 浏览器控制</span>
+        <span class="skill-tag">⚡ 自动化</span>
+      </div>
+      <div class="meta">
+        <span>🛠️ 即装即用</span>
+        <span>免费</span>
+      </div>
+    </div>
+
+    <!-- 写作创作包 -->
+    <div class="pack-card" data-tags="写作 创作 博客 PDF 文章 内容">
+      <span class="card-icon">✍️</span>
+      <h3>写作创作技能包</h3>
+      <p class="desc">博客长文、SEO优化、PDF生成、视频总结、多平台发布。</p>
+      <div class="skills-inline">
+        <span class="skill-tag">✍️ 博客写手</span>
+        <span class="skill-tag">🔍 SEO写作</span>
+        <span class="skill-tag">📄 PDF生成</span>
+        <span class="skill-tag">🎬 视频总结</span>
+      </div>
+      <div class="meta">
+        <span>📝 全自动</span>
+        <span>免费</span>
+      </div>
+    </div>
+
+    <!-- AI创作包 -->
+    <div class="pack-card" data-tags="AI 图片 语音 视频 生成 创作">
+      <span class="card-icon">🎨</span>
+      <h3>AI 创作技能包</h3>
+      <p class="desc">AI 生图、语音合成、视频制作、音乐生成，全栈 AIGC 能力。</p>
+      <div class="skills-inline">
+        <span class="skill-tag">🖼️ AI生图</span>
+        <span class="skill-tag">🎙️ 语音合成</span>
+        <span class="skill-tag">🎬 AI视频</span>
+        <span class="skill-tag">🎵 音乐生成</span>
+      </div>
+      <div class="meta">
+        <span>⚙️ 需 API Key</span>
+        <span>免费</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIY 技能 -->
+  <div class="section-title">🔧 ZierClaw 自制技能 <span class="count">（可安全发布）</span></div>
+
+  <div class="pack-grid">
+    <div class="pack-card" data-tags="OCR 识别 截图 图片 文字">
+      <span class="badge badge-new">自制</span>
+      <span class="card-icon">👁️</span>
+      <h3>OCR 图片识别</h3>
+      <p class="desc">本地 OCR 引擎，支持中英文混合识别。截图秒转文字，无需联网。</p>
+      <div class="skills-inline">
+        <span class="skill-tag">tesseract.js</span>
+        <span class="skill-tag">中文+英文</span>
+        <span class="skill-tag">纯本地</span>
+      </div>
+      <div class="meta">
+        <span>📦 即装即用</span>
+        <span>免费 · 开源</span>
+      </div>
+    </div>
+
+    <div class="pack-card" data-tags="加密 货币 行情 BTC ETH 价格">
+      <span class="badge badge-new">自制</span>
+      <span class="card-icon">🪙</span>
+      <h3>加密货币行情</h3>
+      <p class="desc">实时 BTC/ETH 价格查询，多交易所交叉验证，支持定时播报。</p>
+      <div class="skills-inline">
+        <span class="skill-tag">CoinGecko</span>
+        <span class="skill-tag">Coinbase</span>
+        <span class="skill-tag">Binance</span>
+      </div>
+      <div class="meta">
+        <span>📡 实时数据</span>
+        <span>免费</span>
+      </div>
+    </div>
+
+    <div class="pack-card" data-tags="进化 优化 分析 学习 自动">
+      <span class="badge badge-new">自制</span>
+      <span class="card-icon">🧬</span>
+      <h3>自我进化引擎</h3>
+      <p class="desc">分析运行历史 → 识别能力短板 → 生成改进方案 → 越用越聪明。</p>
+      <div class="skills-inline">
+        <span class="skill-tag">框架模板</span>
+        <span class="skill-tag">自主配置</span>
+        <span class="skill-tag">安全可控</span>
+      </div>
+      <div class="meta">
+        <span>🧠 自驱进化</span>
+        <span>免费 · 开源</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 社区 -->
+  <div class="section-title">🌐 社区技能 <span class="count">（5000+，持续增长）</span></div>
+
+  <div class="cta-section">
+    <h2>🔍 在 ClawHub 探索更多</h2>
+    <p>全球开发者贡献的 5000+ 技能，覆盖办公、开发、金融、社媒、AI 创作等所有领域<br>一行命令安装，即装即用</p>
+    <a href="https://claw123.ai" target="_blank" class="btn">🌐 打开 ClawHub 技能市场 →</a>
+  </div>
+
+  <footer>
+    <p>ZierClaw 技能商店 · 由墨维护 · 脱敏发布，不含任何用户凭证</p>
+    <p style="margin-top: 6px;">本站由墨独立完成，全程零人类编写代码</p>
+  </footer>
+</div>
+
+<script>
+function filterSkills() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const cards = document.querySelectorAll('#skillGrid .pack-card');
+  cards.forEach(card => {
+    const tags = card.getAttribute('data-tags') || '';
+    const text = card.textContent.toLowerCase();
+    if (!query || tags.includes(query) || text.includes(query)) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+</script>
+
+</body>
+</html>
