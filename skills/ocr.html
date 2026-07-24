@@ -1,88 +1,90 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head><meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="zh-CN" data-lang="zh">
+<head><meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OCR 图片识别 · ZierClaw</title>
 <style>
-:root { --bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#c0c0c8;--accent:#6366f1;--accent-glow:#818cf8;--border:#1e1e2e;--green:#22c55e;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899) }
-:root.light { --bg:#f5f5f8;--card-bg:#ffffff;--text:#1a1a2e;--text-muted:#555566;--accent:#4f46e5;--accent-glow:#6366f1;--border:#d8d8e0;--green:#16a34a; }
-* { margin:0;padding:0;box-sizing:border-box }
-body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.7 }
-.container { max-width:900px;margin:0 auto;padding:40px 20px }
-.back-link { display:inline-block;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px }
-.back-link:hover { color:var(--accent) }
-.detail-hero { text-align:center;padding:20px 0 40px }
-.detail-hero .icon { font-size:56px;display:block;margin-bottom:12px }
-.detail-hero h1 { font-size:34px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px }
-.detail-hero .meta { color:var(--text-muted);font-size:14px }
-.content-section { background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:30px;margin-bottom:20px }
-.content-section h2 { font-size:20px;margin-bottom:12px }
-.content-section p { font-size:14px;color:var(--text-muted);line-height:1.8 }
-.tags { display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 }
-.tag { font-size:11px;padding:4px 12px;background:rgba(99,102,241,0.15);color:var(--accent-glow);border-radius:10px }
-:root.light .tag { color:#4f46e5;font-weight:600 }
-.use-cases { margin:30px 0 }
-.use-cases h2 { font-size:20px;margin-bottom:16px }
-.use-case-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px }
-.use-case { background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px }
-.use-case .q { font-size:14px;font-style:italic;color:var(--text-muted) }
-.copy-section { background:var(--card-bg);border:1px solid var(--accent);border-radius:14px;padding:30px;margin:40px 0;text-align:center }
-.copy-section h2 { font-size:20px;margin-bottom:8px }
-.copy-section .sub { font-size:13px;color:var(--text-muted);margin-bottom:20px }
-.code-block { background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:left;font-family:Consolas,Monaco,monospace;font-size:13px;color:var(--text);white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;margin-bottom:16px }
-.btn { display:inline-block;padding:12px 32px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:none;color:white;background:var(--gradient) }
-.btn:hover { transform:scale(1.03);box-shadow:0 8px 25px rgba(99,102,241,.4) }
-.copied { display:none;color:var(--green);font-size:13px;margin-top:8px }
-footer { text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;border-top:1px solid var(--border) }
-footer a { color:var(--accent-glow);text-decoration:none }
-.lang-toggle, .theme-toggle { position:fixed;right:24px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:999;transition:all .3s;box-shadow:0 2px 12px rgba(0,0,0,.15);font-size:14px;font-weight:700;font-family:inherit }
-.theme-toggle { bottom:24px;font-size:20px }
-.lang-toggle { bottom:76px }
-.lang-toggle:hover,.theme-toggle:hover { transform:scale(1.1);border-color:var(--accent) }
-.lang-zh,.lang-en { display:none }
-html[data-lang="zh"] .lang-zh, html[data-lang="en"] .lang-en { display:revert }
-</style></head>
-<body>
+:root{--bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#c0c0c8;--accent:#6366f1;--accent-glow:#818cf8;--border:#1e1e2e;--green:#22c55e;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899)}
+:root.light{--bg:#f5f5f8;--card-bg:#fff;--text:#1a1a2e;--text-muted:#555566;--accent:#4f46e5;--accent-glow:#6366f1;--border:#d8d8e0;--green:#16a34a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+.container{max-width:900px;margin:0 auto;padding:40px 20px}
+.back-link{display:inline-block;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px}
+.back-link:hover{color:var(--accent)}
+.detail-hero{text-align:center;padding:20px 0 40px}
+.detail-hero .icon{font-size:56px;display:block;margin-bottom:12px}
+.detail-hero h1{font-size:34px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.detail-hero .meta{color:var(--text-muted);font-size:14px}
+.content-section{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:30px;margin-bottom:20px}
+.content-section h2{font-size:20px;margin-bottom:12px}
+.content-section p{font-size:14px;color:var(--text-muted);line-height:1.8}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0}
+.tag{font-size:11px;padding:4px 12px;background:rgba(99,102,241,.15);color:var(--accent-glow);border-radius:10px}
+:root.light .tag{color:#4f46e5;font-weight:600}
+.use-cases{margin:30px 0}
+.use-cases h2{font-size:20px;margin-bottom:16px}
+.use-case-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.use-case{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px}
+.use-case .q{font-size:14px;font-style:italic;color:var(--text-muted)}
+.copy-section{background:var(--card-bg);border:1px solid var(--accent);border-radius:14px;padding:30px;margin:40px 0;text-align:center}
+.copy-section h2{font-size:20px;margin-bottom:8px}
+.copy-section .sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.code-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:left;font-family:Consolas,Monaco,monospace;font-size:13px;color:var(--text);white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;margin-bottom:16px}
+.btn{display:inline-block;padding:12px 32px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:none;color:#fff;background:var(--gradient)}
+.btn:hover{transform:scale(1.03);box-shadow:0 8px 25px rgba(99,102,241,.4)}
+.copied{display:none;color:var(--green);font-size:13px;margin-top:8px}
+footer{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;border-top:1px solid var(--border)}
+footer a{color:var(--accent-glow);text-decoration:none}
+.lang-toggle,.theme-toggle{position:fixed;right:24px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:999;transition:.3s;box-shadow:0 2px 12px rgba(0,0,0,.15);font:700 14px/1 inherit}
+.theme-toggle{bottom:24px;font-size:20px}
+.lang-toggle{bottom:76px}
+.lang-toggle:hover,.theme-toggle:hover{transform:scale(1.1);border-color:var(--accent)}
+.lang-zh,.lang-en{display:none}
+html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
+</style></head><body>
 <div class="container">
-<a href="/skills.html" class="back-link"><span class="lang-zh">?返回技能商?/span><span class="lang-en">?Back to Skill Store</span></a>
+<a href="/skills.html" class="back-link"><span class="lang-zh">← 返回技能商店</span><span class="lang-en">← Back to Skill Store</span></a>
 <section class="detail-hero">
-<span class="icon">👁?/span>
-<h1>OCR 图片识别</h1>
-<div class="meta"><span class="lang-zh">📦 ZierClaw 自制技?/span><span class="lang-en">📦 ZierClaw Custom Skill</span><span> · </span><span class="lang-zh">免费 · 开?/span><span class="lang-en">Free · Open Source</span></div>
+<div class="icon">👁️</div>
+<div class="lang-zh"><h1>OCR 图片识别</h1></div>
+<div class="lang-en"><h1>OCR Recognition</h1></div>
+<div class="meta"><span class="lang-zh">📦 ZierClaw 自制技能 · 免费 · 开源</span><span class="lang-en">📦 ZierClaw Custom Skill · Free · Open Source</span></div>
 </section>
 <div class="content-section">
-<h2><span class="lang-zh">💡 技能说?/span><span class="lang-en">💡 Description</span></h2>
-<div class="lang-zh"><p>本地 OCR 引擎，基?tesseract.js v7.0.0。支持简体中文和英文混合识别。截图秒转文字，无需联网。完美保护隐私，所有处理在本地完成?/p></div>
-<div class="lang-en"><p>Local OCR engine based on tesseract.js v7.0.0. Supports Chinese (Simplified) + English mixed recognition. Screenshot-to-text instantly. No internet required. All processing is local ?your data never leaves your machine.</p></div>
-<div class="tags"><span class="tag">tesseract.js</span> <span class="tag">中文+英文</span> <span class="tag">纯本?/span></div>
+<div class="lang-zh"><h2>💡 技能说明</h2></div>
+<div class="lang-en"><h2>💡 Description</h2></div>
+<div class="lang-zh"><p>本地 OCR 引擎，基于 tesseract.js v7.0.0。支持简体中文和英文混合识别。截图秒转文字，无需联网。完美保护隐私，所有处理在本地完成。</p></div>
+<div class="lang-en"><p>Local OCR engine based on tesseract.js v7.0.0. Supports Chinese (Simplified) + English. Screenshot-to-text instantly. No internet required. All processing is local — your data never leaves your machine.</p></div>
+<div class="tags"><span class="tag">tesseract.js</span><span class="tag">中文+英文</span><span class="tag">纯本地</span></div>
 </div>
 <div class="use-cases">
-<h2><span class="lang-zh">💬 你可以这样说</span><span class="lang-en">💬 You Can Say</span></h2>
-<div class="use-case-grid">
-<div class="use-case"><div class="q">"帮我识别这张图片里的文字"</div></div><div class="use-case"><div class="q">"截图中写了什?</div></div><div class="use-case"><div class="q">"把这张表格转成文?</div></div>
-</div>
+<div class="lang-zh"><h2>💬 你可以这样说</h2></div>
+<div class="lang-en"><h2>💬 You Can Say</h2></div>
+<div class="use-case-grid"><div class="use-case"><div class="lang-zh"><div class="q">"帮我识别这张图片里的文字"</div></div><div class="lang-en"><div class="q">"Read the text in this image"</div></div></div><div class="use-case"><div class="lang-zh"><div class="q">"截图中写了什么"</div></div><div class="lang-en"><div class="q">"What does this screenshot say?"</div></div></div><div class="use-case"><div class="lang-zh"><div class="q">"把这张表格转成文字"</div></div><div class="lang-en"><div class="q">"Convert this table to text"</div></div></div></div>
 </div>
 <div class="copy-section">
-<h2><span class="lang-zh">📋 一键安装提示词</span><span class="lang-en">📋 One-Click Install Prompt</span></h2>
-<p class="sub"><span class="lang-zh">复制以下提示词，粘贴给你?OpenClaw</span><span class="lang-en">Copy and paste to your OpenClaw</span></p>
-<div class="code-block" id="promptCode">请帮我安?OCR 图片识别技?
-安装 tesseract.js 全局模块：npm install -g tesseract.js
+<div class="lang-zh"><h2>📋 一键安装提示词</h2></div>
+<div class="lang-en"><h2>📋 One-Click Install Prompt</h2></div>
+<div class="lang-zh"><p class="sub">复制以下提示词，粘贴给你的 OpenClaw</p></div>
+<div class="lang-en"><p class="sub">Copy and paste to your OpenClaw</p></div>
+<div class="code-block" id="promptCode">npm install -g tesseract.js
 
-创建一?ocr.js 脚本，使?tesseract.js ?createWorker 方法加载 chi_sim+eng 语言包，通过 recognize() 方法对指定图片路径进?OCR 识别?
-使用方式：node scripts/ocr.js <图片路径></div>
+创建 ocr.js 脚本，使用 tesseract.js 的 createWorker 方法加载 chi_sim+eng 语言包。
+通过 recognize() 对指定图片路径进行 OCR 识别。
+
+使用：node ocr.js <图片路径></div>
 <button class="btn" onclick="copyPrompt()"><span class="lang-zh">📋 一键复制提示词</span><span class="lang-en">📋 Copy Prompt</span></button>
-<div class="copied" id="copiedMsg"><span class="lang-zh">?已复制！</span><span class="lang-en">?Copied!</span></div>
+<div class="copied" id="copiedMsg"><span class="lang-zh">✅ 已复制！</span><span class="lang-en">✅ Copied!</span></div>
 </div>
 <footer><p>ZierClaw · <a href="/skills.html">Skill Store</a></p></footer>
 </div>
-<button class="lang-toggle" onclick="toggleLang()" title="切换中英?>EN</button>
-<button class="theme-toggle" onclick="toggleTheme()" title="切换日间/深色模式">🌙</button>
+<button class="lang-toggle" onclick="toggleLang()">EN</button>
+<button class="theme-toggle" onclick="toggleTheme()">🌙</button>
 <script>
-(function(){ if(localStorage.getItem('zrclaw-theme')==='light')document.documentElement.classList.add('light'); })();
-function toggleTheme(){ var r=document.documentElement,d=!r.classList.contains('light');r.classList.toggle('light');localStorage.setItem('zrclaw-theme',d?'light':'dark');document.querySelector('.theme-toggle').textContent=d?'☀?:'🌙'; }
-(function(){ var b=document.querySelector('.theme-toggle');if(b)b.textContent=document.documentElement.classList.contains('light')?'☀?:'🌙'; })();
-(function(){ var s=localStorage.getItem('zrclaw-lang')||'zh';document.documentElement.setAttribute('data-lang',s);document.querySelector('.lang-toggle').textContent=s==='zh'?'EN':'?; })();
-function toggleLang(){ var r=document.documentElement,c=r.getAttribute('data-lang')==='zh'?'en':'zh';r.setAttribute('data-lang',c);localStorage.setItem('zrclaw-lang',c);document.querySelector('.lang-toggle').textContent=c==='zh'?'EN':'?; }
-function copyPrompt(){ navigator.clipboard.writeText(document.getElementById('promptCode').innerText).then(()=>{ document.getElementById('copiedMsg').style.display='block';setTimeout(()=>{document.getElementById('copiedMsg').style.display='none'},4000);}); }
+(function(){if(localStorage.getItem("zrclaw-theme")==="light")document.documentElement.classList.add("light")})()
+function toggleTheme(){var r=document.documentElement,d=!r.classList.contains("light");r.classList.toggle("light");localStorage.setItem("zrclaw-theme",d?"light":"dark");document.querySelector(".theme-toggle").textContent=d?"☀️":"🌙"}
+(function(){var b=document.querySelector(".theme-toggle");if(b)b.textContent=document.documentElement.classList.contains("light")?"☀️":"🌙"})()
+(function(){var s=localStorage.getItem("zrclaw-lang")||"zh";document.documentElement.setAttribute("data-lang",s);document.querySelector(".lang-toggle").textContent=s==="zh"?"EN":"中"})()
+function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang")==="zh"?"en":"zh";r.setAttribute("data-lang",c);localStorage.setItem("zrclaw-lang",c);document.querySelector(".lang-toggle").textContent=c==="zh"?"EN":"中"}
+function copyPrompt(){navigator.clipboard.writeText(document.getElementById("promptCode").innerText).then(function(){document.getElementById("copiedMsg").style.display="block";setTimeout(function(){document.getElementById("copiedMsg").style.display="none"},4000)})}
 </script>
 </body></html>
