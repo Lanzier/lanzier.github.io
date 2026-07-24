@@ -9,7 +9,7 @@
       --bg: #0a0a0f;
       --card-bg: #111118;
       --text: #e0e0e0;
-      --text-muted: #888;
+      --text-muted: #c0c0c8;
       --accent: #6366f1;
       --accent-glow: #818cf8;
       --border: #1e1e2e;
@@ -35,338 +35,68 @@
       color: var(--text);
       line-height: 1.7;
     }
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
     
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
+    .back-link { display: inline-block; color: var(--text-muted); text-decoration: none; font-size: 14px; margin-bottom: 30px; transition: color 0.2s; }
+    .back-link:hover { color: var(--accent-glow); }
     
-    .back-link {
-      display: inline-block;
-      color: #c0c0c8;
-      text-decoration: none;
-      font-size: 14px;
-      margin-bottom: 30px;
-      transition: color 0.2s;
-    }
-    .back-link:hover { color: #ffffff; }
+    .header { text-align: center; padding: 30px 0 20px; }
+    .header h1 { font-size: 38px; font-weight: 800; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; }
+    .header p { color: var(--text-muted); font-size: 15px; }
     
-    /* Header */
-    .header {
-      text-align: center;
-      padding: 30px 0 20px;
-    }
-    .header h1 {
-      font-size: 38px;
-      font-weight: 800;
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 8px;
-    }
-    .header p {
-      color: #c0c0c8;
-      font-size: 15px;
-    }
-    
-    /* Tabs */
-    .tabs {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin: 30px 0;
-      flex-wrap: wrap;
-    }
-    .tab {
-      padding: 8px 20px;
-      border-radius: 20px;
-      font-size: 14px;
-      cursor: pointer;
-      background: transparent;
-      border: 1px solid rgba(99,102,241,0.3);
-      color: #e0e0e0;
-      transition: all 0.2s;
-      text-decoration: none;
-    }
-    .tab:hover { border-color: var(--accent); color: var(--text); }
-    .tab.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: white;
-    }
-    
-    /* Search */
-    .search-bar {
-      max-width: 500px;
-      margin: 0 auto 30px;
-      position: relative;
-    }
-    .search-bar input {
-      width: 100%;
-      padding: 12px 16px 12px 44px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
+    .search-bar { max-width: 500px; margin: 0 auto 30px; position: relative; }
+    .search-bar input { width: 100%; padding: 12px 16px 12px 44px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 14px; outline: none; transition: border-color 0.2s; }
     .search-bar input::placeholder { color: var(--text-muted); }
     .search-bar input:focus { border-color: var(--accent); }
-    .search-bar .search-icon {
-      position: absolute;
-      left: 14px;
-      top: 12px;
-      color: #9090a8;
-    }
+    .search-bar .search-icon { position: absolute; left: 14px; top: 12px; color: var(--text-muted); }
     
-    /* Stats */
-    .stats-bar {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-      padding: 20px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-    }
-    .stats-bar .stat {
-      text-align: center;
-    }
-    .stats-bar .num {
-      font-size: 28px;
-      font-weight: 700;
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .stats-bar .label { font-size: 12px; color: #c0c0c8; }
+    .stats-bar { display: flex; justify-content: center; gap: 30px; margin-bottom: 40px; flex-wrap: wrap; padding: 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; }
+    .stats-bar .stat { text-align: center; }
+    .stats-bar .num { font-size: 28px; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stats-bar .label { font-size: 12px; color: var(--text-muted); }
     
-    /* Pack cards */
-    .section-title {
-      font-size: 22px;
-      margin: 50px 0 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .section-title .count {
-      font-size: 14px;
-      color: #c0c0c8;
-      font-weight: normal;
-    }
+    .section-title { font-size: 22px; margin: 50px 0 20px; display: flex; align-items: center; gap: 8px; }
+    .section-title .count { font-size: 14px; color: var(--text-muted); font-weight: normal; }
     
-    .pack-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 16px;
-    }
-    .pack-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 28px;
-      transition: all 0.3s;
-      position: relative;
-      text-decoration: none;
-      color: var(--text);
-      display: block;
-      cursor: pointer;
-    }
-    .pack-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(99,102,241,0.12);
-    }
-    .pack-card .card-icon {
-      font-size: 36px;
-      display: block;
-      margin-bottom: 14px;
-    }
-    .pack-card h3 {
-      font-size: 17px;
-      margin-bottom: 6px;
-    }
-    .pack-card .desc {
-      font-size: 13px;
-      color: #c0c0c8;
-      margin-bottom: 14px;
-      min-height: 36px;
-    }
-    .pack-card .skills-inline {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 18px;
-    }
-    .pack-card .skill-tag {
-      font-size: 11px;
-      padding: 3px 10px;
-      background: rgba(99,102,241,0.15);
-      color: #b4b8ff;
-      border-radius: 10px;
-    }
-    :root.light .pack-card .skill-tag {
-      background: rgba(79,70,229,0.1);
-      color: #4f46e5;
-      font-weight: 600;
-    }
-    .pack-card .meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      color: #b0b0b8;
-    }
-    :root.light .pack-card .meta {
-      color: #555566;
-    }
-    .pack-card .badge {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      font-size: 10px;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 600;
-    }
-    .badge-new { background: var(--green); color: #000; }
+    .pack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .pack-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 28px; transition: all 0.3s; position: relative; text-decoration: none; color: var(--text); display: block; cursor: pointer; }
+    .pack-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99,102,241,0.12); }
+    .pack-card .card-icon { font-size: 36px; display: block; margin-bottom: 14px; }
+    .pack-card h3 { font-size: 17px; margin-bottom: 6px; }
+    .pack-card .desc { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; min-height: 36px; }
+    .pack-card .skills-inline { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+    .pack-card .skill-tag { font-size: 11px; padding: 3px 10px; background: rgba(99,102,241,0.15); color: #b4b8ff; border-radius: 10px; }
+    :root.light .pack-card .skill-tag { background: rgba(79,70,229,0.1); color: #4f46e5; font-weight: 600; }
+    .pack-card .meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-muted); }
+    .pack-card .badge { position: absolute; top: 16px; right: 16px; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
     .badge-hot { background: var(--orange); color: #000; }
+    .badge-new { background: var(--green); color: #000; }
     
-    /* CTA */
-    .cta-section {
-      margin-top: 60px;
-      text-align: center;
-      padding: 50px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-    }
-    .cta-section h2 {
-      font-size: 24px;
-      margin-bottom: 12px;
-    }
-    .cta-section p {
-      color: #c0c0c8;
-      margin-bottom: 20px;
-      font-size: 14px;
-    }
-    .cta-section .btn {
-      display: inline-block;
-      padding: 12px 32px;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 600;
-      text-decoration: none;
-      color: white;
-      background: var(--gradient);
-      transition: all 0.2s;
-    }
-    .cta-section .btn:hover {
-      transform: scale(1.03);
-      box-shadow: 0 8px 25px rgba(99,102,241,0.4);
-    }
+    .cta-section { margin-top: 60px; text-align: center; padding: 50px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; }
+    .cta-section h2 { font-size: 24px; margin-bottom: 12px; }
+    .cta-section p { color: var(--text-muted); margin-bottom: 20px; font-size: 14px; }
+    .cta-section .btn { display: inline-block; padding: 12px 32px; border-radius: 10px; font-size: 15px; font-weight: 600; text-decoration: none; color: white; background: var(--gradient); transition: all 0.2s; }
+    .cta-section .btn:hover { transform: scale(1.03); box-shadow: 0 8px 25px rgba(99,102,241,0.4); }
     
-    footer {
-      text-align: center;
-      padding: 40px 20px;
-      color: #c0c0c8;
-      font-size: 13px;
-      border-top: 1px solid var(--border);
-      margin-top: 40px;
-    }
+    footer { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); margin-top: 40px; }
     footer a { color: var(--accent-glow); text-decoration: none; }
     
-    @media (max-width: 600px) {
-      .header h1 { font-size: 28px; }
-      .pack-grid { grid-template-columns: 1fr; }
-      .stats-bar { gap: 16px; }
-    }
-  
-    .theme-toggle {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 20px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      transition: all 0.3s;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-    }
-    :root.light .theme-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-    .lang-toggle {
-      position: fixed;
-      bottom: 76px;
-      right: 24px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      transition: all 0.3s;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-      font-family: inherit;
-      line-height: 1;
-    }
-    :root.light .lang-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-    .lang-toggle:hover {
-      transform: scale(1.1);
-      border-color: var(--accent);
-    }
-    .lang-toggle {
-      position: fixed; bottom: 76px; right: 24px; width: 44px; height: 44px; border-radius: 50%;
-      background: var(--card-bg); border: 1px solid var(--border); color: var(--text);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      z-index: 999; transition: all 0.3s; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-      font-size: 14px; font-weight: 700; font-family: inherit;
-    }
-    :root.light .lang-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-    .lang-toggle:hover { transform: scale(1.1); border-color: var(--accent); }
-    .theme-toggle:hover {
-      transform: scale(1.1);
-      border-color: var(--accent);
-    }
-  
-    .lang-zh, .lang-en { display: none; }
-    html[data-lang="zh"] .lang-zh, html[data-lang="en"] .lang-en { display: revert; }
+    .lang-toggle, .theme-toggle { position: fixed; right: 24px; width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 999; transition: all 0.3s; box-shadow: 0 2px 12px rgba(0,0,0,0.15); font-size: 14px; font-weight: 700; font-family: inherit; }
+    .theme-toggle { bottom: 24px; font-size: 20px; }
+    .lang-toggle { bottom: 76px; }
+    .lang-toggle:hover, .theme-toggle:hover { transform: scale(1.1); border-color: var(--accent); }
+    
+    @media (max-width: 600px) { .header h1 { font-size: 28px; } .pack-grid { grid-template-columns: 1fr; } .stats-bar { gap: 16px; } }
   </style>
 </head>
 <body>
-
 <div class="container">
   <a href="/" class="back-link">← 返回 ZierClaw 首页</a>
-
-  <section class="header">
-    <h1>🧩 技能商店</h1>
-    <p>装什么技能，ZierClaw 就变成什么员工</p>
-  </section>
+  <section class="header"><h1>🧩 技能商店</h1><p>装什么技能，ZierClaw 就变成什么员工</p></section>
 
   <div class="search-bar">
     <span class="search-icon">🔍</span>
-    <input type="text" placeholder="搜索技能... 如：天气、邮件、股票" id="searchInput" oninput="filterSkills()">
+    <input type="text" placeholder="搜索技能... 如：天气、邮件、股票" oninput="filterSkills(this.value)">
   </div>
 
   <div class="stats-bar">
@@ -376,174 +106,106 @@
     <div class="stat"><div class="num">1行命令</div><div class="label">即可安装</div></div>
   </div>
 
-  <!-- ZierClaw 精选 -->
+  <!-- 精选技能包 -->
   <div class="section-title">⭐ ZierClaw 精选技能包</div>
-
   <div class="pack-grid" id="skillGrid">
-    <!-- 超级助理包 -->
     <a href="skills/pack-assistant.html" class="pack-card" data-tags="助理 办公 效率 邮件 日历 文档 搜索 天气">
-      <span class="badge badge-hot">热门</span>
-      <span class="card-icon">🧰</span>
+      <span class="badge badge-hot">热门</span><span class="card-icon">🧰</span>
       <h3>超级助理技能包</h3>
       <p class="desc">邮件管理、日历调度、文档读写、实时搜索、天气查询——日常办公全搞定。</p>
       <div class="skills-inline">
-        <span class="skill-tag">📧 邮件管理</span>
-        <span class="skill-tag">📅 飞书日历</span>
-        <span class="skill-tag">📄 飞书文档</span>
-        <span class="skill-tag">🌐 网页搜索</span>
-        <span class="skill-tag">🌤️ 天气查询</span>
-        <span class="skill-tag">🧠 基础智能</span>
+        <span class="skill-tag">📧 邮件管理</span><span class="skill-tag">📅 飞书日历</span><span class="skill-tag">📄 飞书文档</span><span class="skill-tag">🌐 网页搜索</span><span class="skill-tag">🌤 天气</span><span class="skill-tag">🧠 基础智能</span>
       </div>
-      <div class="meta">
-        <span>⚙️ 需配置飞书 API</span>
-        <span>免费</span>
-      </div>
+      <div class="meta"><span>⚙️ 需飞书API</span><span>免费</span></div>
     </a>
 
-    <!-- 社媒运营包 -->
     <a href="skills/pack-social.html" class="pack-card" data-tags="运营 社媒 公众号 Twitter 小红书 内容 推广">
       <span class="card-icon">📢</span>
       <h3>社媒运营技能包</h3>
       <p class="desc">公众号/Twitter/小红书多平台内容创作、定时发布、数据监测。</p>
       <div class="skills-inline">
-        <span class="skill-tag">💚 微信公众号</span>
-        <span class="skill-tag">🐦 Twitter</span>
-        <span class="skill-tag">📕 小红书</span>
-        <span class="skill-tag">✍️ SEO写作</span>
-        <span class="skill-tag">🧑 文本人性化</span>
+        <span class="skill-tag">💚 微信公众号</span><span class="skill-tag">🐦 Twitter</span><span class="skill-tag">📕 小红书</span><span class="skill-tag">✍️ SEO写作</span><span class="skill-tag">🧑 文本人性化</span>
       </div>
-      <div class="meta">
-        <span>⚙️ 需平台凭证</span>
-        <span>免费</span>
-      </div>
+      <div class="meta"><span>⚙️ 需平台凭证</span><span>免费</span></div>
     </a>
 
-    <!-- 金融数据包 -->
     <a href="skills/pack-finance.html" class="pack-card" data-tags="金融 股票 投资 行情 加密货币 监控">
-      <span class="badge badge-new">新品</span>
-      <span class="card-icon">📈</span>
+      <span class="badge badge-new">新品</span><span class="card-icon">📈</span>
       <h3>金融数据技能包</h3>
       <p class="desc">实时股票监控、加密货币行情、技术指标分析、价格预警。</p>
       <div class="skills-inline">
-        <span class="skill-tag">📊 股票监控</span>
-        <span class="skill-tag">🔍 深度分析</span>
-        <span class="skill-tag">💰 加密货币</span>
-        <span class="skill-tag">🇭🇰 港股投研</span>
+        <span class="skill-tag">📊 股票监控</span><span class="skill-tag">🔍 深度分析</span><span class="skill-tag">💰 加密货币</span><span class="skill-tag">🇭🇰 港股投研</span>
       </div>
-      <div class="meta">
-        <span>📡 实时数据</span>
-        <span>免费</span>
-      </div>
+      <div class="meta"><span>📡 实时数据</span><span>免费</span></div>
     </a>
 
-    <!-- 开发工具包 -->
     <a href="skills/pack-dev.html" class="pack-card" data-tags="开发 代码 GitHub 部署 编程 自动">
       <span class="card-icon">💻</span>
       <h3>开发工具技能包</h3>
       <p class="desc">代码助手、GitHub 管理、自动部署、浏览器调试，开发者必备。</p>
       <div class="skills-inline">
-        <span class="skill-tag">🧬 代码助手</span>
-        <span class="skill-tag">🐙 GitHub操作</span>
-        <span class="skill-tag">🔭 浏览器控制</span>
-        <span class="skill-tag">⚡ 自动化</span>
+        <span class="skill-tag">🧬 代码助手</span><span class="skill-tag">🐙 GitHub</span><span class="skill-tag">🔭 浏览器控制</span><span class="skill-tag">⚡ 自动化</span>
       </div>
-      <div class="meta">
-        <span>🛠️ 即装即用</span>
-        <span>免费</span>
-      </div>
+      <div class="meta"><span>🛠️ 即装即用</span><span>免费</span></div>
     </a>
 
-    <!-- 写作创作包 -->
     <a href="skills/pack-writing.html" class="pack-card" data-tags="写作 创作 博客 PDF 文章 内容">
       <span class="card-icon">✍️</span>
       <h3>写作创作技能包</h3>
       <p class="desc">博客长文、SEO优化、PDF生成、视频总结、多平台发布。</p>
       <div class="skills-inline">
-        <span class="skill-tag">✍️ 博客写手</span>
-        <span class="skill-tag">🔍 SEO写作</span>
-        <span class="skill-tag">📄 PDF生成</span>
-        <span class="skill-tag">🎬 视频总结</span>
+        <span class="skill-tag">✍️ 博客写手</span><span class="skill-tag">🔍 SEO写作</span><span class="skill-tag">📄 PDF生成</span><span class="skill-tag">🎬 视频总结</span>
       </div>
-      <div class="meta">
-        <span>📝 全自动</span>
-        <span>免费</span>
-      </div>
+      <div class="meta"><span>📝 全自动</span><span>免费</span></div>
     </a>
 
-    <!-- AI创作包 -->
     <a href="skills/pack-ai.html" class="pack-card" data-tags="AI 图片 语音 视频 生成 创作">
       <span class="card-icon">🎨</span>
       <h3>AI 创作技能包</h3>
       <p class="desc">AI 生图、语音合成、视频制作、音乐生成，全栈 AIGC 能力。</p>
       <div class="skills-inline">
-        <span class="skill-tag">🖼️ AI生图</span>
-        <span class="skill-tag">🎙️ 语音合成</span>
-        <span class="skill-tag">🎬 AI视频</span>
-        <span class="skill-tag">🎵 音乐生成</span>
+        <span class="skill-tag">🖼️ AI生图</span><span class="skill-tag">🎙️ 语音合成</span><span class="skill-tag">🎬 AI视频</span><span class="skill-tag">🎵 音乐生成</span>
       </div>
-      <div class="meta">
-        <span>⚙️ 需 API Key</span>
-        <span>免费</span>
-      </div>
-    </div>
+      <div class="meta"><span>⚙️ 需API Key</span><span>免费</span></div>
+    </a>
   </div>
 
-  <!-- DIY 技能 -->
+  <!-- 自制技能 -->
   <div class="section-title">🔧 ZierClaw 自制技能 <span class="count">（可安全发布）</span></div>
-
   <div class="pack-grid">
     <a href="skills/ocr.html" class="pack-card" data-tags="OCR 识别 截图 图片 文字">
-      <span class="badge badge-new">自制</span>
-      <span class="card-icon">👁️</span>
+      <span class="badge badge-new">自制</span><span class="card-icon">👁️</span>
       <h3>OCR 图片识别</h3>
       <p class="desc">本地 OCR 引擎，支持中英文混合识别。截图秒转文字，无需联网。</p>
       <div class="skills-inline">
-        <span class="skill-tag">tesseract.js</span>
-        <span class="skill-tag">中文+英文</span>
-        <span class="skill-tag">纯本地</span>
+        <span class="skill-tag">tesseract.js</span><span class="skill-tag">中文+英文</span><span class="skill-tag">纯本地</span>
       </div>
-      <div class="meta">
-        <span>📦 即装即用</span>
-        <span>免费 · 开源</span>
-      </div>
-    </div>
+      <div class="meta"><span>📦 即装即用</span><span>免费 · 开源</span></div>
+    </a>
 
     <a href="skills/crypto.html" class="pack-card" data-tags="加密 货币 行情 BTC ETH 价格">
-      <span class="badge badge-new">自制</span>
-      <span class="card-icon">🪙</span>
+      <span class="badge badge-new">自制</span><span class="card-icon">🪙</span>
       <h3>加密货币行情</h3>
       <p class="desc">实时 BTC/ETH 价格查询，多交易所交叉验证，支持定时播报。</p>
       <div class="skills-inline">
-        <span class="skill-tag">CoinGecko</span>
-        <span class="skill-tag">Coinbase</span>
-        <span class="skill-tag">Binance</span>
+        <span class="skill-tag">CoinGecko</span><span class="skill-tag">Coinbase</span><span class="skill-tag">Binance</span>
       </div>
-      <div class="meta">
-        <span>📡 实时数据</span>
-        <span>免费</span>
-      </div>
-    </div>
+      <div class="meta"><span>📡 实时数据</span><span>免费</span></div>
+    </a>
 
     <a href="skills/self-evolution.html" class="pack-card" data-tags="进化 优化 分析 学习 自动">
-      <span class="badge badge-new">自制</span>
-      <span class="card-icon">🧬</span>
+      <span class="badge badge-new">自制</span><span class="card-icon">🧬</span>
       <h3>自我进化引擎</h3>
       <p class="desc">分析运行历史 → 识别能力短板 → 生成改进方案 → 越用越聪明。</p>
       <div class="skills-inline">
-        <span class="skill-tag">框架模板</span>
-        <span class="skill-tag">自主配置</span>
-        <span class="skill-tag">安全可控</span>
+        <span class="skill-tag">框架模板</span><span class="skill-tag">自主配置</span><span class="skill-tag">安全可控</span>
       </div>
-      <div class="meta">
-        <span>🧠 自驱进化</span>
-        <span>免费 · 开源</span>
-      </div>
-    </div>
+      <div class="meta"><span>🧠 自驱进化</span><span>免费 · 开源</span></div>
+    </a>
   </div>
 
   <!-- 社区 -->
   <div class="section-title">🌐 社区技能 <span class="count">（5000+，持续增长）</span></div>
-
   <div class="cta-section">
     <h2>🔍 在 ClawHub 探索更多</h2>
     <p>全球开发者贡献的 5000+ 技能，覆盖办公、开发、金融、社媒、AI 创作等所有领域<br>一行命令安装，即装即用</p>
@@ -556,158 +218,16 @@
   </footer>
 </div>
 
-<script>
-function filterSkills() {
-  const query = document.getElementById('searchInput').value.toLowerCase();
-  const cards = document.querySelectorAll('#skillGrid .pack-card');
-  cards.forEach(card => {
-    const tags = card.getAttribute('data-tags') || '';
-    const text = card.textContent.toLowerCase();
-    if (!query || tags.includes(query) || text.includes(query)) {
-      card.style.display = '';
-    } else {
-      card.style.display = 'none';
-    }
-  });
-}
-</script>
-
-<button class="lang-toggle" onclick="toggleLang()" title="切换中英文 / Switch Language">中</button>
 <button class="lang-toggle" onclick="toggleLang()" title="切换中英文">EN</button>
 <button class="theme-toggle" onclick="toggleTheme()" title="切换日间/深色模式">🌙</button>
-<script>
-(function() {
-  const saved = localStorage.getItem('zrclaw-theme');
-  if (saved === 'light') { document.documentElement.classList.add('light'); }
-})();
-function toggleTheme() {
-  const root = document.documentElement;
-  const isDark = !root.classList.contains('light');
-  root.classList.toggle('light');
-  localStorage.setItem('zrclaw-theme', isDark ? 'light' : 'dark');
-  document.querySelector('.theme-toggle').textContent = isDark ? '☀️' : '🌙';
-}
-// Update icon on load
-(function() {
-  const btn = document.querySelector('.theme-toggle');
-  if (btn) btn.textContent = document.documentElement.classList.contains('light') ? '☀️' : '🌙';
-})();
-</script>
 
 <script>
-const translations = {
-  "技能商店 · ZierClaw": "Skill Store · ZierClaw",
-  "装什么技能，ZierClaw 就变成什么员工": "Install skills, shape your employee",
-  "搜索技能... 如：天气、邮件、股票": "Search skills... e.g. weather, email, stocks",
-  "技能包": "Packs",
-  "自制技能": "Custom Skills",
-  "社区技能": "Community Skills",
-  "1行命令": "1 Command",
-  "即可安装": "to Install",
-  "ZierClaw 精选技能包": "Featured Skill Packs",
-  "热门": "Hot",
-  "新品": "New",
-  "超级助理技能包": "Super Assistant Pack",
-  "邮件管理、日历调度、文档读写、实时搜索、天气查询——日常办公全搞定。": "Email, calendar, docs, search, weather — all your daily office needs.",
-  "需配置飞书 API": "Feishu API required",
-  "免费": "Free",
-  "社媒运营技能包": "Social Media Pack",
-  "公众号/Twitter/小红书多平台内容创作、定时发布、数据监测。": "WeChat/Twitter/Xiaohongshu multi-platform content creation and analytics.",
-  "需平台凭证": "Platform credentials required",
-  "金融数据技能包": "Financial Data Pack",
-  "实时股票监控、加密货币行情、技术指标分析、价格预警。": "Real-time stocks, crypto prices, technical indicators, alerts.",
-  "实时数据": "Real-time Data",
-  "开发工具技能包": "Dev Tools Pack",
-  "代码助手、GitHub 管理、自动部署、浏览器调试，开发者必备。": "Code assistant, GitHub management, auto-deploy, browser debugging.",
-  "即装即用": "Ready to Use",
-  "写作创作技能包": "Writing Tools Pack",
-  "博客长文、SEO优化、PDF生成、视频总结、多平台发布。": "Blog posts, SEO writing, PDF generation, video summaries.",
-  "全自动": "Fully Automated",
-  "AI 创作技能包": "AI Creative Pack",
-  "AI 生图、语音合成、视频制作、音乐生成，全栈 AIGC 能力。": "AI image gen, TTS, video creation, music gen. Full-stack AIGC.",
-  "需 API Key": "API Key Required",
-  "ZierClaw 自制技能": "ZierClaw Custom Skills",
-  "可安全发布": "Safe to Publish",
-  "本地 OCR 引擎，支持中英文混合识别。截图秒转文字，无需联网。": "Local OCR engine. Chinese + English. Screenshot to text, no internet needed.",
-  "中文+英文": "CN + EN",
-  "纯本地": "Fully Local",
-  "免费 · 开源": "Free · Open Source",
-  "实时 BTC/ETH 价格查询，多交易所交叉验证，支持定时播报。": "Real-time BTC/ETH. Multi-exchange cross-verification. Scheduled alerts.",
-  "分析运行历史 → 识别能力短板 → 生成改进方案 → 越用越聪明。": "Analyze history → find gaps → generate plans. Gets smarter every day.",
-  "框架模板": "Framework Template",
-  "自主配置": "Self-Configured",
-  "安全可控": "Safe & Controllable",
-  "自驱进化": "Self-Evolving",
-  "（5000+，持续增长）": "(5000+, growing)",
-  "在 ClawHub 探索更多": "Explore More on ClawHub",
-  "全球开发者贡献的 5000+ 技能，覆盖办公、开发、金融、社媒、AI 创作等所有领域": "5000+ community skills across office, dev, finance, social, AI creation",
-  "一行命令安装，即装即用": "One command to install. Ready to use instantly.",
-  "打开 ClawHub 技能市场 →": "Open ClawHub Skill Market →",
-  "ZierClaw 技能商店 · 由墨维护 · 脱敏发布，不含任何用户凭证": "ZierClaw Skill Store · Maintained by Mo · Sanitized, no credentials",
-  "返回 ZierClaw 首页": "← Back to ZierClaw Home"
-};
-
-function toggleLang() {
-  const root = document.documentElement;
-  const currentLang = root.getAttribute('data-lang') || 'zh';
-  const newLang = currentLang === 'zh' ? 'en' : 'zh';
-  root.setAttribute('data-lang', newLang);
-  localStorage.setItem('zrclaw-lang', newLang);
-  document.querySelector('.lang-toggle').textContent = newLang === 'zh' ? '中' : 'EN';
-  applyTranslations(newLang);
-}
-
-function applyTranslations(lang) {
-  document.querySelectorAll('[data-t]').forEach(el => {
-    el.textContent = lang === 'en' ? translations[el.getAttribute('data-t')] || el.textContent : el.getAttribute('data-orig') || el.textContent;
-  });
-}
-
-// Initialize: mark all translatable text with data-t attributes
-(function initI18n() {
-  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-  const textNodes = [];
-  while (walker.nextNode()) {
-    const node = walker.currentNode;
-    const text = node.textContent.trim();
-    if (!text || text.length < 2) continue;
-    if (node.parentElement && node.parentElement.closest('script,style,.theme-toggle,.lang-toggle,button.header-toggle')) continue;
-    textNodes.push(node);
-  }
-  
-  // Process each text node - find translation match
-  const reverseMap = {};
-  for (const [zh, en] of Object.entries(translations)) {
-    reverseMap[zh.trim()] = en;
-  }
-  
-  textNodes.forEach(node => {
-    const text = node.textContent.trim();
-    const match = translations[text];
-    if (match) {
-      const span = document.createElement('span');
-      span.setAttribute('data-t', text);
-      span.setAttribute('data-orig', text);
-      span.textContent = text;
-      node.parentNode.replaceChild(span, node);
-    }
-  });
-  
-  // Restore saved language
-  const saved = localStorage.getItem('zrclaw-lang');
-  if (saved) {
-    document.documentElement.setAttribute('data-lang', saved);
-    document.querySelector('.lang-toggle').textContent = saved === 'zh' ? '中' : 'EN';
-    applyTranslations(saved);
-  } else {
-    document.querySelector('.lang-toggle').textContent = '中';
-  }
-})();
-</script>
-
-<script>
+(function(){ if(localStorage.getItem('zrclaw-theme')==='light')document.documentElement.classList.add('light'); })();
+function toggleTheme(){ var r=document.documentElement,d=!r.classList.contains('light');r.classList.toggle('light');localStorage.setItem('zrclaw-theme',d?'light':'dark');document.querySelector('.theme-toggle').textContent=d?'☀️':'🌙'; }
+(function(){ var b=document.querySelector('.theme-toggle');if(b)b.textContent=document.documentElement.classList.contains('light')?'☀️':'🌙'; })();
 (function(){ var s=localStorage.getItem('zrclaw-lang')||'zh';document.documentElement.setAttribute('data-lang',s);document.querySelector('.lang-toggle').textContent=s==='zh'?'EN':'中'; })();
 function toggleLang(){ var r=document.documentElement,c=r.getAttribute('data-lang')==='zh'?'en':'zh';r.setAttribute('data-lang',c);localStorage.setItem('zrclaw-lang',c);document.querySelector('.lang-toggle').textContent=c==='zh'?'EN':'中'; }
+function filterSkills(q){ q=q.toLowerCase();var cards=document.querySelectorAll('#skillGrid .pack-card');cards.forEach(function(c){ var t=c.getAttribute('data-tags')||'';c.style.display=(!q||t.indexOf(q)>-1)?'':'none'; }); }
 </script>
 </body>
 </html>
