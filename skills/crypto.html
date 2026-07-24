@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head><meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg">`n  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>加密货币行情 · ZierClaw</title>
 <style>
 :root { --bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#c0c0c8;--accent:#6366f1;--accent-glow:#818cf8;--border:#1e1e2e;--green:#22c55e;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899) }
@@ -43,49 +43,46 @@ html[data-lang="zh"] .lang-zh, html[data-lang="en"] .lang-en { display:revert }
 </style></head>
 <body>
 <div class="container">
-<a href="/skills.html" class="back-link"><span class="lang-zh">← 返回技能商店</span><span class="lang-en">← Back to Skill Store</span></a>
+<a href="/skills.html" class="back-link"><span class="lang-zh">�?返回技能商�?/span><span class="lang-en">�?Back to Skill Store</span></a>
 <section class="detail-hero">
 <span class="icon">💰</span>
 <h1>加密货币行情</h1>
-<div class="meta"><span class="lang-zh">📦 ZierClaw 自制技能</span><span class="lang-en">📦 ZierClaw Custom Skill</span><span> · </span><span class="lang-zh">免费 · 开源</span><span class="lang-en">Free · Open Source</span></div>
+<div class="meta"><span class="lang-zh">📦 ZierClaw 自制技�?/span><span class="lang-en">📦 ZierClaw Custom Skill</span><span> · </span><span class="lang-zh">免费 · 开�?/span><span class="lang-en">Free · Open Source</span></div>
 </section>
 <div class="content-section">
-<h2><span class="lang-zh">💡 技能说明</span><span class="lang-en">💡 Description</span></h2>
-<div class="lang-zh"><p>实时 BTC/ETH 价格查询，多交易所交叉验证。支持 CoinGecko + Coinbase + Binance.US 三源数据，自动播报。通过 web_fetch 获取 API 数据，无需额外配置。</p></div>
-<div class="lang-en"><p>Real-time BTC/ETH price queries with multi-exchange cross-verification. Triple-source: CoinGecko + Coinbase + Binance.US. Auto-alert via cron. Uses web_fetch for API data — no extra configuration needed.</p></div>
+<h2><span class="lang-zh">💡 技能说�?/span><span class="lang-en">💡 Description</span></h2>
+<div class="lang-zh"><p>实时 BTC/ETH 价格查询，多交易所交叉验证。支�?CoinGecko + Coinbase + Binance.US 三源数据，自动播报。通过 web_fetch 获取 API 数据，无需额外配置�?/p></div>
+<div class="lang-en"><p>Real-time BTC/ETH price queries with multi-exchange cross-verification. Triple-source: CoinGecko + Coinbase + Binance.US. Auto-alert via cron. Uses web_fetch for API data �?no extra configuration needed.</p></div>
 <div class="tags"><span class="tag">CoinGecko</span> <span class="tag">Coinbase</span> <span class="tag">Binance.US</span> <span class="tag">多交易所</span></div>
 </div>
 <div class="use-cases">
 <h2><span class="lang-zh">💬 你可以这样说</span><span class="lang-en">💬 You Can Say</span></h2>
 <div class="use-case-grid">
-<div class="use-case"><div class="q">"比特币现在多少钱"</div></div><div class="use-case"><div class="q">"查一下 ETH 价格"</div></div><div class="use-case"><div class="q">"BTC 过去一周走势"</div></div>
+<div class="use-case"><div class="q">"比特币现在多少钱"</div></div><div class="use-case"><div class="q">"查一�?ETH 价格"</div></div><div class="use-case"><div class="q">"BTC 过去一周走�?</div></div>
 </div>
 </div>
 <div class="copy-section">
 <h2><span class="lang-zh">📋 一键安装提示词</span><span class="lang-en">📋 One-Click Install Prompt</span></h2>
-<p class="sub"><span class="lang-zh">复制以下提示词，粘贴给你的 OpenClaw</span><span class="lang-en">Copy and paste to your OpenClaw</span></p>
-<div class="code-block" id="promptCode">请帮我配置加密货币行情监控
-
-使用 web_fetch 访问以下 API 获取实时价格：
-- CoinGecko: https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd
+<p class="sub"><span class="lang-zh">复制以下提示词，粘贴给你�?OpenClaw</span><span class="lang-en">Copy and paste to your OpenClaw</span></p>
+<div class="code-block" id="promptCode">请帮我配置加密货币行情监�?
+使用 web_fetch 访问以下 API 获取实时价格�?- CoinGecko: https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd
 - Coinbase: https://api.coinbase.com/v2/prices/BTC-USD/spot
 - Binance.US: https://api.binance.us/api/v3/ticker/price?symbol=BTCUSDT
 
-可以将这些 API 调用包装成命令，支持用户直接查询。
-如需定时播报，可设置 cron job。</div>
+可以将这�?API 调用包装成命令，支持用户直接查询�?如需定时播报，可设置 cron job�?/div>
 <button class="btn" onclick="copyPrompt()"><span class="lang-zh">📋 一键复制提示词</span><span class="lang-en">📋 Copy Prompt</span></button>
-<div class="copied" id="copiedMsg"><span class="lang-zh">✅ 已复制！</span><span class="lang-en">✅ Copied!</span></div>
+<div class="copied" id="copiedMsg"><span class="lang-zh">�?已复制！</span><span class="lang-en">�?Copied!</span></div>
 </div>
 <footer><p>ZierClaw · <a href="/skills.html">Skill Store</a></p></footer>
 </div>
-<button class="lang-toggle" onclick="toggleLang()" title="切换中英文">EN</button>
+<button class="lang-toggle" onclick="toggleLang()" title="切换中英�?>EN</button>
 <button class="theme-toggle" onclick="toggleTheme()" title="切换日间/深色模式">🌙</button>
 <script>
 (function(){ if(localStorage.getItem('zrclaw-theme')==='light')document.documentElement.classList.add('light'); })();
-function toggleTheme(){ var r=document.documentElement,d=!r.classList.contains('light');r.classList.toggle('light');localStorage.setItem('zrclaw-theme',d?'light':'dark');document.querySelector('.theme-toggle').textContent=d?'☀️':'🌙'; }
-(function(){ var b=document.querySelector('.theme-toggle');if(b)b.textContent=document.documentElement.classList.contains('light')?'☀️':'🌙'; })();
-(function(){ var s=localStorage.getItem('zrclaw-lang')||'zh';document.documentElement.setAttribute('data-lang',s);document.querySelector('.lang-toggle').textContent=s==='zh'?'EN':'中'; })();
-function toggleLang(){ var r=document.documentElement,c=r.getAttribute('data-lang')==='zh'?'en':'zh';r.setAttribute('data-lang',c);localStorage.setItem('zrclaw-lang',c);document.querySelector('.lang-toggle').textContent=c==='zh'?'EN':'中'; }
+function toggleTheme(){ var r=document.documentElement,d=!r.classList.contains('light');r.classList.toggle('light');localStorage.setItem('zrclaw-theme',d?'light':'dark');document.querySelector('.theme-toggle').textContent=d?'☀�?:'🌙'; }
+(function(){ var b=document.querySelector('.theme-toggle');if(b)b.textContent=document.documentElement.classList.contains('light')?'☀�?:'🌙'; })();
+(function(){ var s=localStorage.getItem('zrclaw-lang')||'zh';document.documentElement.setAttribute('data-lang',s);document.querySelector('.lang-toggle').textContent=s==='zh'?'EN':'�?; })();
+function toggleLang(){ var r=document.documentElement,c=r.getAttribute('data-lang')==='zh'?'en':'zh';r.setAttribute('data-lang',c);localStorage.setItem('zrclaw-lang',c);document.querySelector('.lang-toggle').textContent=c==='zh'?'EN':'�?; }
 function copyPrompt(){ navigator.clipboard.writeText(document.getElementById('promptCode').innerText).then(()=>{ document.getElementById('copiedMsg').style.display='block';setTimeout(()=>{document.getElementById('copiedMsg').style.display='none'},4000);}); }
 </script>
 </body></html>
