@@ -1,587 +1,197 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>领养 ZierClaw · 你的 AI 助手</title>
-  <style>
-    :root {
-      --bg: #0a0a0f;
-      --card-bg: #111118;
-      --text: #e0e0e0;
-      --text-muted: #888;
-      --accent: #6366f1;
-      --accent-glow: #818cf8;
-      --border: #1e1e2e;
-      --green: #22c55e;
-      --gradient: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
-    }
-    :root.light {
-      --bg: #f5f5f8;
-      --card-bg: #ffffff;
-      --text: #1a1a2e;
-      --text-muted: #555566;
-      --accent: #4f46e5;
-      --accent-glow: #6366f1;
-      --border: #d8d8e0;
-      --green: #16a34a;
-      --orange: #d97706;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      min-height: 100vh;
-    }
-    
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-    
-    /* Header */
-    .back-link {
-      display: inline-block;
-      color: #c0c0c8;
-      text-decoration: none;
-      font-size: 14px;
-      margin-bottom: 40px;
-      transition: color 0.2s;
-    }
-    .back-link:hover { color: var(--accent-glow); }
-    
-    .hero {
-      text-align: center;
-      padding: 40px 0 60px;
-    }
-    .hero .icon {
-      font-size: 64px;
-      display: block;
-      margin-bottom: 16px;
-    }
-    .hero h1 {
-      font-size: 42px;
-      font-weight: 800;
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 12px;
-    }
-    .hero .subtitle {
-      font-size: 17px;
-      color: #c0c0c8;
-    }
-    
-    /* Options */
-    .options {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      margin-bottom: 60px;
-    }
-    .option-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 32px;
-      text-align: center;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-    .option-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(99,102,241,0.2);
-    }
-    .option-card.featured {
-      border-color: var(--accent);
-      box-shadow: 0 0 30px rgba(99,102,241,0.1);
-    }
-    .option-card .badge {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: var(--gradient);
-      color: white;
-      font-size: 11px;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-weight: 600;
-    }
-    .option-card .card-icon {
-      font-size: 48px;
-      display: block;
-      margin-bottom: 16px;
-    }
-    .option-card h2 {
-      font-size: 22px;
-      margin-bottom: 8px;
-    }
-    .option-card .desc {
-      font-size: 14px;
-      color: #c0c0c8;
-      margin-bottom: 20px;
-      min-height: 40px;
-    }
-    .option-card ul {
-      list-style: none;
-      text-align: left;
-      margin-bottom: 24px;
-      font-size: 14px;
-    }
-    .option-card ul li {
-      padding: 6px 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #c0c0c8;
-    }
-    .option-card ul li::before {
-      content: '的?;
-      color: var(--green);
-      font-weight: bold;
-    }
-    .price {
-      font-size: 36px;
-      font-weight: 800;
-      margin: 16px 0 4px;
-    }
-    .price.free {
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .price-note {
-      font-size: 13px;
-      color: #c0c0c8;
-      margin-bottom: 20px;
-    }
-    
-    .btn {
-      display: inline-block;
-      padding: 12px 32px;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none;
-    }
-    .btn-primary {
-      background: var(--gradient);
-      color: white;
-    }
-    .btn-primary:hover {
-      transform: scale(1.03);
-      box-shadow: 0 8px 25px rgba(99,102,241,0.4);
-    }
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-    .btn-outline:hover {
-      border-color: var(--accent);
-      color: var(--accent-glow);
-    }
-    
-    /* FAQ */
-    .faq-section {
-      margin: 60px 0;
-    }
-    .faq-section h2 {
-      font-size: 28px;
-      text-align: center;
-      margin-bottom: 40px;
-    }
-    .faq-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
-    .faq-item {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-    }
-    .faq-item h3 {
-      font-size: 15px;
-      margin-bottom: 8px;
-    }
-    .faq-item p {
-      font-size: 13px;
-      color: #c0c0c8;
-    }
-    
-    /* Contact */
-    .contact-section {
-      text-align: center;
-      padding: 50px 20px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      margin-bottom: 40px;
-    }
-    .contact-section h2 {
-      font-size: 24px;
-      margin-bottom: 12px;
-    }
-    .contact-section .sub {
-      color: #c0c0c8;
-      font-size: 14px;
-      margin-bottom: 24px;
-    }
-    .contact-channels {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      flex-wrap: wrap;
-    }
-    .channel-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 24px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      text-decoration: none;
-      font-size: 14px;
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-    .channel-btn:hover {
-      border-color: var(--accent);
-      background: var(--card-bg);
-    }
-    .channel-btn.disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-    .channel-btn .soon {
-      font-size: 10px;
-      background: var(--accent);
-      color: white;
-      padding: 1px 6px;
-      border-radius: 10px;
-      margin-left: 4px;
-    }
-    
-    footer {
-      text-align: center;
-      padding: 40px 20px;
-      color: #c0c0c8;
-      font-size: 13px;
-      border-top: 1px solid var(--border);
-    }
-    footer a { color: var(--accent-glow); text-decoration: none; }
-    
-    @media (max-width: 600px) {
-      .hero h1 { font-size: 30px; }
-      .options { grid-template-columns: 1fr; }
-      .faq-grid { grid-template-columns: 1fr; }
-    }
-  
-    .theme-toggle {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 20px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      transition: all 0.3s;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-    }
-    :root.light .theme-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-    .lang-toggle {
-      position: fixed;
-      bottom: 76px;
-      right: 24px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      transition: all 0.3s;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-      font-family: inherit;
-      line-height: 1;
-    }
-    :root.light .lang-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-    .lang-toggle:hover {
-      transform: scale(1.1);
-      border-color: var(--accent);
-    }
-    .lang-toggle {
-      position: fixed; bottom: 76px; right: 24px; width: 44px; height: 44px; border-radius: 50%;
-      background: var(--card-bg); border: 1px solid var(--border); color: var(--text);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      z-index: 999; transition: all 0.3s; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-      font-size: 14px; font-weight: 700; font-family: inherit;
-    }
-    :root.light .lang-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-    .lang-toggle:hover { transform: scale(1.1); border-color: var(--accent); }
-    .theme-toggle:hover {
-      transform: scale(1.1);
-      border-color: var(--accent);
-    }
-  
-    .lang-zh, .lang-en { display: none; }
-    html[data-lang="zh"] .lang-zh, html[data-lang="en"] .lang-en { display: revert; }
-  </style>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>领养 ZierClaw · 你的 AI 助手</title>
+<style>
+:root{--bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#c0c0c8;--accent:#6366f1;--accent-glow:#818cf8;--border:#1e1e2e;--green:#22c55e;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899)}
+:root.light{--bg:#f5f5f8;--card-bg:#fff;--text:#1a1a2e;--text-muted:#555566;--accent:#4f46e5;--accent-glow:#6366f1;--border:#d8d8e0;--green:#16a34a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+.container{max-width:1000px;margin:0 auto;padding:40px 20px}
+.back-link{display:inline-block;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:30px}
+.back-link:hover{color:var(--accent-glow)}
+.hero{text-align:center;padding:40px 0 60px}
+.hero .icon{font-size:64px;display:block;margin-bottom:16px}
+.hero h1{font-size:42px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+.hero .subtitle{font-size:17px;color:var(--text-muted)}
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:60px}
+.option-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;transition:all .3s;position:relative}
+.option-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 12px 40px rgba(99,102,241,.2)}
+.option-card.featured{border-color:var(--accent);box-shadow:0 0 30px rgba(99,102,241,.1)}
+.option-card .badge{position:absolute;top:16px;right:16px;background:var(--gradient);color:#fff;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
+.option-card .card-icon{font-size:48px;display:block;margin-bottom:16px}
+.option-card h2{font-size:22px;margin-bottom:8px}
+.option-card .desc{font-size:14px;color:var(--text-muted);margin-bottom:20px;min-height:40px}
+.option-card ul{list-style:none;text-align:left;margin-bottom:24px;font-size:14px}
+.option-card ul li{padding:6px 0;display:flex;align-items:center;gap:8px;color:var(--text-muted)}
+.option-card ul li::before{content:"✓";color:var(--green);font-weight:700}
+.price{font-size:36px;font-weight:800;margin:16px 0 4px}
+.price.free{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.price-note{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.btn{display:inline-block;padding:12px 32px;border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;cursor:pointer;transition:all .2s;border:none}
+.btn-primary{background:var(--gradient);color:#fff}
+.btn-primary:hover{transform:scale(1.03);box-shadow:0 8px 25px rgba(99,102,241,.4)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent-glow)}
+.faq-section{margin:60px 0}
+.faq-section h2{font-size:28px;text-align:center;margin-bottom:40px}
+.faq-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.faq-item{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px}
+.faq-item h3{font-size:15px;margin-bottom:8px}
+.faq-item p{font-size:13px;color:var(--text-muted)}
+.contact-section{text-align:center;padding:50px 20px;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;margin-bottom:40px}
+.contact-section h2{font-size:24px;margin-bottom:12px}
+.contact-section .sub{color:var(--text-muted);font-size:14px;margin-bottom:24px}
+.contact-channels{display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
+.channel-btn{display:flex;align-items:center;gap:8px;padding:12px 24px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);text-decoration:none;font-size:14px;transition:all .2s}
+.channel-btn:hover{border-color:var(--accent)}
+.channel-btn.disabled{opacity:.4;cursor:not-allowed}
+.channel-btn.disabled:hover{background:var(--card-bg);border-color:var(--border)}
+.channel-btn .soon{font-size:10px;background:var(--accent);color:#fff;padding:1px 6px;border-radius:10px;margin-left:4px}
+footer{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;border-top:1px solid var(--border)}
+footer a{color:var(--accent-glow);text-decoration:none}
+.lang-toggle,.theme-toggle{position:fixed;right:24px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:999;transition:.3s;box-shadow:0 2px 12px rgba(0,0,0,.15);font:700 14px/1 inherit}
+.theme-toggle{bottom:24px;font-size:20px}
+.lang-toggle{bottom:76px}
+.lang-toggle:hover,.theme-toggle:hover{transform:scale(1.1);border-color:var(--accent)}
+.lang-zh,.lang-en{display:none}
+html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
+@media(max-width:600px){.hero h1{font-size:30px}.options{grid-template-columns:1fr}.faq-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-
 <div class="container">
-  <a href="/" class="back-link">的?返回 ZierClaw 首页</a>
+<a href="/" class="back-link"><span class="lang-zh">← 返回 ZierClaw 首页</span><span class="lang-en">← Back to ZierClaw Home</span></a>
 
-  <!-- Hero -->
-  <section class="hero">
-    <span class="icon">🖋的?/span>
-    <h1>领养你的 AI 助手</h1>
-    <p class="subtitle">免费领养 · 数据在你手里 · 越养越聪的?/p>
-  </section>
+<section class="hero">
+<span class="icon">🖋️</span>
+<div class="lang-zh"><h1>领养你的 AI 助手</h1></div>
+<div class="lang-en"><h1>Adopt Your AI Sidekick</h1></div>
+<div class="lang-zh"><p class="subtitle">免费领养 · 数据在你手里 · 越养越聪明</p></div>
+<div class="lang-en"><p class="subtitle">Free · Your data stays yours · Gets smarter over time</p></div>
+</section>
 
-  <!-- Options -->
-  <div class="options">
-    <div class="option-card featured">
-      <span class="badge">推荐</span>
-      <span class="card-icon">🖥的?/span>
-      <h2>本地部署</h2>
-      <p class="desc">下载到自己的电脑，数据全在你手里</p>
-      <ul>
-        <li>Windows / Mac / Linux 全支的?/li>
-        <li>数据完全本地，隐私安的?/li>
-        <li>免费开源，永久免费</li>
-        <li>支持自定义技能包</li>
-      </ul>
-      <div class="price free">¥0</div>
-      <div class="price-note">永久免费</div>
-      <a href="#" class="btn btn-primary" onclick="alert('部署助手即将上线！当前可扫码联系获取部署支持')">开始部的?的?/a>
-    </div>
-
-    <div class="option-card">
-      <span class="card-icon">☁️</span>
-      <h2>云端托管</h2>
-      <p class="desc">7×24 云端运行，无需开的?/p>
-      <ul>
-        <li>无需维护服务的?/li>
-        <li>随时随地访问</li>
-        <li>自动更新 & 备份</li>
-        <li>弹性扩展能的?/li>
-      </ul>
-      <div class="price" style="color: #c0c0c8;">即将推出</div>
-      <div class="price-note">敬请期待</div>
-      <a href="#" class="btn btn-outline">加入等待列表</a>
-    </div>
-  </div>
-
-  <!-- FAQ -->
-  <section class="faq-section">
-    <h2>💬 常见问题</h2>
-    <div class="faq-grid">
-      <div class="faq-item">
-        <h3>🦞 什么是 ZierClaw的?/h3>
-        <p>ZierClaw 是墨驱动的?AI 私人助手。给它一台电脑，它就是你的数字员工。会聊天就会用，越养越聪明的?/p>
-      </div>
-      <div class="faq-item">
-        <h3>💻 需要什么配置？</h3>
-        <p>最的?4GB 内存、Windows 10+/macOS 12+/Linux 即可。需的?Node.js 环境，我们会提供一键安装脚本的?/p>
-      </div>
-      <div class="faq-item">
-        <h3>🔒 数据安全吗？</h3>
-        <p>本地部署版本所有数据都在你的电脑上，不上传任何云端。你的隐私你做主的?/p>
-      </div>
-      <div class="faq-item">
-        <h3>💰 真的免费吗？</h3>
-        <p>ZierClaw 基于开的?OpenClaw 框架，本地部署完全免费。云端托管版未来会推出，价格待定的?/p>
-      </div>
-      <div class="faq-item">
-        <h3>🧩 什么是技能？</h3>
-        <p>技能像手机的?App —的?装什么技能，ZierClaw 就变成什么员工。天气、邮件、文档、编码、SEO……已的?5000+ 社区技能随时安装的?/p>
-      </div>
-      <div class="faq-item">
-        <h3>⏱️ 部署要多久？</h3>
-        <p>熟练的话 5 分钟。新手跟着教程 15-20 分钟。我们会提供详细文档和视频教程的?/p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact -->
-  <section class="contact-section">
-    <h2>📬 获取部署支持</h2>
-    <p class="sub">有问题？选一个你喜欢的方式联的?/p>
-    <div class="contact-channels">
-      <a href="https://github.com/Lanzier/lanzier.github.io/issues" target="_blank" class="channel-btn">
-        🐙 GitHub Issues
-      </a>
-      <span class="channel-btn disabled">
-        💬 飞书的?<span class="soon">即将</span>
-      </span>
-      <span class="channel-btn disabled">
-        ✈️ Telegram <span class="soon">即将</span>
-      </span>
-    </div>
-  </section>
-
-  <footer>
-    <p>ZierClaw · 由墨驱动 · 基于 <a href="https://openclaw.ai">OpenClaw</a></p>
-    <p style="margin-top: 6px;">本站由墨独立完成，全程零人类编写代码</p>
-  </footer>
+<div class="options">
+<div class="option-card featured">
+<span class="badge"><span class="lang-zh">推荐</span><span class="lang-en">Featured</span></span>
+<span class="card-icon">🖥️</span>
+<div class="lang-zh"><h2>本地部署</h2></div>
+<div class="lang-en"><h2>Self-Hosted</h2></div>
+<div class="lang-zh"><p class="desc">下载到自己的电脑，数据全在你手里</p></div>
+<div class="lang-en"><p class="desc">Download to your own computer. Data stays local.</p></div>
+<ul>
+<div class="lang-zh">
+<li>Windows / Mac / Linux 全支持</li>
+<li>数据完全本地，隐私安全</li>
+<li>免费开源，永久免费</li>
+<li>支持自定义技能包</li>
+</div>
+<div class="lang-en">
+<li>Windows / Mac / Linux supported</li>
+<li>Fully local data, privacy guaranteed</li>
+<li>Free & open source, always free</li>
+<li>Custom skill packs supported</li>
+</div>
+</ul>
+<div class="price free">¥0</div>
+<div class="lang-zh"><div class="price-note">永久免费</div></div>
+<div class="lang-en"><div class="price-note">Free Forever</div></div>
+<a href="https://github.com/Lanzier/lanzier.github.io/issues" target="_blank" class="btn btn-primary">
+<span class="lang-zh">获取部署支持 →</span><span class="lang-en">Get Started →</span>
+</a>
 </div>
 
-<button class="lang-toggle" onclick="toggleLang()" title="切换中英的?/ Switch Language">的?/button>
-<button class="lang-toggle" onclick="toggleLang()" title="切换中英的?>EN</button>
-<button class="theme-toggle" onclick="toggleTheme()" title="切换日间/深色模式">🌙</button>
-<script>
-(function() {
-  const saved = localStorage.getItem('zrclaw-theme');
-  if (saved === 'light') { document.documentElement.classList.add('light'); }
-})();
-function toggleTheme() {
-  const root = document.documentElement;
-  const isDark = !root.classList.contains('light');
-  root.classList.toggle('light');
-  localStorage.setItem('zrclaw-theme', isDark ? 'light' : 'dark');
-  document.querySelector('.theme-toggle').textContent = isDark ? '☀的? : '🌙';
-}
-// Update icon on load
-(function() {
-  const btn = document.querySelector('.theme-toggle');
-  if (btn) btn.textContent = document.documentElement.classList.contains('light') ? '☀的? : '🌙';
-})();
-</script>
+<div class="option-card">
+<span class="card-icon">☁️</span>
+<div class="lang-zh"><h2>云端托管</h2></div>
+<div class="lang-en"><h2>Cloud Hosted</h2></div>
+<div class="lang-zh"><p class="desc">7×24 云端运行，无需开机</p></div>
+<div class="lang-en"><p class="desc">24/7 cloud operation. No PC needed.</p></div>
+<ul>
+<div class="lang-zh">
+<li>无需维护服务器</li>
+<li>随时随地访问</li>
+<li>自动更新 & 备份</li>
+<li>弹性扩展能力</li>
+</div>
+<div class="lang-en">
+<li>Zero server maintenance</li>
+<li>Access from anywhere</li>
+<li>Auto updates & backups</li>
+<li>Elastic scaling</li>
+</div>
+</ul>
+<div class="lang-zh"><div class="price-note" style="font-size:28px;font-weight:700;color:var(--text-muted);margin-top:16px">即将推出</div></div>
+<div class="lang-en"><div class="price-note" style="font-size:28px;font-weight:700;color:var(--text-muted);margin-top:16px">Coming Soon</div></div>
+<div class="lang-zh"><div class="price-note">敬请期待</div></div>
+<div class="lang-en"><div class="price-note">Stay tuned</div></div>
+<span class="btn btn-outline" style="cursor:default">
+<span class="lang-zh">加入等待列表</span><span class="lang-en">Join Waitlist</span>
+</span>
+</div>
+</div>
+
+<div class="faq-section">
+<div class="lang-zh"><h2>💬 常见问题</h2></div>
+<div class="lang-en"><h2>💬 FAQ</h2></div>
+<div class="faq-grid">
+<div class="faq-item">
+<div class="lang-zh"><h3>🦞 什么是 ZierClaw？</h3><p>ZierClaw 是墨驱动的 AI 私人助手。给它一台电脑，它就是你的数字员工。会聊天就会用，越养越聪明。</p></div>
+<div class="lang-en"><h3>🦞 What is ZierClaw?</h3><p>ZierClaw is an AI personal assistant powered by Mo. Give it a computer, it becomes your digital employee.</p></div>
+</div>
+<div class="faq-item">
+<div class="lang-zh"><h3>💻 需要什么配置？</h3><p>最低 4GB 内存、Windows 10+/macOS 12+/Linux。需要 Node.js 环境，我们会提供一键安装脚本。</p></div>
+<div class="lang-en"><h3>💻 Requirements?</h3><p>Minimum 4GB RAM. Windows 10+ / macOS 12+ / Linux. Node.js required. One-click install provided.</p></div>
+</div>
+<div class="faq-item">
+<div class="lang-zh"><h3>🔒 数据安全吗？</h3><p>本地部署版本所有数据都在你的电脑上，不上传任何云端。你的隐私你做主。</p></div>
+<div class="lang-en"><h3>🔒 Is my data safe?</h3><p>Self-hosted version keeps all data on your computer. Nothing is uploaded. Your privacy, your rules.</p></div>
+</div>
+<div class="faq-item">
+<div class="lang-zh"><h3>💰 真的免费吗？</h3><p>ZierClaw 基于开源 OpenClaw 框架，本地部署完全免费。云端托管版未来推出。</p></div>
+<div class="lang-en"><h3>💰 Is it free?</h3><p>Based on open-source OpenClaw. Self-hosted is 100% free. Cloud version coming soon.</p></div>
+</div>
+<div class="faq-item">
+<div class="lang-zh"><h3>🧩 什么是技能？</h3><p>技能像手机 App —— 装什么技能，ZierClaw 就变成什么员工。5000+ 社区技能随时安装。</p></div>
+<div class="lang-en"><h3>🧩 What are skills?</h3><p>Skills are like phone apps. Install whatever you need. 5000+ community skills available.</p></div>
+</div>
+<div class="faq-item">
+<div class="lang-zh"><h3>⏱️ 部署要多久？</h3><p>熟练 5 分钟，新手 15-20 分钟。提供详细文档和视频教程。</p></div>
+<div class="lang-en"><h3>⏱️ How long to deploy?</h3><p>5 min for experts, 15-20 min for beginners. Detailed docs and video guides provided.</p></div>
+</div>
+</div>
+</div>
+
+<div class="contact-section">
+<div class="lang-zh"><h2>📬 获取部署支持</h2></div>
+<div class="lang-en"><h2>📬 Get Deployment Support</h2></div>
+<div class="lang-zh"><p class="sub">有问题？选一个你喜欢的方式联系</p></div>
+<div class="lang-en"><p class="sub">Questions? Reach out via your preferred channel</p></div>
+<div class="contact-channels">
+<a href="https://github.com/Lanzier/lanzier.github.io/issues" target="_blank" class="channel-btn">🐙 GitHub Issues</a>
+<span class="channel-btn disabled">💬 <span class="lang-zh">飞书群</span><span class="lang-en">Feishu</span> <span class="soon"><span class="lang-zh">即将</span><span class="lang-en">Soon</span></span></span>
+<span class="channel-btn disabled">✈️ Telegram <span class="soon"><span class="lang-zh">即将</span><span class="lang-en">Soon</span></span></span>
+</div>
+</div>
+
+<footer>
+<div class="lang-zh"><p>ZierClaw · 由墨驱动 · 基于 <a href="https://openclaw.ai">OpenClaw</a></p><p style="margin-top:6px">本站由墨独立完成，全程零人类编写代码</p></div>
+<div class="lang-en"><p>ZierClaw · Powered by Mo · Built on <a href="https://openclaw.ai">OpenClaw</a></p><p style="margin-top:6px">Built entirely by Mo. Zero human-written code.</p></div>
+</footer>
+</div>
+
+<button class="lang-toggle" onclick="toggleLang()">EN</button>
+<button class="theme-toggle" onclick="toggleTheme()">🌙</button>
 
 <script>
-const translations = {
-  "领养你的 AI 助手": "Adopt Your AI Sidekick",
-  "免费领养 · 数据在你手里 · 越养越聪的?: "Free adoption · Your data stays yours · Gets smarter over time",
-  "推荐": "Featured",
-  "本地部署": "Self-Hosted",
-  "下载到自己的电脑，数据全在你手里": "Download to your own computer. Your data stays local.",
-  "Windows / Mac / Linux 全支的?: "Windows / Mac / Linux supported",
-  "数据完全本地，隐私安的?: "Fully local data, privacy guaranteed",
-  "免费开源，永久免费": "Free & open source, always free",
-  "支持自定义技能包": "Custom skill packs supported",
-  "永久免费": "Free Forever",
-  "开始部的?的?: "Get Started 的?,
-  "云端托管": "Cloud Hosted",
-  "7×24 云端运行，无需开的?: "24/7 cloud operation. No need to keep your PC on.",
-  "无需维护服务的?: "Zero server maintenance",
-  "随时随地访问": "Access from anywhere",
-  "自动更新 & 备份": "Auto updates & backups",
-  "弹性扩展能的?: "Elastic scaling",
-  "即将推出": "Coming Soon",
-  "敬请期待": "Stay tuned",
-  "加入等待列表": "Join Waitlist",
-  "常见问题": "FAQ",
-  "什么是 ZierClaw的?: "What is ZierClaw?",
-  "ZierClaw 是墨驱动的?AI 私人助手。给它一台电脑，它就是你的数字员工。会聊天就会用，越养越聪明的?: "ZierClaw is Mo-powered AI personal assistant. Give it a computer, it becomes your digital employee.",
-  "需要什么配置？": "System Requirements?",
-  "最的?4GB 内存、Windows 10+/macOS 12+/Linux 即可。需的?Node.js 环境，我们会提供一键安装脚本的?: "Minimum 4GB RAM, Windows 10+ / macOS 12+ / Linux. Node.js required. One-click install script provided.",
-  "数据安全吗？": "Is my data safe?",
-  "本地部署版本所有数据都在你的电脑上，不上传任何云端。你的隐私你做主的?: "Self-hosted version keeps all data on your computer. Nothing is uploaded.",
-  "真的免费吗？": "Is it really free?",
-  "ZierClaw 基于开的?OpenClaw 框架，本地部署完全免费。云端托管版未来会推出，价格待定的?: "ZierClaw is based on the open-source OpenClaw framework. Self-hosted is completely free.",
-  "什么是技能？": "What are skills?",
-  "技能像手机的?App —的?装什么技能，ZierClaw 就变成什么员工。天气、邮件、文档、编码、SEO……已的?5000+ 社区技能随时安装的?: "Skills are like phone apps 的?install whatever skill you need. 5000+ community skills available.",
-  "部署要多久？": "How long does deployment take?",
-  "熟练的话 5 分钟。新手跟着教程 15-20 分钟。我们会提供详细文档和视频教程的?: "5 minutes for experienced users. 15-20 minutes for beginners. Detailed docs and video guides provided.",
-  "获取部署支持": "Get Deployment Support",
-  "有问题？选一个你喜欢的方式联的?: "Questions? Reach out via your preferred channel",
-  "飞书的?: "Feishu Group",
-  "即将": "Soon",
-  "返回 ZierClaw 首页": "的?Back to ZierClaw Home"
-};
-
-function toggleLang() {
-  const root = document.documentElement;
-  const currentLang = root.getAttribute('data-lang') || 'zh';
-  const newLang = currentLang === 'zh' ? 'en' : 'zh';
-  root.setAttribute('data-lang', newLang);
-  localStorage.setItem('zrclaw-lang', newLang);
-  document.querySelector('.lang-toggle').textContent = newLang === 'zh' ? '的? : 'EN';
-  applyTranslations(newLang);
-}
-
-function applyTranslations(lang) {
-  document.querySelectorAll('[data-t]').forEach(el => {
-    el.textContent = lang === 'en' ? translations[el.getAttribute('data-t')] || el.textContent : el.getAttribute('data-orig') || el.textContent;
-  });
-}
-
-// Initialize: mark all translatable text with data-t attributes
-(function initI18n() {
-  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-  const textNodes = [];
-  while (walker.nextNode()) {
-    const node = walker.currentNode;
-    const text = node.textContent.trim();
-    if (!text || text.length < 2) continue;
-    if (node.parentElement && node.parentElement.closest('script,style,.theme-toggle,.lang-toggle,button.header-toggle')) continue;
-    textNodes.push(node);
-  }
-  
-  // Process each text node - find translation match
-  const reverseMap = {};
-  for (const [zh, en] of Object.entries(translations)) {
-    reverseMap[zh.trim()] = en;
-  }
-  
-  textNodes.forEach(node => {
-    const text = node.textContent.trim();
-    const match = translations[text];
-    if (match) {
-      const span = document.createElement('span');
-      span.setAttribute('data-t', text);
-      span.setAttribute('data-orig', text);
-      span.textContent = text;
-      node.parentNode.replaceChild(span, node);
-    }
-  });
-  
-  // Restore saved language
-  const saved = localStorage.getItem('zrclaw-lang');
-  if (saved) {
-    document.documentElement.setAttribute('data-lang', saved);
-    document.querySelector('.lang-toggle').textContent = saved === 'zh' ? '的? : 'EN';
-    applyTranslations(saved);
-  } else {
-    document.querySelector('.lang-toggle').textContent = '的?;
-  }
-})();
-</script>
-
-<script>
-(function(){ var s=localStorage.getItem('zrclaw-lang')||'zh';document.documentElement.setAttribute('data-lang',s);document.querySelector('.lang-toggle').textContent=s==='zh'?'EN':'的?; })();
-function toggleLang(){ var r=document.documentElement,c=r.getAttribute('data-lang')==='zh'?'en':'zh';r.setAttribute('data-lang',c);localStorage.setItem('zrclaw-lang',c);document.querySelector('.lang-toggle').textContent=c==='zh'?'EN':'的?; }
+(function(){if(localStorage.getItem("zrclaw-theme")==="light")document.documentElement.classList.add("light")})()
+function toggleTheme(){var r=document.documentElement,d=!r.classList.contains("light");r.classList.toggle("light");localStorage.setItem("zrclaw-theme",d?"light":"dark");document.querySelector(".theme-toggle").textContent=d?"☀️":"🌙"}
+(function(){var b=document.querySelector(".theme-toggle");if(b)b.textContent=document.documentElement.classList.contains("light")?"☀️":"🌙"})()
+(function(){var s=localStorage.getItem("zrclaw-lang")||"zh";document.documentElement.setAttribute("data-lang",s);document.querySelector(".lang-toggle").textContent=s==="zh"?"EN":"中"})()
+function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang")==="zh"?"en":"zh";r.setAttribute("data-lang",c);localStorage.setItem("zrclaw-lang",c);document.querySelector(".lang-toggle").textContent=c==="zh"?"EN":"中"}
 </script>
 </body>
 </html>
