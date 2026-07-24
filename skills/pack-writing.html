@@ -1,177 +1,131 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-lang="zh">
 <head><meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>写作创作技能包 · ZierClaw</title>
 <style>
-:root { --bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#888;--accent:#6366f1;--border:#1e1e2e;--green:#22c55e;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899) }
-* { margin:0;padding:0;box-sizing:border-box }
-body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.7 }
-.container { max-width:900px;margin:0 auto;padding:40px 20px }
-.back-link { display:inline-block;color:#c0c0c8;text-decoration:none;font-size:14px;margin-bottom:24px }
-.back-link:hover { color:var(--accent) }
-.detail-hero { text-align:center;padding:20px 0 40px }
-.detail-hero .icon { font-size:56px;display:block;margin-bottom:12px }
-.detail-hero h1 { font-size:34px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px }
-.detail-hero .meta { color:#c0c0c8;font-size:14px }
-.skill-list { display:flex;flex-direction:column;gap:16px;margin-bottom:40px }
-.skill-item { background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px }
-.skill-item h3 { font-size:17px;margin-bottom:4px }
-.skill-item .sub { font-size:13px;color:#c0c0c8;margin-bottom:12px }
-.skill-item .tags { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px }
-.skill-item .tag { font-size:11px;padding:3px 10px;background:rgba(99,102,241,.12);color:var(--accent);border-radius:10px }
-.status-ready { font-size:12px;padding:3px 10px;border-radius:10px;background:var(--green);color:#000;display:inline-block }
-.use-cases { margin:30px 0 }
-.use-cases h2 { font-size:20px;margin-bottom:16px }
-.use-case-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px }
-.use-case { background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px }
-.use-case .q { font-size:14px;font-style:italic;color:#c0c0c8 }
-.copy-section { background:var(--card-bg);border:1px solid var(--accent);border-radius:14px;padding:30px;margin:40px 0;text-align:center }
-.copy-section h2 { font-size:20px;margin-bottom:8px }
-.copy-section .sub { font-size:13px;color:#c0c0c8;margin-bottom:20px }
-.code-block { background: var(--card-bg);border: 1px solid var(--border);border-radius:10px;padding:20px;text-align:left;font-family:Consolas,Monaco,monospace;font-size:13px;color: var(--text);white-space: pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;margin-bottom:16px }
-.btn { display:inline-block;padding:12px 32px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:none;color:white;background:var(--gradient) }
-.btn:hover { transform:scale(1.03);box-shadow:0 8px 25px rgba(99,102,241,.4) }
-.copied { display:none;color:var(--green);font-size:13px;margin-top:8px }
-footer { text-align:center;padding:40px 20px;color:#c0c0c8;font-size:13px;border-top:1px solid var(--border) }
-footer a { color:var(--accent);text-decoration:none }
-
-    .theme-toggle {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 20px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      transition: all 0.3s;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-    }
-    :root.light .theme-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-    .theme-toggle:hover {
-      transform: scale(1.1);
-      border-color: var(--accent);
-    }
-  
-    .lang-toggle, .theme-toggle {
-      position: fixed; right: 24px; width: 44px; height: 44px; border-radius: 50%;
-      background: var(--card-bg); border: 1px solid var(--border); color: var(--text);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      z-index: 999; transition: all 0.3s; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-      font-size: 14px; font-weight: 700; font-family: inherit;
-    }
-    .theme-toggle { bottom: 24px; font-size: 20px; }
-    .lang-toggle { bottom: 76px; }
-    :root.light .theme-toggle, :root.light .lang-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-    .lang-toggle:hover, .theme-toggle:hover { transform: scale(1.1); border-color: var(--accent); }
-    .lang-zh, .lang-en { display: none; }
-    html[data-lang="zh"] .lang-zh, html[data-lang="en"] .lang-en { display: revert; }
-  </style>
-</head>
-<body>
+:root{--bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#c0c0c8;--accent:#6366f1;--accent-glow:#818cf8;--border:#1e1e2e;--green:#22c55e;--orange:#f59e0b;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899)}
+:root.light{--bg:#f5f5f8;--card-bg:#fff;--text:#1a1a2e;--text-muted:#555566;--accent:#4f46e5;--accent-glow:#6366f1;--border:#d8d8e0;--green:#16a34a;--orange:#d97706}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+.container{max-width:900px;margin:0 auto;padding:40px 20px}
+.back-link{display:inline-block;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px}
+.back-link:hover{color:var(--accent)}
+.detail-hero{text-align:center;padding:20px 0 40px}
+.detail-hero .icon{font-size:56px;display:block;margin-bottom:12px}
+.detail-hero h1{font-size:34px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.detail-hero .meta{color:var(--text-muted);font-size:14px}
+.skill-list{display:flex;flex-direction:column;gap:16px;margin-bottom:40px}
+.skill-item{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px}
+.skill-item h3{font-size:17px;margin-bottom:4px}
+.skill-item .sub{font-size:13px;color:var(--text-muted);margin-bottom:12px}
+.skill-item .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.skill-item .tag{font-size:11px;padding:3px 10px;background:rgba(99,102,241,.15);color:var(--accent-glow);border-radius:10px}
+:root.light .tag{color:#4f46e5;font-weight:600}
+.status-ready{font-size:12px;padding:3px 10px;border-radius:10px;background:var(--green);color:#000}
+.status-need{font-size:12px;padding:3px 10px;border-radius:10px;background:var(--orange);color:#000}
+.use-cases{margin:30px 0}
+.use-cases h2{font-size:20px;margin-bottom:16px}
+.use-case-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.use-case{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px}
+.use-case .q{font-size:14px;font-style:italic;color:var(--text-muted)}
+.copy-section{background:var(--card-bg);border:1px solid var(--accent);border-radius:14px;padding:30px;margin:40px 0;text-align:center}
+.copy-section h2{font-size:20px;margin-bottom:8px}
+.copy-section .sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.code-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:left;font-family:Consolas,Monaco,monospace;font-size:13px;color:var(--text);white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;margin-bottom:16px}
+.btn{display:inline-block;padding:12px 32px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:none;color:#fff;background:var(--gradient)}
+.btn:hover{transform:scale(1.03);box-shadow:0 8px 25px rgba(99,102,241,.4)}
+.copied{display:none;color:var(--green);font-size:13px;margin-top:8px}
+footer{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;border-top:1px solid var(--border)}
+footer a{color:var(--accent-glow);text-decoration:none}
+.lang-toggle,.theme-toggle{position:fixed;right:24px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:999;transition:.3s;box-shadow:0 2px 12px rgba(0,0,0,.15);font:700 14px/1 inherit}
+.theme-toggle{bottom:24px;font-size:20px}
+.lang-toggle{bottom:76px}
+.lang-toggle:hover,.theme-toggle:hover{transform:scale(1.1);border-color:var(--accent)}
+.lang-zh,.lang-en{display:none}
+html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
+@media(max-width:600px){.detail-hero h1{font-size:26px}}
+</style></head><body>
 <div class="container">
-<a href="/skills.html" class="back-link">�?返回技能商�?/a>
+<a href="/skills.html" class="back-link"><span class="lang-zh">← 返回技能商店</span><span class="lang-en">← Back to Skill Store</span></a>
 <section class="detail-hero">
 <span class="icon">✍️</span>
-<h1>写作创作技能包</h1>
-<p class="meta"><span>📦 4 个技�?/span><span>📝 全自�?/span><span>💰 免费</span></p>
+<div class="lang-zh"><h1>写作创作技能包</h1></div>
+<div class="lang-en"><h1>Writing Tools Pack</h1></div>
+<p class="meta"><span class="lang-zh">📦 4 个技能 · 📝 全自动 · 💰 免费</span><span class="lang-en">📦 4 Skills · 📝 Automated · 💰 Free</span></p>
 </section>
 <div class="skill-list">
 <div class="skill-item">
-<h3>✍️ 博客写手</h3>
-<p class="sub">长文写作、排版、发布。支持多平台格式适配�?/p>
-<div class="tags"><span class="tag">长文</span><span class="tag">排版</span><span class="tag">多平�?/span></div>
-<span class="status-ready">即装即用</span>
-</div>
-<div class="skill-item">
-<h3>🔍 SEO 内容写作</h3>
-<p class="sub">SEO优化长文，关键词策略，结构化内容�?/p>
-<div class="tags"><span class="tag">SEO</span><span class="tag">关键�?/span><span class="tag">结构�?/span></div>
-<span class="status-ready">即装即用</span>
-</div>
-<div class="skill-item">
-<h3>📄 PDF 生成</h3>
-<p class="sub">Markdown 转精�?PDF，中�?+ 代码高亮。Pandoc + Chrome�?/p>
+<div class="lang-zh"><h3>✍️ 博客写手</h3></div>
+<div class="lang-en"><h3>✍️ Blog Writer</h3></div>
+<div class="lang-zh"><p class="sub">长文写作、排版、发布。支持多平台格式适配。</p></div>
+<div class="lang-en"><p class="sub">Long-form writing, formatting, publishing. Multi-platform format support.</p></div>
+<div class="tags"><span class="tag">长文</span><span class="tag">排版</span><span class="tag">多平台</span></div>
+<span class="status-ready"><span class="lang-zh">即装即用</span><span class="lang-en">Ready</span></span>
+</div><div class="skill-item">
+<div class="lang-zh"><h3>🔍 SEO 内容写作</h3></div>
+<div class="lang-en"><h3>🔍 SEO Writing</h3></div>
+<div class="lang-zh"><p class="sub">SEO优化长文，关键词策略，结构化内容。</p></div>
+<div class="lang-en"><p class="sub">SEO-optimized articles. Keyword strategy. Structured content.</p></div>
+<div class="tags"><span class="tag">SEO</span><span class="tag">关键词</span><span class="tag">结构化</span></div>
+<span class="status-ready"><span class="lang-zh">即装即用</span><span class="lang-en">Ready</span></span>
+</div><div class="skill-item">
+<div class="lang-zh"><h3>📄 PDF 生成</h3></div>
+<div class="lang-en"><h3>📄 PDF Generation</h3></div>
+<div class="lang-zh"><p class="sub">Markdown 转精美 PDF，中文 + 代码高亮。Pandoc + Chrome。</p></div>
+<div class="lang-en"><p class="sub">Markdown to beautiful PDF. Chinese + code highlighting. Pandoc + Chrome.</p></div>
 <div class="tags"><span class="tag">Markdown</span><span class="tag">Pandoc</span><span class="tag">代码高亮</span></div>
-<span class="status-ready">即装即用</span>
-</div>
-<div class="skill-item">
-<h3>🎬 视频总结</h3>
-<p class="sub">YouTube/Bilibili 视频自动获取字幕，AI总结输出 Markdown 格式�?/p>
+<span class="status-ready"><span class="lang-zh">即装即用</span><span class="lang-en">Ready</span></span>
+</div><div class="skill-item">
+<div class="lang-zh"><h3>🎬 视频总结</h3></div>
+<div class="lang-en"><h3>🎬 Video Summaries</h3></div>
+<div class="lang-zh"><p class="sub">YouTube/Bilibili 视频自动获取字幕，AI总结输出 Markdown 格式。</p></div>
+<div class="lang-en"><p class="sub">YouTube/Bilibili auto-caption extraction. AI summarization in Markdown.</p></div>
 <div class="tags"><span class="tag">YouTube</span><span class="tag">Bilibili</span><span class="tag">字幕AI</span></div>
-<span class="status-ready">即装即用</span>
+<span class="status-ready"><span class="lang-zh">即装即用</span><span class="lang-en">Ready</span></span>
 </div>
 </div>
 <div class="use-cases">
-<h2>💬 你可以这样说</h2>
-<div class="use-case-grid">
-<div class="use-case"><div class="q">"写一篇关于AI发展的深度博�?</div></div>
-<div class="use-case"><div class="q">"把这篇Markdown转成精美PDF"</div></div>
-<div class="use-case"><div class="q">"总结一下这个YouTube视频讲了什�?</div></div>
-<div class="use-case"><div class="q">"帮我优化这篇文章的SEO"</div></div>
-</div>
+<div class="lang-zh"><h2>💬 你可以这样说</h2></div>
+<div class="lang-en"><h2>💬 You Can Say</h2></div>
+<div class="use-case-grid"><div class="use-case">
+<div class="lang-zh"><div class="q">"写一篇关于AI发展的深度博客"</div></div>
+<div class="lang-en"><div class="q">"Write a deep blog post about AI development"</div></div>
+</div><div class="use-case">
+<div class="lang-zh"><div class="q">"把这篇Markdown转成精美PDF"</div></div>
+<div class="lang-en"><div class="q">"Convert this Markdown to a beautiful PDF"</div></div>
+</div><div class="use-case">
+<div class="lang-zh"><div class="q">"总结一下这个YouTube视频讲了什么"</div></div>
+<div class="lang-en"><div class="q">"Summarize this YouTube video"</div></div>
+</div><div class="use-case">
+<div class="lang-zh"><div class="q">"帮我优化这篇文章的SEO"</div></div>
+<div class="lang-en"><div class="q">"SEO-optimize this article for me"</div></div>
+</div></div>
 </div>
 <div class="copy-section">
-<h2>📋 一键安装提示词</h2>
-<p class="sub">复制以下提示词，粘贴给你�?OpenClaw</p>
-<div class="code-block" id="promptCode">
-请帮我安装以下写作创作技能，�?https://claw123.ai 搜索并按需安装�?
-1. 博客写手 (blog-writer) �?长文写作、排版、多平台发布
-2. SEO内容写作 (seo-writer) �?关键词策略、结构化SEO
-3. PDF生成 (pdf-gen) �?Markdown转精美PDF
-4. 视频总结 (video-summary) �?YouTube/Bilibili自动字幕总结
+<div class="lang-zh"><h2>📋 一键安装提示词</h2></div>
+<div class="lang-en"><h2>📋 One-Click Install Prompt</h2></div>
+<div class="lang-zh"><p class="sub">复制以下提示词，粘贴给你的 OpenClaw</p></div>
+<div class="lang-en"><p class="sub">Copy and paste to your OpenClaw</p></div>
+<div class="code-block" id="promptCode">请帮我安装以下写作技能，从 https://claw123.ai 搜索并按需安装：
 
-安装完成后请测试写作和PDF生成功能�?    </div>
-<button class="btn" onclick="copyPrompt()">📋 一键复制提示词</button>
-<div class="copied" id="copiedMsg">�?已复制！</div>
+1. 博客写手 (blog-writer) — 长文写作、排版、多平台发布
+2. SEO写作 (seo-writer) — 关键词策略、结构化SEO
+3. PDF生成 (pdf-gen) — Markdown转精美PDF
+4. 视频总结 (video-summary) — YouTube/Bilibili自动字幕总结</div>
+<button class="btn" onclick="copyPrompt()"><span class="lang-zh">📋 一键复制提示词</span><span class="lang-en">📋 Copy Prompt</span></button>
+<div class="copied" id="copiedMsg"><span class="lang-zh">✅ 已复制！</span><span class="lang-en">✅ Copied!</span></div>
 </div>
-<footer><p>ZierClaw 技能商�?· <a href="/skills.html">返回技能商�?/a></p></footer>
+<footer><p>ZierClaw · <a href="/skills.html">Skill Store</a></p></footer>
 </div>
+<button class="lang-toggle" onclick="toggleLang()">EN</button>
+<button class="theme-toggle" onclick="toggleTheme()">🌙</button>
 <script>
-function copyPrompt() {
-  navigator.clipboard.writeText(document.getElementById('promptCode').innerText).then(() => {
-    document.getElementById('copiedMsg').style.display = 'block';
-    setTimeout(() => { document.getElementById('copiedMsg').style.display = 'none'; }, 4000);
-  });
-}
+(function(){if(localStorage.getItem("zrclaw-theme")==="light")document.documentElement.classList.add("light")})()
+function toggleTheme(){var r=document.documentElement,d=!r.classList.contains("light");r.classList.toggle("light");localStorage.setItem("zrclaw-theme",d?"light":"dark");document.querySelector(".theme-toggle").textContent=d?"☀️":"🌙"}
+(function(){var b=document.querySelector(".theme-toggle");if(b)b.textContent=document.documentElement.classList.contains("light")?"☀️":"🌙"})()
+(function(){var s=localStorage.getItem("zrclaw-lang")||"zh";document.documentElement.setAttribute("data-lang",s);document.querySelector(".lang-toggle").textContent=s==="zh"?"EN":"中"})()
+function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang")==="zh"?"en":"zh";r.setAttribute("data-lang",c);localStorage.setItem("zrclaw-lang",c);document.querySelector(".lang-toggle").textContent=c==="zh"?"EN":"中"}
+function copyPrompt(){navigator.clipboard.writeText(document.getElementById("promptCode").innerText).then(function(){document.getElementById("copiedMsg").style.display="block";setTimeout(function(){document.getElementById("copiedMsg").style.display="none"},4000)})}
 </script>
-<button class="theme-toggle" onclick="toggleTheme()" title="切换日间/深色模式">🌙</button>
-<script>
-(function() {
-  const saved = localStorage.getItem('zrclaw-theme');
-  if (saved === 'light') { document.documentElement.classList.add('light'); }
-})();
-function toggleTheme() {
-  const root = document.documentElement;
-  const isDark = !root.classList.contains('light');
-  root.classList.toggle('light');
-  localStorage.setItem('zrclaw-theme', isDark ? 'light' : 'dark');
-  document.querySelector('.theme-toggle').textContent = isDark ? '☀�? : '🌙';
-}
-// Update icon on load
-(function() {
-  const btn = document.querySelector('.theme-toggle');
-  if (btn) btn.textContent = document.documentElement.classList.contains('light') ? '☀�? : '🌙';
-})();
-</script>
-<button class="lang-toggle" onclick="toggleLang()" title="切换中英�?>EN</button>
-<button class="theme-toggle" onclick="toggleTheme()" title="切换日间/深色模式">🌙</button>
-<script>
-// Theme
-(function(){ if(localStorage.getItem('zrclaw-theme')==='light')document.documentElement.classList.add('light'); })();
-function toggleTheme(){ var r=document.documentElement,d=!r.classList.contains('light');r.classList.toggle('light');localStorage.setItem('zrclaw-theme',d?'light':'dark');document.querySelector('.theme-toggle').textContent=d?'☀�?:'🌙'; }
-(function(){ var b=document.querySelector('.theme-toggle');if(b)b.textContent=document.documentElement.classList.contains('light')?'☀�?:'🌙'; })();
-// Language
-(function(){ var s=localStorage.getItem('zrclaw-lang')||'zh';document.documentElement.setAttribute('data-lang',s);document.querySelector('.lang-toggle').textContent=s==='zh'?'EN':'�?; })();
-function toggleLang(){ var r=document.documentElement,c=r.getAttribute('data-lang')==='zh'?'en':'zh';r.setAttribute('data-lang',c);localStorage.setItem('zrclaw-lang',c);document.querySelector('.lang-toggle').textContent=c==='zh'?'EN':'�?; }
-</script>
-</body>
-</html>
+</body></html>

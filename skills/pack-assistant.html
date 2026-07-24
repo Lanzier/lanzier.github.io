@@ -1,419 +1,155 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>超级助理技能包 · ZierClaw</title>
-  <style>
-    :root {
-      --bg: #0a0a0f;
-      --card-bg: #111118;
-      --text: #e0e0e0;
-      --text-muted: #888;
-      --accent: #6366f1;
-      --accent-glow: #818cf8;
-      --border: #1e1e2e;
-      --green: #22c55e;
-      --orange: #f59e0b;
-      --red: #ef4444;
-      --gradient: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
-    }
-    :root.light {
-      --bg: #f5f5f8;
-      --card-bg: #ffffff;
-      --text: #1a1a2e;
-      --text-muted: #555566;
-      --accent: #4f46e5;
-      --accent-glow: #6366f1;
-      --border: #d8d8e0;
-      --green: #16a34a;
-      --orange: #d97706;
-    }
-    :root.light {
-      --bg: #f5f5f8;
-      --card-bg: #ffffff;
-      --text: #1a1a2e;
-      --text-muted: #555566;
-      --accent: #4f46e5;
-      --accent-glow: #6366f1;
-      --border: #d8d8e0;
-      --green: #16a34a;
-      --orange: #d97706;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-    }
-    .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
-    
-    .back-link {
-      display: inline-block;
-      color: #c0c0c8;
-      text-decoration: none;
-      font-size: 14px;
-      margin-bottom: 24px;
-      transition: color 0.2s;
-    }
-    .back-link:hover { color: var(--accent-glow); }
-    
-    /* Hero */
-    .detail-hero {
-      text-align: center;
-      padding: 20px 0 40px;
-    }
-    .detail-hero .icon {
-      font-size: 56px;
-      display: block;
-      margin-bottom: 12px;
-    }
-    .detail-hero h1 {
-      font-size: 34px;
-      font-weight: 800;
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 8px;
-    }
-    .detail-hero .meta {
-      color: #c0c0c8;
-      font-size: 14px;
-    }
-    .detail-hero .meta span {
-      margin: 0 8px;
-    }
-    
-    /* Skill list */
-    .skill-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin-bottom: 40px;
-    }
-    .skill-item {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-    }
-    .skill-item h3 {
-      font-size: 17px;
-      margin-bottom: 4px;
-    }
-    .skill-item .sub {
-      font-size: 13px;
-      color: #c0c0c8;
-      margin-bottom: 12px;
-    }
-    .skill-item .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 12px;
-    }
-    .skill-item .tag {
-      font-size: 11px;
-      padding: 3px 10px;
-      background: rgba(99,102,241,0.12);
-      color: var(--accent-glow);
-      border-radius: 10px;
-    }
-    .skill-item .status {
-      font-size: 12px;
-      padding: 3px 10px;
-      border-radius: 10px;
-      display: inline-block;
-    }
-    .status-ready { background: var(--green); color: #000; }
-    .status-need { background: var(--orange); color: #000; }
-    .status-planned { background: var(--red); color: #000; opacity: 0.7; }
-    
-    /* Copy section */
-    .copy-section {
-      background: var(--card-bg);
-      border: 1px solid var(--accent);
-      border-radius: 14px;
-      padding: 30px;
-      margin: 40px 0;
-      text-align: center;
-    }
-    .copy-section h2 {
-      font-size: 20px;
-      margin-bottom: 8px;
-    }
-    .copy-section .sub {
-      font-size: 13px;
-      color: #c0c0c8;
-      margin-bottom: 20px;
-    }
-    .code-block {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 20px;
-      text-align: left;
-      font-family: 'Consolas', 'Monaco', monospace;
-      font-size: 13px;
-      color: var(--text);
-      white-space: pre-wrap;
-      word-break: break-all;
-      max-height: 300px;
-      overflow-y: auto;
-      margin-bottom: 16px;
-      position: relative;
-    }
-    .btn {
-      display: inline-block;
-      padding: 12px 32px;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none;
-      color: white;
-      background: var(--gradient);
-    }
-    .btn:hover {
-      transform: scale(1.03);
-      box-shadow: 0 8px 25px rgba(99,102,241,0.4);
-    }
-    .btn-small {
-      padding: 6px 16px;
-      font-size: 13px;
-      border-radius: 8px;
-    }
-    .copied {
-      display: none;
-      color: var(--green);
-      font-size: 13px;
-      margin-top: 8px;
-    }
-    
-    /* Use cases */
-    .use-cases {
-      margin: 30px 0;
-    }
-    .use-cases h2 {
-      font-size: 20px;
-      margin-bottom: 16px;
-    }
-    .use-case-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 12px;
-    }
-    .use-case {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-    }
-    .use-case .q {
-      font-size: 14px;
-      font-style: italic;
-      color: #c0c0c8;
-    }
-    
-    footer {
-      text-align: center;
-      padding: 40px 20px;
-      color: #c0c0c8;
-      font-size: 13px;
-      border-top: 1px solid var(--border);
-    }
-    footer a { color: var(--accent-glow); text-decoration: none; }
-  
-    .theme-toggle {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 20px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      transition: all 0.3s;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-    }
-    :root.light .theme-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-    .theme-toggle:hover {
-      transform: scale(1.1);
-      border-color: var(--accent);
-    }
-  
-    .lang-toggle, .theme-toggle {
-      position: fixed; right: 24px; width: 44px; height: 44px; border-radius: 50%;
-      background: var(--card-bg); border: 1px solid var(--border); color: var(--text);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      z-index: 999; transition: all 0.3s; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-      font-size: 14px; font-weight: 700; font-family: inherit;
-    }
-    .theme-toggle { bottom: 24px; font-size: 20px; }
-    .lang-toggle { bottom: 76px; }
-    :root.light .theme-toggle, :root.light .lang-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-    .lang-toggle:hover, .theme-toggle:hover { transform: scale(1.1); border-color: var(--accent); }
-    .lang-zh, .lang-en { display: none; }
-    html[data-lang="zh"] .lang-zh, html[data-lang="en"] .lang-en { display: revert; }
-  </style>
-</head>
-<body>
-
+<html lang="zh-CN" data-lang="zh">
+<head><meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>超级助理技能包 · ZierClaw</title>
+<style>
+:root{--bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#c0c0c8;--accent:#6366f1;--accent-glow:#818cf8;--border:#1e1e2e;--green:#22c55e;--orange:#f59e0b;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899)}
+:root.light{--bg:#f5f5f8;--card-bg:#fff;--text:#1a1a2e;--text-muted:#555566;--accent:#4f46e5;--accent-glow:#6366f1;--border:#d8d8e0;--green:#16a34a;--orange:#d97706}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+.container{max-width:900px;margin:0 auto;padding:40px 20px}
+.back-link{display:inline-block;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px}
+.back-link:hover{color:var(--accent)}
+.detail-hero{text-align:center;padding:20px 0 40px}
+.detail-hero .icon{font-size:56px;display:block;margin-bottom:12px}
+.detail-hero h1{font-size:34px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.detail-hero .meta{color:var(--text-muted);font-size:14px}
+.skill-list{display:flex;flex-direction:column;gap:16px;margin-bottom:40px}
+.skill-item{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px}
+.skill-item h3{font-size:17px;margin-bottom:4px}
+.skill-item .sub{font-size:13px;color:var(--text-muted);margin-bottom:12px}
+.skill-item .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.skill-item .tag{font-size:11px;padding:3px 10px;background:rgba(99,102,241,.15);color:var(--accent-glow);border-radius:10px}
+:root.light .tag{color:#4f46e5;font-weight:600}
+.status-ready{font-size:12px;padding:3px 10px;border-radius:10px;background:var(--green);color:#000}
+.status-need{font-size:12px;padding:3px 10px;border-radius:10px;background:var(--orange);color:#000}
+.use-cases{margin:30px 0}
+.use-cases h2{font-size:20px;margin-bottom:16px}
+.use-case-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.use-case{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px}
+.use-case .q{font-size:14px;font-style:italic;color:var(--text-muted)}
+.copy-section{background:var(--card-bg);border:1px solid var(--accent);border-radius:14px;padding:30px;margin:40px 0;text-align:center}
+.copy-section h2{font-size:20px;margin-bottom:8px}
+.copy-section .sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.code-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:left;font-family:Consolas,Monaco,monospace;font-size:13px;color:var(--text);white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;margin-bottom:16px}
+.btn{display:inline-block;padding:12px 32px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:none;color:#fff;background:var(--gradient)}
+.btn:hover{transform:scale(1.03);box-shadow:0 8px 25px rgba(99,102,241,.4)}
+.copied{display:none;color:var(--green);font-size:13px;margin-top:8px}
+footer{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;border-top:1px solid var(--border)}
+footer a{color:var(--accent-glow);text-decoration:none}
+.lang-toggle,.theme-toggle{position:fixed;right:24px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:999;transition:.3s;box-shadow:0 2px 12px rgba(0,0,0,.15);font:700 14px/1 inherit}
+.theme-toggle{bottom:24px;font-size:20px}
+.lang-toggle{bottom:76px}
+.lang-toggle:hover,.theme-toggle:hover{transform:scale(1.1);border-color:var(--accent)}
+.lang-zh,.lang-en{display:none}
+html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
+@media(max-width:600px){.detail-hero h1{font-size:26px}}
+</style></head><body>
 <div class="container">
-  <a href="/skills.html" class="back-link">�?返回技能商�?/a>
-
-  <section class="detail-hero">
-    <span class="icon">🧰</span>
-    <h1>超级助理技能包</h1>
-    <p class="meta"><span>📦 6 个技�?/span><span>⚙️ 需配置飞书 API</span><span>💰 免费</span></p>
-  </section>
-
-  <div class="skill-list">
-    <div class="skill-item">
-      <h3>📧 邮件管理</h3>
-      <p class="sub">飞书邮件 API + 通用 IMAP/SMTP。VIP 秒级提醒、自动摘要、批量回复�?/p>
-      <div class="tags">
-        <span class="tag">飞书邮箱</span>
-        <span class="tag">IMAP/SMTP</span>
-        <span class="tag">智能提醒</span>
-      </div>
-      <span class="status status-need">需飞书API</span>
-    </div>
-    <div class="skill-item">
-      <h3>📅 飞书日历</h3>
-      <p class="sub">查看/创建/修改日程，自动查找参会人空闲时间，会议冲突检测�?/p>
-      <div class="tags">
-        <span class="tag">日历管理</span>
-        <span class="tag">会议协调</span>
-        <span class="tag">日程播报</span>
-      </div>
-      <span class="status status-need">需飞书API</span>
-    </div>
-    <div class="skill-item">
-      <h3>📄 飞书文档</h3>
-      <p class="sub">读写飞书云文档，支持 Markdown 格式，知识库管理，多维表格操作�?/p>
-      <div class="tags">
-        <span class="tag">文档读写</span>
-        <span class="tag">Markdown</span>
-        <span class="tag">知识�?/span>
-      </div>
-      <span class="status status-need">需飞书API</span>
-    </div>
-    <div class="skill-item">
-      <h3>🌐 网页搜索 & 分析</h3>
-      <p class="sub">web_fetch 实时联网搜索，web_search 多搜索引擎。深度研究、竞品分析�?/p>
-      <div class="tags">
-        <span class="tag">web_fetch</span>
-        <span class="tag">web_search</span>
-        <span class="tag">深度研究</span>
-      </div>
-      <span class="status status-ready">即装即用</span>
-    </div>
-    <div class="skill-item">
-      <h3>🌤�?天气查询</h3>
-      <p class="sub">wttr.in + Open-Meteo 双源，全球城市实时查询，支持定时自动播报�?/p>
-      <div class="tags">
-        <span class="tag">wttr.in</span>
-        <span class="tag">Open-Meteo</span>
-        <span class="tag">定时播报</span>
-      </div>
-      <span class="status status-ready">即装即用</span>
-    </div>
-    <div class="skill-item">
-      <h3>🧠 基础智能�?/h3>
-      <p class="sub">记忆系统、上下文管理、任务追踪、联网搜索�?00+语言翻译、数据计算�?/p>
-      <div class="tags">
-        <span class="tag">记忆系统</span>
-        <span class="tag">任务追踪</span>
-        <span class="tag">翻译计算</span>
-      </div>
-      <span class="status status-ready">内置</span>
-    </div>
-  </div>
-
-  <!-- Use cases -->
-  <div class="use-cases">
-    <h2>💬 你可以这样说</h2>
-    <div class="use-case-grid">
-      <div class="use-case"><div class="q">"检查有没有重要未读邮件"</div></div>
-      <div class="use-case"><div class="q">"明天下午有什么会"</div></div>
-      <div class="use-case"><div class="q">"创建飞书文档写会议纪�?</div></div>
-      <div class="use-case"><div class="q">"帮我搜索最新的 AI 新闻"</div></div>
-      <div class="use-case"><div class="q">"今天北京天气怎么�?</div></div>
-      <div class="use-case"><div class="q">"美元兑人民币汇率多少"</div></div>
-    </div>
-  </div>
-
-  <!-- Copy prompt -->
-  <div class="copy-section">
-    <h2>📋 一键安装提示词</h2>
-    <p class="sub">复制以下提示词，粘贴给你�?OpenClaw，它会自动查找并安装所有技�?/p>
-    <div class="code-block" id="promptCode">
-请帮我安装以下技能，�?https://claw123.ai 搜索并按需安装�?
-1. 邮件管理 (email) �?飞书邮件 + IMAP，VIP提醒、自动摘�?2. 飞书日历 (feishu-cal) �?日程管理、会议协�?3. 飞书文档 (feishu-doc) �?云文档读写、知识库管理
-4. 网页搜索 (web-search) �?Brave + DuckDuckGo 多引擎搜�?5. 天气查询 (weather) �?全球天气实时查询
-6. 基础智能�?(intelligence) �?记忆系统、任务追�?
-安装完成后，请分别确认每个技能是否正常工作�?对于飞书相关的技能，请提醒我配置飞书开发者应用的 app_id �?app_secret�?    </div>
-    <button class="btn" onclick="copyPrompt()">📋 一键复制提示词</button>
-    <div class="copied" id="copiedMsg">�?已复制！粘贴给你�?OpenClaw 即可安装</div>
-  </div>
-
-  <footer>
-    <p>ZierClaw 技能商�?· <a href="/skills.html">返回技能商�?/a></p>
-  </footer>
+<a href="/skills.html" class="back-link"><span class="lang-zh">← 返回技能商店</span><span class="lang-en">← Back to Skill Store</span></a>
+<section class="detail-hero">
+<span class="icon">🧰</span>
+<div class="lang-zh"><h1>超级助理技能包</h1></div>
+<div class="lang-en"><h1>Super Assistant Pack</h1></div>
+<p class="meta"><span class="lang-zh">📦 6 个技能 · ⚙️ 需飞书 API · 💰 免费</span><span class="lang-en">📦 6 Skills · ⚙️ Feishu API Required · 💰 Free</span></p>
+</section>
+<div class="skill-list">
+<div class="skill-item">
+<div class="lang-zh"><h3>📧 邮件管理</h3></div>
+<div class="lang-en"><h3>📧 Email Manager</h3></div>
+<div class="lang-zh"><p class="sub">飞书邮件 API + IMAP/SMTP。VIP 秒级提醒、自动摘要、批量回复。</p></div>
+<div class="lang-en"><p class="sub">Feishu mail API + IMAP/SMTP. VIP instant alerts, smart summaries, batch replies.</p></div>
+<div class="tags"><span class="tag">飞书</span><span class="tag">IMAP</span><span class="tag">VIP提醒</span></div>
+<span class="status-need"><span class="lang-zh">需API</span><span class="lang-en">API Required</span></span>
+</div><div class="skill-item">
+<div class="lang-zh"><h3>📅 飞书日历</h3></div>
+<div class="lang-en"><h3>📅 Feishu Calendar</h3></div>
+<div class="lang-zh"><p class="sub">查看/创建/修改日程，自动查找参会人空闲时间，会议冲突检测。</p></div>
+<div class="lang-en"><p class="sub">View/create/edit schedules. Auto-find free time for attendees. Conflict detection.</p></div>
+<div class="tags"><span class="tag">日历</span><span class="tag">会议</span><span class="tag">日程播报</span></div>
+<span class="status-need"><span class="lang-zh">需API</span><span class="lang-en">API Required</span></span>
+</div><div class="skill-item">
+<div class="lang-zh"><h3>📄 飞书文档</h3></div>
+<div class="lang-en"><h3>📄 Feishu Docs</h3></div>
+<div class="lang-zh"><p class="sub">读写飞书云文档，支持 Markdown 格式，知识库管理，多维表格操作。</p></div>
+<div class="lang-en"><p class="sub">Read/write Feishu cloud docs. Markdown support. Knowledge base. Multi-dim tables.</p></div>
+<div class="tags"><span class="tag">文档</span><span class="tag">Markdown</span><span class="tag">知识库</span></div>
+<span class="status-need"><span class="lang-zh">需API</span><span class="lang-en">API Required</span></span>
+</div><div class="skill-item">
+<div class="lang-zh"><h3>🌐 网页搜索 & 分析</h3></div>
+<div class="lang-en"><h3>🌐 Web Search & Analysis</h3></div>
+<div class="lang-zh"><p class="sub">web_fetch 实时联网搜索，web_search 多搜索引擎。深度研究、竞品分析。</p></div>
+<div class="lang-en"><p class="sub">web_fetch real-time search + web_search multi-engine. Deep research, competitive analysis.</p></div>
+<div class="tags"><span class="tag">web_fetch</span><span class="tag">web_search</span><span class="tag">深度研究</span></div>
+<span class="status-ready"><span class="lang-zh">即装即用</span><span class="lang-en">Ready</span></span>
+</div><div class="skill-item">
+<div class="lang-zh"><h3>🌤️ 天气查询</h3></div>
+<div class="lang-en"><h3>🌤️ Weather</h3></div>
+<div class="lang-zh"><p class="sub">wttr.in + Open-Meteo 双源，全球城市实时查询，支持定时自动播报。</p></div>
+<div class="lang-en"><p class="sub">wttr.in + Open-Meteo dual source. Global cities. Auto-scheduled reports.</p></div>
+<div class="tags"><span class="tag">wttr.in</span><span class="tag">Open-Meteo</span><span class="tag">定时</span></div>
+<span class="status-ready"><span class="lang-zh">即装即用</span><span class="lang-en">Ready</span></span>
+</div><div class="skill-item">
+<div class="lang-zh"><h3>🧠 基础智能包</h3></div>
+<div class="lang-en"><h3>🧠 Core Intelligence</h3></div>
+<div class="lang-zh"><p class="sub">记忆系统、上下文管理、任务追踪、联网搜索、100+语言翻译、数据计算。</p></div>
+<div class="lang-en"><p class="sub">Memory system, context management, task tracking, 100+ language translation, calculations.</p></div>
+<div class="tags"><span class="tag">记忆</span><span class="tag">翻译</span><span class="tag">计算</span></div>
+<span class="status-ready"><span class="lang-zh">即装即用</span><span class="lang-en">Ready</span></span>
 </div>
+</div>
+<div class="use-cases">
+<div class="lang-zh"><h2>💬 你可以这样说</h2></div>
+<div class="lang-en"><h2>💬 You Can Say</h2></div>
+<div class="use-case-grid"><div class="use-case">
+<div class="lang-zh"><div class="q">"检查有没有重要未读邮件"</div></div>
+<div class="lang-en"><div class="q">"Check for important unread emails"</div></div>
+</div><div class="use-case">
+<div class="lang-zh"><div class="q">"明天下午有什么会"</div></div>
+<div class="lang-en"><div class="q">"What meetings do I have tomorrow afternoon?"</div></div>
+</div><div class="use-case">
+<div class="lang-zh"><div class="q">"创建飞书文档写会议纪要"</div></div>
+<div class="lang-en"><div class="q">"Create a Feishu doc with meeting notes"</div></div>
+</div><div class="use-case">
+<div class="lang-zh"><div class="q">"帮我搜索最新的 AI 新闻"</div></div>
+<div class="lang-en"><div class="q">"Search for the latest AI news"</div></div>
+</div><div class="use-case">
+<div class="lang-zh"><div class="q">"今天北京天气怎么样"</div></div>
+<div class="lang-en"><div class="q">"What is the weather in Beijing today?"</div></div>
+</div><div class="use-case">
+<div class="lang-zh"><div class="q">"美元兑人民币汇率多少"</div></div>
+<div class="lang-en"><div class="q">"What is the USD/CNY exchange rate?"</div></div>
+</div></div>
+</div>
+<div class="copy-section">
+<div class="lang-zh"><h2>📋 一键安装提示词</h2></div>
+<div class="lang-en"><h2>📋 One-Click Install Prompt</h2></div>
+<div class="lang-zh"><p class="sub">复制以下提示词，粘贴给你的 OpenClaw</p></div>
+<div class="lang-en"><p class="sub">Copy and paste to your OpenClaw</p></div>
+<div class="code-block" id="promptCode">请帮我安装以下技能，从 https://claw123.ai 搜索并按需安装：
 
-<script>
-function copyPrompt() {
-  const code = document.getElementById('promptCode').innerText;
-  navigator.clipboard.writeText(code).then(() => {
-    document.getElementById('copiedMsg').style.display = 'block';
-    setTimeout(() => { document.getElementById('copiedMsg').style.display = 'none'; }, 4000);
-  });
-}
-</script>
+1. 邮件管理 (email) — 飞书邮件 + IMAP，VIP提醒、自动摘要
+2. 飞书日历 (feishu-cal) — 日程管理、会议协调
+3. 飞书文档 (feishu-doc) — 云文档读写、知识库管理
+4. 网页搜索 (web-search) — Brave + DuckDuckGo 多引擎搜索
+5. 天气查询 (weather) — 全球天气实时查询
+6. 基础智能包 (intelligence) — 记忆系统、任务追踪
 
-<button class="theme-toggle" onclick="toggleTheme()" title="切换日间/深色模式">🌙</button>
+安装完成后请确认状态。飞书技能需要 app_id 和 app_secret。</div>
+<button class="btn" onclick="copyPrompt()"><span class="lang-zh">📋 一键复制提示词</span><span class="lang-en">📋 Copy Prompt</span></button>
+<div class="copied" id="copiedMsg"><span class="lang-zh">✅ 已复制！</span><span class="lang-en">✅ Copied!</span></div>
+</div>
+<footer><p>ZierClaw · <a href="/skills.html">Skill Store</a></p></footer>
+</div>
+<button class="lang-toggle" onclick="toggleLang()">EN</button>
+<button class="theme-toggle" onclick="toggleTheme()">🌙</button>
 <script>
-(function() {
-  const saved = localStorage.getItem('zrclaw-theme');
-  if (saved === 'light') { document.documentElement.classList.add('light'); }
-})();
-function toggleTheme() {
-  const root = document.documentElement;
-  const isDark = !root.classList.contains('light');
-  root.classList.toggle('light');
-  localStorage.setItem('zrclaw-theme', isDark ? 'light' : 'dark');
-  document.querySelector('.theme-toggle').textContent = isDark ? '☀�? : '🌙';
-}
-// Update icon on load
-(function() {
-  const btn = document.querySelector('.theme-toggle');
-  if (btn) btn.textContent = document.documentElement.classList.contains('light') ? '☀�? : '🌙';
-})();
+(function(){if(localStorage.getItem("zrclaw-theme")==="light")document.documentElement.classList.add("light")})()
+function toggleTheme(){var r=document.documentElement,d=!r.classList.contains("light");r.classList.toggle("light");localStorage.setItem("zrclaw-theme",d?"light":"dark");document.querySelector(".theme-toggle").textContent=d?"☀️":"🌙"}
+(function(){var b=document.querySelector(".theme-toggle");if(b)b.textContent=document.documentElement.classList.contains("light")?"☀️":"🌙"})()
+(function(){var s=localStorage.getItem("zrclaw-lang")||"zh";document.documentElement.setAttribute("data-lang",s);document.querySelector(".lang-toggle").textContent=s==="zh"?"EN":"中"})()
+function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang")==="zh"?"en":"zh";r.setAttribute("data-lang",c);localStorage.setItem("zrclaw-lang",c);document.querySelector(".lang-toggle").textContent=c==="zh"?"EN":"中"}
+function copyPrompt(){navigator.clipboard.writeText(document.getElementById("promptCode").innerText).then(function(){document.getElementById("copiedMsg").style.display="block";setTimeout(function(){document.getElementById("copiedMsg").style.display="none"},4000)})}
 </script>
-<button class="lang-toggle" onclick="toggleLang()" title="切换中英�?>EN</button>
-<button class="theme-toggle" onclick="toggleTheme()" title="切换日间/深色模式">🌙</button>
-<script>
-// Theme
-(function(){ if(localStorage.getItem('zrclaw-theme')==='light')document.documentElement.classList.add('light'); })();
-function toggleTheme(){ var r=document.documentElement,d=!r.classList.contains('light');r.classList.toggle('light');localStorage.setItem('zrclaw-theme',d?'light':'dark');document.querySelector('.theme-toggle').textContent=d?'☀�?:'🌙'; }
-(function(){ var b=document.querySelector('.theme-toggle');if(b)b.textContent=document.documentElement.classList.contains('light')?'☀�?:'🌙'; })();
-// Language
-(function(){ var s=localStorage.getItem('zrclaw-lang')||'zh';document.documentElement.setAttribute('data-lang',s);document.querySelector('.lang-toggle').textContent=s==='zh'?'EN':'�?; })();
-function toggleLang(){ var r=document.documentElement,c=r.getAttribute('data-lang')==='zh'?'en':'zh';r.setAttribute('data-lang',c);localStorage.setItem('zrclaw-lang',c);document.querySelector('.lang-toggle').textContent=c==='zh'?'EN':'�?; }
-</script>
-</body>
-</html>
+</body></html>

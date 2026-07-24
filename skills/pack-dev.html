@@ -1,175 +1,133 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-lang="zh">
 <head><meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>开发工具技能包 · ZierClaw</title>
 <style>
-:root { --bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#888;--accent:#6366f1;--accent-glow:#818cf8;--border:#1e1e2e;--green:#22c55e;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899) }
-* { margin:0;padding:0;box-sizing:border-box }
-body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.7 }
-.container { max-width:900px;margin:0 auto;padding:40px 20px }
-.back-link { display:inline-block;color:#c0c0c8;text-decoration:none;font-size:14px;margin-bottom:24px }
-.back-link:hover { color:var(--accent-glow) }
-.detail-hero { text-align:center;padding:20px 0 40px }
-.detail-hero .icon { font-size:56px;display:block;margin-bottom:12px }
-.detail-hero h1 { font-size:34px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px }
-.detail-hero .meta { color:#c0c0c8;font-size:14px }
-.skill-list { display:flex;flex-direction:column;gap:16px;margin-bottom:40px }
-.skill-item { background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px }
-.skill-item h3 { font-size:17px;margin-bottom:4px }
-.skill-item .sub { font-size:13px;color:#c0c0c8;margin-bottom:12px }
-.skill-item .tags { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px }
-.skill-item .tag { font-size:11px;padding:3px 10px;background:rgba(99,102,241,.12);color:var(--accent-glow);border-radius:10px }
-.status-ready { font-size:12px;padding:3px 10px;border-radius:10px;background:var(--green);color:#000;display:inline-block }
-.use-cases { margin:30px 0 }
-.use-cases h2 { font-size:20px;margin-bottom:16px }
-.use-case-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px }
-.use-case { background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px }
-.use-case .q { font-size:14px;font-style:italic;color:#c0c0c8 }
-.copy-section { background:var(--card-bg);border:1px solid var(--accent);border-radius:14px;padding:30px;margin:40px 0;text-align:center }
-.copy-section h2 { font-size:20px;margin-bottom:8px }
-.copy-section .sub { font-size:13px;color:#c0c0c8;margin-bottom:20px }
-.code-block { background: var(--card-bg);border: 1px solid var(--border);border-radius:10px;padding:20px;text-align:left;font-family:Consolas,Monaco,monospace;font-size:13px;color: var(--text);white-space: pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;margin-bottom:16px }
-.btn { display:inline-block;padding:12px 32px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:none;color:white;background:var(--gradient) }
-.btn:hover { transform:scale(1.03);box-shadow:0 8px 25px rgba(99,102,241,.4) }
-.copied { display:none;color:var(--green);font-size:13px;margin-top:8px }
-footer { text-align:center;padding:40px 20px;color:#c0c0c8;font-size:13px;border-top:1px solid var(--border) }
-footer a { color:var(--accent-glow);text-decoration:none }
-
-    .theme-toggle {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 20px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      transition: all 0.3s;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-    }
-    :root.light .theme-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-    .theme-toggle:hover {
-      transform: scale(1.1);
-      border-color: var(--accent);
-    }
-  
-    .lang-toggle, .theme-toggle {
-      position: fixed; right: 24px; width: 44px; height: 44px; border-radius: 50%;
-      background: var(--card-bg); border: 1px solid var(--border); color: var(--text);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      z-index: 999; transition: all 0.3s; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-      font-size: 14px; font-weight: 700; font-family: inherit;
-    }
-    .theme-toggle { bottom: 24px; font-size: 20px; }
-    .lang-toggle { bottom: 76px; }
-    :root.light .theme-toggle, :root.light .lang-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-    .lang-toggle:hover, .theme-toggle:hover { transform: scale(1.1); border-color: var(--accent); }
-    .lang-zh, .lang-en { display: none; }
-    html[data-lang="zh"] .lang-zh, html[data-lang="en"] .lang-en { display: revert; }
-  </style>
-</head>
-<body>
+:root{--bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#c0c0c8;--accent:#6366f1;--accent-glow:#818cf8;--border:#1e1e2e;--green:#22c55e;--orange:#f59e0b;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899)}
+:root.light{--bg:#f5f5f8;--card-bg:#fff;--text:#1a1a2e;--text-muted:#555566;--accent:#4f46e5;--accent-glow:#6366f1;--border:#d8d8e0;--green:#16a34a;--orange:#d97706}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+.container{max-width:900px;margin:0 auto;padding:40px 20px}
+.back-link{display:inline-block;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px}
+.back-link:hover{color:var(--accent)}
+.detail-hero{text-align:center;padding:20px 0 40px}
+.detail-hero .icon{font-size:56px;display:block;margin-bottom:12px}
+.detail-hero h1{font-size:34px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.detail-hero .meta{color:var(--text-muted);font-size:14px}
+.skill-list{display:flex;flex-direction:column;gap:16px;margin-bottom:40px}
+.skill-item{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px}
+.skill-item h3{font-size:17px;margin-bottom:4px}
+.skill-item .sub{font-size:13px;color:var(--text-muted);margin-bottom:12px}
+.skill-item .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.skill-item .tag{font-size:11px;padding:3px 10px;background:rgba(99,102,241,.15);color:var(--accent-glow);border-radius:10px}
+:root.light .tag{color:#4f46e5;font-weight:600}
+.status-ready{font-size:12px;padding:3px 10px;border-radius:10px;background:var(--green);color:#000}
+.status-need{font-size:12px;padding:3px 10px;border-radius:10px;background:var(--orange);color:#000}
+.use-cases{margin:30px 0}
+.use-cases h2{font-size:20px;margin-bottom:16px}
+.use-case-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.use-case{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px}
+.use-case .q{font-size:14px;font-style:italic;color:var(--text-muted)}
+.copy-section{background:var(--card-bg);border:1px solid var(--accent);border-radius:14px;padding:30px;margin:40px 0;text-align:center}
+.copy-section h2{font-size:20px;margin-bottom:8px}
+.copy-section .sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.code-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:left;font-family:Consolas,Monaco,monospace;font-size:13px;color:var(--text);white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;margin-bottom:16px}
+.btn{display:inline-block;padding:12px 32px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:none;color:#fff;background:var(--gradient)}
+.btn:hover{transform:scale(1.03);box-shadow:0 8px 25px rgba(99,102,241,.4)}
+.copied{display:none;color:var(--green);font-size:13px;margin-top:8px}
+footer{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;border-top:1px solid var(--border)}
+footer a{color:var(--accent-glow);text-decoration:none}
+.lang-toggle,.theme-toggle{position:fixed;right:24px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:999;transition:.3s;box-shadow:0 2px 12px rgba(0,0,0,.15);font:700 14px/1 inherit}
+.theme-toggle{bottom:24px;font-size:20px}
+.lang-toggle{bottom:76px}
+.lang-toggle:hover,.theme-toggle:hover{transform:scale(1.1);border-color:var(--accent)}
+.lang-zh,.lang-en{display:none}
+html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
+@media(max-width:600px){.detail-hero h1{font-size:26px}}
+</style></head><body>
 <div class="container">
-<a href="/skills.html" class="back-link">�?返回技能商�?/a>
+<a href="/skills.html" class="back-link"><span class="lang-zh">← 返回技能商店</span><span class="lang-en">← Back to Skill Store</span></a>
 <section class="detail-hero">
 <span class="icon">💻</span>
-<h1>开发工具技能包</h1>
-<p class="meta"><span>📦 4 个技�?/span><span>🛠�?即装即用</span><span>💰 免费</span></p>
+<div class="lang-zh"><h1>开发工具技能包</h1></div>
+<div class="lang-en"><h1>Dev Tools Pack</h1></div>
+<p class="meta"><span class="lang-zh">📦 4 个技能 · 🛠️ 即装即用 · 💰 免费</span><span class="lang-en">📦 4 Skills · 🛠️ Ready to Use · 💰 Free</span></p>
 </section>
 <div class="skill-list">
 <div class="skill-item">
-<h3>🧬 代码助手</h3>
-<p class="sub">Claude Code/Codex 写代码、改Bug、部署。PTY 模式自动应答�?/p>
+<div class="lang-zh"><h3>🧬 代码助手</h3></div>
+<div class="lang-en"><h3>🧬 Code Assistant</h3></div>
+<div class="lang-zh"><p class="sub">Claude Code/Codex 写代码、改Bug、部署。PTY 模式自动应答。</p></div>
+<div class="lang-en"><p class="sub">Claude Code/Codex for coding, bug fixing, deployment. PTY auto-respond mode.</p></div>
 <div class="tags"><span class="tag">Claude Code</span><span class="tag">Codex</span><span class="tag">PTY</span></div>
-<span class="status-ready">即装即用</span>
-</div>
-<div class="skill-item">
-<h3>🐙 GitHub 操作</h3>
-<p class="sub">仓库管理、Issues/PR、代码搜索、Actions 控制，不开网页管理GitHub�?/p>
+<span class="status-ready"><span class="lang-zh">即装即用</span><span class="lang-en">Ready</span></span>
+</div><div class="skill-item">
+<div class="lang-zh"><h3>🐙 GitHub 操作</h3></div>
+<div class="lang-en"><h3>🐙 GitHub Ops</h3></div>
+<div class="lang-zh"><p class="sub">仓库管理、Issues/PR、代码搜索、Actions——不开网页管GitHub。</p></div>
+<div class="lang-en"><p class="sub">Repo management, Issues/PR, code search, Actions. Manage GitHub without browser.</p></div>
 <div class="tags"><span class="tag">Issues</span><span class="tag">PR</span><span class="tag">Actions</span></div>
-<span class="status-ready">即装即用</span>
-</div>
-<div class="skill-item">
-<h3>🔭 浏览器控�?/h3>
-<p class="sub">无头 Chrome 截图、网页自动化、视觉调试。浏览器端自动测试�?/p>
-<div class="tags"><span class="tag">无头Chrome</span><span class="tag">截图</span><span class="tag">自动�?/span></div>
-<span class="status-ready">即装即用</span>
-</div>
-<div class="skill-item">
-<h3>�?自动化工作流</h3>
-<p class="sub">设计 n8n 工作�?JSON，含触发器、重试、错误处理、人工审核节点�?/p>
-<div class="tags"><span class="tag">n8n</span><span class="tag">工作�?/span><span class="tag">触发�?/span></div>
-<span class="status-ready">即装即用</span>
+<span class="status-ready"><span class="lang-zh">即装即用</span><span class="lang-en">Ready</span></span>
+</div><div class="skill-item">
+<div class="lang-zh"><h3>🔭 浏览器控制</h3></div>
+<div class="lang-en"><h3>🔭 Browser Control</h3></div>
+<div class="lang-zh"><p class="sub">无头 Chrome 截图、网页自动化、视觉调试。</p></div>
+<div class="lang-en"><p class="sub">Headless Chrome screenshots, web automation, visual debugging.</p></div>
+<div class="tags"><span class="tag">Chrome</span><span class="tag">截图</span><span class="tag">自动化</span></div>
+<span class="status-ready"><span class="lang-zh">即装即用</span><span class="lang-en">Ready</span></span>
+</div><div class="skill-item">
+<div class="lang-zh"><h3>⚡ 自动化工作流</h3></div>
+<div class="lang-en"><h3>⚡ n8n Automation</h3></div>
+<div class="lang-zh"><p class="sub">设计 n8n 工作流 JSON，含触发器、重试、错误处理、人工审核。</p></div>
+<div class="lang-en"><p class="sub">Design n8n workflow JSON. Triggers, retries, error handling, human review.</p></div>
+<div class="tags"><span class="tag">n8n</span><span class="tag">工作流</span><span class="tag">触发器</span></div>
+<span class="status-ready"><span class="lang-zh">即装即用</span><span class="lang-en">Ready</span></span>
 </div>
 </div>
 <div class="use-cases">
-<h2>💬 你可以这样说</h2>
-<div class="use-case-grid">
-<div class="use-case"><div class="q">"看看我的GitHub上有多少PR"</div></div>
-<div class="use-case"><div class="q">"帮我修复这个Bug"</div></div>
-<div class="use-case"><div class="q">"截一下这个网页看看效�?</div></div>
-<div class="use-case"><div class="q">"设计一个自动发周报的工作流"</div></div>
-</div>
+<div class="lang-zh"><h2>💬 你可以这样说</h2></div>
+<div class="lang-en"><h2>💬 You Can Say</h2></div>
+<div class="use-case-grid"><div class="use-case">
+<div class="lang-zh"><div class="q">"看看我的GitHub上有多少PR"</div></div>
+<div class="lang-en"><div class="q">"How many PRs are open on my GitHub?"</div></div>
+</div><div class="use-case">
+<div class="lang-zh"><div class="q">"帮我修复这个Bug"</div></div>
+<div class="lang-en"><div class="q">"Fix this bug for me"</div></div>
+</div><div class="use-case">
+<div class="lang-zh"><div class="q">"截一下这个网页看看效果"</div></div>
+<div class="lang-en"><div class="q">"Take a screenshot of this webpage"</div></div>
+</div><div class="use-case">
+<div class="lang-zh"><div class="q">"设计一个自动发周报的工作流"</div></div>
+<div class="lang-en"><div class="q">"Design an auto weekly report workflow"</div></div>
+</div></div>
 </div>
 <div class="copy-section">
-<h2>📋 一键安装提示词</h2>
-<p class="sub">复制以下提示词，粘贴给你�?OpenClaw</p>
-<div class="code-block" id="promptCode">
-请帮我安装以下开发工具技能，�?https://claw123.ai 搜索并按需安装�?
-1. 代码助手 (coding) �?Claude Code/Codex 代码编写和部�?2. GitHub操作 (github-ops) �?Issues/PR/Actions 管理
-3. 浏览器控�?(browser-vision) �?无头Chrome截图和自动化
-4. 自动化工作流 (n8n-automation) �?n8n工作流设�?
-安装完成后请测试基本功能。需要API Key的技能请提醒我配置�?    </div>
-<button class="btn" onclick="copyPrompt()">📋 一键复制提示词</button>
-<div class="copied" id="copiedMsg">�?已复制！</div>
+<div class="lang-zh"><h2>📋 一键安装提示词</h2></div>
+<div class="lang-en"><h2>📋 One-Click Install Prompt</h2></div>
+<div class="lang-zh"><p class="sub">复制以下提示词，粘贴给你的 OpenClaw</p></div>
+<div class="lang-en"><p class="sub">Copy and paste to your OpenClaw</p></div>
+<div class="code-block" id="promptCode">请帮我安装以下开发工具技能，从 https://claw123.ai 搜索并按需安装：
+
+1. 代码助手 (coding) — Claude Code/Codex 代码编写和部署
+2. GitHub操作 (github-ops) — Issues/PR/Actions 管理
+3. 浏览器控制 (browser-vision) — 无头Chrome截图和自动化
+4. 自动化工作流 (n8n-automation) — n8n工作流设计
+
+安装后请测试基本功能。</div>
+<button class="btn" onclick="copyPrompt()"><span class="lang-zh">📋 一键复制提示词</span><span class="lang-en">📋 Copy Prompt</span></button>
+<div class="copied" id="copiedMsg"><span class="lang-zh">✅ 已复制！</span><span class="lang-en">✅ Copied!</span></div>
 </div>
-<footer><p>ZierClaw 技能商�?· <a href="/skills.html">返回技能商�?/a></p></footer>
+<footer><p>ZierClaw · <a href="/skills.html">Skill Store</a></p></footer>
 </div>
+<button class="lang-toggle" onclick="toggleLang()">EN</button>
+<button class="theme-toggle" onclick="toggleTheme()">🌙</button>
 <script>
-function copyPrompt() {
-  navigator.clipboard.writeText(document.getElementById('promptCode').innerText).then(() => {
-    document.getElementById('copiedMsg').style.display = 'block';
-    setTimeout(() => { document.getElementById('copiedMsg').style.display = 'none'; }, 4000);
-  });
-}
+(function(){if(localStorage.getItem("zrclaw-theme")==="light")document.documentElement.classList.add("light")})()
+function toggleTheme(){var r=document.documentElement,d=!r.classList.contains("light");r.classList.toggle("light");localStorage.setItem("zrclaw-theme",d?"light":"dark");document.querySelector(".theme-toggle").textContent=d?"☀️":"🌙"}
+(function(){var b=document.querySelector(".theme-toggle");if(b)b.textContent=document.documentElement.classList.contains("light")?"☀️":"🌙"})()
+(function(){var s=localStorage.getItem("zrclaw-lang")||"zh";document.documentElement.setAttribute("data-lang",s);document.querySelector(".lang-toggle").textContent=s==="zh"?"EN":"中"})()
+function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang")==="zh"?"en":"zh";r.setAttribute("data-lang",c);localStorage.setItem("zrclaw-lang",c);document.querySelector(".lang-toggle").textContent=c==="zh"?"EN":"中"}
+function copyPrompt(){navigator.clipboard.writeText(document.getElementById("promptCode").innerText).then(function(){document.getElementById("copiedMsg").style.display="block";setTimeout(function(){document.getElementById("copiedMsg").style.display="none"},4000)})}
 </script>
-<button class="theme-toggle" onclick="toggleTheme()" title="切换日间/深色模式">🌙</button>
-<script>
-(function() {
-  const saved = localStorage.getItem('zrclaw-theme');
-  if (saved === 'light') { document.documentElement.classList.add('light'); }
-})();
-function toggleTheme() {
-  const root = document.documentElement;
-  const isDark = !root.classList.contains('light');
-  root.classList.toggle('light');
-  localStorage.setItem('zrclaw-theme', isDark ? 'light' : 'dark');
-  document.querySelector('.theme-toggle').textContent = isDark ? '☀�? : '🌙';
-}
-// Update icon on load
-(function() {
-  const btn = document.querySelector('.theme-toggle');
-  if (btn) btn.textContent = document.documentElement.classList.contains('light') ? '☀�? : '🌙';
-})();
-</script>
-<button class="lang-toggle" onclick="toggleLang()" title="切换中英�?>EN</button>
-<button class="theme-toggle" onclick="toggleTheme()" title="切换日间/深色模式">🌙</button>
-<script>
-// Theme
-(function(){ if(localStorage.getItem('zrclaw-theme')==='light')document.documentElement.classList.add('light'); })();
-function toggleTheme(){ var r=document.documentElement,d=!r.classList.contains('light');r.classList.toggle('light');localStorage.setItem('zrclaw-theme',d?'light':'dark');document.querySelector('.theme-toggle').textContent=d?'☀�?:'🌙'; }
-(function(){ var b=document.querySelector('.theme-toggle');if(b)b.textContent=document.documentElement.classList.contains('light')?'☀�?:'🌙'; })();
-// Language
-(function(){ var s=localStorage.getItem('zrclaw-lang')||'zh';document.documentElement.setAttribute('data-lang',s);document.querySelector('.lang-toggle').textContent=s==='zh'?'EN':'�?; })();
-function toggleLang(){ var r=document.documentElement,c=r.getAttribute('data-lang')==='zh'?'en':'zh';r.setAttribute('data-lang',c);localStorage.setItem('zrclaw-lang',c);document.querySelector('.lang-toggle').textContent=c==='zh'?'EN':'�?; }
-</script>
-</body>
-</html>
+</body></html>
