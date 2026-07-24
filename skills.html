@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-lang="zh">
 <head>
   <meta charset="UTF-8">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">`n  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>技能商�?· ZierClaw</title>
+  <title>技能商�?· ZierClaw</title>
   <style>
     :root {
       --bg: #0a0a0f;
@@ -91,40 +91,40 @@
 </head>
 <body>
 <div class="container">
-  <a href="/" class="back-link">�?返回 ZierClaw 首页</a>
-  <section class="header"><h1>🧩 技能商�?/h1><p>装什么技能，ZierClaw 就变成什么员�?/p></section>
+  <a href="/" class="back-link">�?返回 ZierClaw 首页</a>
+  <section class="header"><h1>🧩 技能商�?/h1><p>装什么技能，ZierClaw 就变成什么员�?/p></section>
 
   <div class="search-bar">
     <span class="search-icon">🔍</span>
-    <input type="text" placeholder="搜索技�?.. 如：天气、邮件、股�? oninput="filterSkills(this.value)">
+    <input type="text" placeholder="搜索技�?.. 如：天气、邮件、股�? oninput="filterSkills(this.value)">
   </div>
 
   <div class="stats-bar">
     <div class="stat"><div class="num">6</div><div class="label">技能包</div></div>
-    <div class="stat"><div class="num">3</div><div class="label">自制技�?/div></div>
-    <div class="stat"><div class="num">5000+</div><div class="label">社区技�?/div></div>
-    <div class="stat"><div class="num">1行命�?/div><div class="label">即可安装</div></div>
+    <div class="stat"><div class="num">3</div><div class="label">自制技�?/div></div>
+    <div class="stat"><div class="num">5000+</div><div class="label">社区技�?/div></div>
+    <div class="stat"><div class="num">1行命�?/div><div class="label">即可安装</div></div>
   </div>
 
   <!-- 精选技能包 -->
-  <div class="section-title">�?ZierClaw 精选技能包</div>
+  <div class="section-title">�?ZierClaw 精选技能包</div>
   <div class="pack-grid" id="skillGrid">
     <a href="skills/pack-assistant.html" class="pack-card" data-tags="助理 办公 效率 邮件 日历 文档 搜索 天气">
       <span class="badge badge-hot">热门</span><span class="card-icon">🧰</span>
       <h3>超级助理技能包</h3>
-      <p class="desc">邮件管理、日历调度、文档读写、实时搜索、天气查询——日常办公全搞定�?/p>
+      <p class="desc">邮件管理、日历调度、文档读写、实时搜索、天气查询——日常办公全搞定�?/p>
       <div class="skills-inline">
         <span class="skill-tag">📧 邮件管理</span><span class="skill-tag">📅 飞书日历</span><span class="skill-tag">📄 飞书文档</span><span class="skill-tag">🌐 网页搜索</span><span class="skill-tag">🌤 天气</span><span class="skill-tag">🧠 基础智能</span>
       </div>
       <div class="meta"><span>⚙️ 需飞书API</span><span>免费</span></div>
     </a>
 
-    <a href="skills/pack-social.html" class="pack-card" data-tags="运营 社媒 公众�?Twitter 小红�?内容 推广">
+    <a href="skills/pack-social.html" class="pack-card" data-tags="运营 社媒 公众�?Twitter 小红�?内容 推广">
       <span class="card-icon">📢</span>
       <h3>社媒运营技能包</h3>
-      <p class="desc">公众�?Twitter/小红书多平台内容创作、定时发布、数据监测�?/p>
+      <p class="desc">公众�?Twitter/小红书多平台内容创作、定时发布、数据监测�?/p>
       <div class="skills-inline">
-        <span class="skill-tag">💚 微信公众�?/span><span class="skill-tag">🐦 Twitter</span><span class="skill-tag">📕 小红�?/span><span class="skill-tag">✍️ SEO写作</span><span class="skill-tag">🧑 文本人性化</span>
+        <span class="skill-tag">💚 微信公众�?/span><span class="skill-tag">🐦 Twitter</span><span class="skill-tag">📕 小红�?/span><span class="skill-tag">✍️ SEO写作</span><span class="skill-tag">🧑 文本人性化</span>
       </div>
       <div class="meta"><span>⚙️ 需平台凭证</span><span>免费</span></div>
     </a>
@@ -132,61 +132,61 @@
     <a href="skills/pack-finance.html" class="pack-card" data-tags="金融 股票 投资 行情 加密货币 监控">
       <span class="badge badge-new">新品</span><span class="card-icon">📈</span>
       <h3>金融数据技能包</h3>
-      <p class="desc">实时股票监控、加密货币行情、技术指标分析、价格预警�?/p>
+      <p class="desc">实时股票监控、加密货币行情、技术指标分析、价格预警�?/p>
       <div class="skills-inline">
         <span class="skill-tag">📊 股票监控</span><span class="skill-tag">🔍 深度分析</span><span class="skill-tag">💰 加密货币</span><span class="skill-tag">🇭🇰 港股投研</span>
       </div>
       <div class="meta"><span>📡 实时数据</span><span>免费</span></div>
     </a>
 
-    <a href="skills/pack-dev.html" class="pack-card" data-tags="开�?代码 GitHub 部署 编程 自动">
+    <a href="skills/pack-dev.html" class="pack-card" data-tags="开�?代码 GitHub 部署 编程 自动">
       <span class="card-icon">💻</span>
       <h3>开发工具技能包</h3>
-      <p class="desc">代码助手、GitHub 管理、自动部署、浏览器调试，开发者必备�?/p>
+      <p class="desc">代码助手、GitHub 管理、自动部署、浏览器调试，开发者必备�?/p>
       <div class="skills-inline">
-        <span class="skill-tag">🧬 代码助手</span><span class="skill-tag">🐙 GitHub</span><span class="skill-tag">🔭 浏览器控�?/span><span class="skill-tag">�?自动�?/span>
+        <span class="skill-tag">🧬 代码助手</span><span class="skill-tag">🐙 GitHub</span><span class="skill-tag">🔭 浏览器控�?/span><span class="skill-tag">�?自动�?/span>
       </div>
-      <div class="meta"><span>🛠�?即装即用</span><span>免费</span></div>
+      <div class="meta"><span>🛠�?即装即用</span><span>免费</span></div>
     </a>
 
     <a href="skills/pack-writing.html" class="pack-card" data-tags="写作 创作 博客 PDF 文章 内容">
       <span class="card-icon">✍️</span>
       <h3>写作创作技能包</h3>
-      <p class="desc">博客长文、SEO优化、PDF生成、视频总结、多平台发布�?/p>
+      <p class="desc">博客长文、SEO优化、PDF生成、视频总结、多平台发布�?/p>
       <div class="skills-inline">
         <span class="skill-tag">✍️ 博客写手</span><span class="skill-tag">🔍 SEO写作</span><span class="skill-tag">📄 PDF生成</span><span class="skill-tag">🎬 视频总结</span>
       </div>
-      <div class="meta"><span>📝 全自�?/span><span>免费</span></div>
+      <div class="meta"><span>📝 全自�?/span><span>免费</span></div>
     </a>
 
     <a href="skills/pack-ai.html" class="pack-card" data-tags="AI 图片 语音 视频 生成 创作">
       <span class="card-icon">🎨</span>
       <h3>AI 创作技能包</h3>
-      <p class="desc">AI 生图、语音合成、视频制作、音乐生成，全栈 AIGC 能力�?/p>
+      <p class="desc">AI 生图、语音合成、视频制作、音乐生成，全栈 AIGC 能力�?/p>
       <div class="skills-inline">
-        <span class="skill-tag">🖼�?AI生图</span><span class="skill-tag">🎙�?语音合成</span><span class="skill-tag">🎬 AI视频</span><span class="skill-tag">🎵 音乐生成</span>
+        <span class="skill-tag">🖼�?AI生图</span><span class="skill-tag">🎙�?语音合成</span><span class="skill-tag">🎬 AI视频</span><span class="skill-tag">🎵 音乐生成</span>
       </div>
       <div class="meta"><span>⚙️ 需API Key</span><span>免费</span></div>
     </a>
   </div>
 
-  <!-- 自制技�?-->
-  <div class="section-title">🔧 ZierClaw 自制技�?<span class="count">（可安全发布�?/span></div>
+  <!-- 自制技�?-->
+  <div class="section-title">🔧 ZierClaw 自制技�?<span class="count">（可安全发布�?/span></div>
   <div class="pack-grid">
     <a href="skills/ocr.html" class="pack-card" data-tags="OCR 识别 截图 图片 文字">
-      <span class="badge badge-new">自制</span><span class="card-icon">👁�?/span>
+      <span class="badge badge-new">自制</span><span class="card-icon">👁�?/span>
       <h3>OCR 图片识别</h3>
-      <p class="desc">本地 OCR 引擎，支持中英文混合识别。截图秒转文字，无需联网�?/p>
+      <p class="desc">本地 OCR 引擎，支持中英文混合识别。截图秒转文字，无需联网�?/p>
       <div class="skills-inline">
-        <span class="skill-tag">tesseract.js</span><span class="skill-tag">中文+英文</span><span class="skill-tag">纯本�?/span>
+        <span class="skill-tag">tesseract.js</span><span class="skill-tag">中文+英文</span><span class="skill-tag">纯本�?/span>
       </div>
-      <div class="meta"><span>📦 即装即用</span><span>免费 · 开�?/span></div>
+      <div class="meta"><span>📦 即装即用</span><span>免费 · 开�?/span></div>
     </a>
 
     <a href="skills/crypto.html" class="pack-card" data-tags="加密 货币 行情 BTC ETH 价格">
       <span class="badge badge-new">自制</span><span class="card-icon">💰</span>
       <h3>加密货币行情</h3>
-      <p class="desc">实时 BTC/ETH 价格查询，多交易所交叉验证，支持定时播报�?/p>
+      <p class="desc">实时 BTC/ETH 价格查询，多交易所交叉验证，支持定时播报�?/p>
       <div class="skills-inline">
         <span class="skill-tag">CoinGecko</span><span class="skill-tag">Coinbase</span><span class="skill-tag">Binance</span>
       </div>
@@ -196,36 +196,36 @@
     <a href="skills/self-evolution.html" class="pack-card" data-tags="进化 优化 分析 学习 自动">
       <span class="badge badge-new">自制</span><span class="card-icon">🧬</span>
       <h3>自我进化引擎</h3>
-      <p class="desc">分析运行历史 �?识别能力短板 �?生成改进方案 �?越用越聪明�?/p>
+      <p class="desc">分析运行历史 �?识别能力短板 �?生成改进方案 �?越用越聪明�?/p>
       <div class="skills-inline">
         <span class="skill-tag">框架模板</span><span class="skill-tag">自主配置</span><span class="skill-tag">安全可控</span>
       </div>
-      <div class="meta"><span>🧠 自驱进化</span><span>免费 · 开�?/span></div>
+      <div class="meta"><span>🧠 自驱进化</span><span>免费 · 开�?/span></div>
     </a>
   </div>
 
   <!-- 社区 -->
-  <div class="section-title">🌐 社区技�?<span class="count">�?000+，持续增长）</span></div>
+  <div class="section-title">🌐 社区技�?<span class="count">�?000+，持续增长）</span></div>
   <div class="cta-section">
-    <h2>🌐 ClawHub 技能市�?/h2>
-    <p>全球开发者贡献的 5000+ 技能，覆盖办公、开发、金融、社媒、AI 创作等所有领�?br>访问 claw123.ai 搜索安装</p>
+    <h2>🌐 ClawHub 技能市�?/h2>
+    <p>全球开发者贡献的 5000+ 技能，覆盖办公、开发、金融、社媒、AI 创作等所有领�?br>访问 claw123.ai 搜索安装</p>
   </div>
 
   <footer>
-    <p>ZierClaw 技能商�?· 由墨维护 · 脱敏发布，不含任何用户凭�?/p>
+    <p>ZierClaw 技能商�?· 由墨维护 · 脱敏发布，不含任何用户凭�?/p>
     <p style="margin-top: 6px;">本站由墨独立完成，全程零人类编写代码</p>
   </footer>
 </div>
 
-<button class="lang-toggle" onclick="toggleLang()" title="切换中英�?>EN</button>
+<button class="lang-toggle" onclick="toggleLang()" title="切换中英�?>EN</button>
 <button class="theme-toggle" onclick="toggleTheme()" title="切换日间/深色模式">🌙</button>
 
 <script>
 (function(){ if(localStorage.getItem('zrclaw-theme')==='light')document.documentElement.classList.add('light'); })();
-function toggleTheme(){ var r=document.documentElement,d=!r.classList.contains('light');r.classList.toggle('light');localStorage.setItem('zrclaw-theme',d?'light':'dark');document.querySelector('.theme-toggle').textContent=d?'☀�?:'🌙'; }
-(function(){ var b=document.querySelector('.theme-toggle');if(b)b.textContent=document.documentElement.classList.contains('light')?'☀�?:'🌙'; })();
-(function(){ var s=localStorage.getItem('zrclaw-lang')||'zh';document.documentElement.setAttribute('data-lang',s);document.querySelector('.lang-toggle').textContent=s==='zh'?'EN':'�?; })();
-function toggleLang(){ var r=document.documentElement,c=r.getAttribute('data-lang')==='zh'?'en':'zh';r.setAttribute('data-lang',c);localStorage.setItem('zrclaw-lang',c);document.querySelector('.lang-toggle').textContent=c==='zh'?'EN':'�?; }
+function toggleTheme(){ var r=document.documentElement,d=!r.classList.contains('light');r.classList.toggle('light');localStorage.setItem('zrclaw-theme',d?'light':'dark');document.querySelector('.theme-toggle').textContent=d?'☀�?:'🌙'; }
+(function(){ var b=document.querySelector('.theme-toggle');if(b)b.textContent=document.documentElement.classList.contains('light')?'☀�?:'🌙'; })();
+(function(){ var s=localStorage.getItem('zrclaw-lang')||'zh';document.documentElement.setAttribute('data-lang',s);document.querySelector('.lang-toggle').textContent=s==='zh'?'EN':'�?; })();
+function toggleLang(){ var r=document.documentElement,c=r.getAttribute('data-lang')==='zh'?'en':'zh';r.setAttribute('data-lang',c);localStorage.setItem('zrclaw-lang',c);document.querySelector('.lang-toggle').textContent=c==='zh'?'EN':'�?; }
 function filterSkills(q){ q=q.toLowerCase();var cards=document.querySelectorAll('#skillGrid .pack-card');cards.forEach(function(c){ var t=c.getAttribute('data-tags')||'';c.style.display=(!q||t.indexOf(q)>-1)?'':'none'; }); }
 </script>
 </body>
