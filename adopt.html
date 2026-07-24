@@ -311,10 +311,49 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.15);
     }
     :root.light .theme-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .lang-toggle {
+      position: fixed;
+      bottom: 76px;
+      right: 24px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      transition: all 0.3s;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      font-family: inherit;
+      line-height: 1;
+    }
+    :root.light .lang-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .lang-toggle:hover {
+      transform: scale(1.1);
+      border-color: var(--accent);
+    }
+    .lang-toggle {
+      position: fixed; bottom: 76px; right: 24px; width: 44px; height: 44px; border-radius: 50%;
+      background: var(--card-bg); border: 1px solid var(--border); color: var(--text);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      z-index: 999; transition: all 0.3s; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      font-size: 14px; font-weight: 700; font-family: inherit;
+    }
+    :root.light .lang-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .lang-toggle:hover { transform: scale(1.1); border-color: var(--accent); }
     .theme-toggle:hover {
       transform: scale(1.1);
       border-color: var(--accent);
     }
+  
+    .lang-zh, .lang-en { display: none; }
+    html[data-lang="zh"] .lang-zh, html[data-lang="en"] .lang-en { display: revert; }
   </style>
 </head>
 <body>
@@ -417,6 +456,8 @@
   </footer>
 </div>
 
+<button class="lang-toggle" onclick="toggleLang()" title="切换中英文 / Switch Language">中</button>
+<button class="lang-toggle" onclick="toggleLang()" title="切换中英文">EN</button>
 <button class="theme-toggle" onclick="toggleTheme()" title="切换日间/深色模式">🌙</button>
 <script>
 (function() {
@@ -435,6 +476,111 @@ function toggleTheme() {
   const btn = document.querySelector('.theme-toggle');
   if (btn) btn.textContent = document.documentElement.classList.contains('light') ? '☀️' : '🌙';
 })();
+</script>
+
+<script>
+const translations = {
+  "领养你的 AI 助手": "Adopt Your AI Sidekick",
+  "免费领养 · 数据在你手里 · 越养越聪明": "Free adoption · Your data stays yours · Gets smarter over time",
+  "推荐": "Featured",
+  "本地部署": "Self-Hosted",
+  "下载到自己的电脑，数据全在你手里": "Download to your own computer. Your data stays local.",
+  "Windows / Mac / Linux 全支持": "Windows / Mac / Linux supported",
+  "数据完全本地，隐私安全": "Fully local data, privacy guaranteed",
+  "免费开源，永久免费": "Free & open source, always free",
+  "支持自定义技能包": "Custom skill packs supported",
+  "永久免费": "Free Forever",
+  "开始部署 →": "Get Started →",
+  "云端托管": "Cloud Hosted",
+  "7×24 云端运行，无需开机": "24/7 cloud operation. No need to keep your PC on.",
+  "无需维护服务器": "Zero server maintenance",
+  "随时随地访问": "Access from anywhere",
+  "自动更新 & 备份": "Auto updates & backups",
+  "弹性扩展能力": "Elastic scaling",
+  "即将推出": "Coming Soon",
+  "敬请期待": "Stay tuned",
+  "加入等待列表": "Join Waitlist",
+  "常见问题": "FAQ",
+  "什么是 ZierClaw？": "What is ZierClaw?",
+  "ZierClaw 是墨驱动的 AI 私人助手。给它一台电脑，它就是你的数字员工。会聊天就会用，越养越聪明。": "ZierClaw is Mo-powered AI personal assistant. Give it a computer, it becomes your digital employee.",
+  "需要什么配置？": "System Requirements?",
+  "最低 4GB 内存、Windows 10+/macOS 12+/Linux 即可。需要 Node.js 环境，我们会提供一键安装脚本。": "Minimum 4GB RAM, Windows 10+ / macOS 12+ / Linux. Node.js required. One-click install script provided.",
+  "数据安全吗？": "Is my data safe?",
+  "本地部署版本所有数据都在你的电脑上，不上传任何云端。你的隐私你做主。": "Self-hosted version keeps all data on your computer. Nothing is uploaded.",
+  "真的免费吗？": "Is it really free?",
+  "ZierClaw 基于开源 OpenClaw 框架，本地部署完全免费。云端托管版未来会推出，价格待定。": "ZierClaw is based on the open-source OpenClaw framework. Self-hosted is completely free.",
+  "什么是技能？": "What are skills?",
+  "技能像手机的 App —— 装什么技能，ZierClaw 就变成什么员工。天气、邮件、文档、编码、SEO……已经 5000+ 社区技能随时安装。": "Skills are like phone apps — install whatever skill you need. 5000+ community skills available.",
+  "部署要多久？": "How long does deployment take?",
+  "熟练的话 5 分钟。新手跟着教程 15-20 分钟。我们会提供详细文档和视频教程。": "5 minutes for experienced users. 15-20 minutes for beginners. Detailed docs and video guides provided.",
+  "获取部署支持": "Get Deployment Support",
+  "有问题？选一个你喜欢的方式联系": "Questions? Reach out via your preferred channel",
+  "飞书群": "Feishu Group",
+  "即将": "Soon",
+  "返回 ZierClaw 首页": "← Back to ZierClaw Home"
+};
+
+function toggleLang() {
+  const root = document.documentElement;
+  const currentLang = root.getAttribute('data-lang') || 'zh';
+  const newLang = currentLang === 'zh' ? 'en' : 'zh';
+  root.setAttribute('data-lang', newLang);
+  localStorage.setItem('zrclaw-lang', newLang);
+  document.querySelector('.lang-toggle').textContent = newLang === 'zh' ? '中' : 'EN';
+  applyTranslations(newLang);
+}
+
+function applyTranslations(lang) {
+  document.querySelectorAll('[data-t]').forEach(el => {
+    el.textContent = lang === 'en' ? translations[el.getAttribute('data-t')] || el.textContent : el.getAttribute('data-orig') || el.textContent;
+  });
+}
+
+// Initialize: mark all translatable text with data-t attributes
+(function initI18n() {
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+  const textNodes = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    const text = node.textContent.trim();
+    if (!text || text.length < 2) continue;
+    if (node.parentElement && node.parentElement.closest('script,style,.theme-toggle,.lang-toggle,button.header-toggle')) continue;
+    textNodes.push(node);
+  }
+  
+  // Process each text node - find translation match
+  const reverseMap = {};
+  for (const [zh, en] of Object.entries(translations)) {
+    reverseMap[zh.trim()] = en;
+  }
+  
+  textNodes.forEach(node => {
+    const text = node.textContent.trim();
+    const match = translations[text];
+    if (match) {
+      const span = document.createElement('span');
+      span.setAttribute('data-t', text);
+      span.setAttribute('data-orig', text);
+      span.textContent = text;
+      node.parentNode.replaceChild(span, node);
+    }
+  });
+  
+  // Restore saved language
+  const saved = localStorage.getItem('zrclaw-lang');
+  if (saved) {
+    document.documentElement.setAttribute('data-lang', saved);
+    document.querySelector('.lang-toggle').textContent = saved === 'zh' ? '中' : 'EN';
+    applyTranslations(saved);
+  } else {
+    document.querySelector('.lang-toggle').textContent = '中';
+  }
+})();
+</script>
+
+<script>
+(function(){ var s=localStorage.getItem('zrclaw-lang')||'zh';document.documentElement.setAttribute('data-lang',s);document.querySelector('.lang-toggle').textContent=s==='zh'?'EN':'中'; })();
+function toggleLang(){ var r=document.documentElement,c=r.getAttribute('data-lang')==='zh'?'en':'zh';r.setAttribute('data-lang',c);localStorage.setItem('zrclaw-lang',c);document.querySelector('.lang-toggle').textContent=c==='zh'?'EN':'中'; }
 </script>
 </body>
 </html>

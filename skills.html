@@ -301,10 +301,49 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.15);
     }
     :root.light .theme-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .lang-toggle {
+      position: fixed;
+      bottom: 76px;
+      right: 24px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      transition: all 0.3s;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      font-family: inherit;
+      line-height: 1;
+    }
+    :root.light .lang-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .lang-toggle:hover {
+      transform: scale(1.1);
+      border-color: var(--accent);
+    }
+    .lang-toggle {
+      position: fixed; bottom: 76px; right: 24px; width: 44px; height: 44px; border-radius: 50%;
+      background: var(--card-bg); border: 1px solid var(--border); color: var(--text);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      z-index: 999; transition: all 0.3s; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      font-size: 14px; font-weight: 700; font-family: inherit;
+    }
+    :root.light .lang-toggle { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .lang-toggle:hover { transform: scale(1.1); border-color: var(--accent); }
     .theme-toggle:hover {
       transform: scale(1.1);
       border-color: var(--accent);
     }
+  
+    .lang-zh, .lang-en { display: none; }
+    html[data-lang="zh"] .lang-zh, html[data-lang="en"] .lang-en { display: revert; }
   </style>
 </head>
 <body>
@@ -525,6 +564,8 @@ function filterSkills() {
 }
 </script>
 
+<button class="lang-toggle" onclick="toggleLang()" title="切换中英文 / Switch Language">中</button>
+<button class="lang-toggle" onclick="toggleLang()" title="切换中英文">EN</button>
 <button class="theme-toggle" onclick="toggleTheme()" title="切换日间/深色模式">🌙</button>
 <script>
 (function() {
@@ -543,6 +584,122 @@ function toggleTheme() {
   const btn = document.querySelector('.theme-toggle');
   if (btn) btn.textContent = document.documentElement.classList.contains('light') ? '☀️' : '🌙';
 })();
+</script>
+
+<script>
+const translations = {
+  "技能商店 · ZierClaw": "Skill Store · ZierClaw",
+  "装什么技能，ZierClaw 就变成什么员工": "Install skills, shape your employee",
+  "搜索技能... 如：天气、邮件、股票": "Search skills... e.g. weather, email, stocks",
+  "技能包": "Packs",
+  "自制技能": "Custom Skills",
+  "社区技能": "Community Skills",
+  "1行命令": "1 Command",
+  "即可安装": "to Install",
+  "ZierClaw 精选技能包": "Featured Skill Packs",
+  "热门": "Hot",
+  "新品": "New",
+  "超级助理技能包": "Super Assistant Pack",
+  "邮件管理、日历调度、文档读写、实时搜索、天气查询——日常办公全搞定。": "Email, calendar, docs, search, weather — all your daily office needs.",
+  "需配置飞书 API": "Feishu API required",
+  "免费": "Free",
+  "社媒运营技能包": "Social Media Pack",
+  "公众号/Twitter/小红书多平台内容创作、定时发布、数据监测。": "WeChat/Twitter/Xiaohongshu multi-platform content creation and analytics.",
+  "需平台凭证": "Platform credentials required",
+  "金融数据技能包": "Financial Data Pack",
+  "实时股票监控、加密货币行情、技术指标分析、价格预警。": "Real-time stocks, crypto prices, technical indicators, alerts.",
+  "实时数据": "Real-time Data",
+  "开发工具技能包": "Dev Tools Pack",
+  "代码助手、GitHub 管理、自动部署、浏览器调试，开发者必备。": "Code assistant, GitHub management, auto-deploy, browser debugging.",
+  "即装即用": "Ready to Use",
+  "写作创作技能包": "Writing Tools Pack",
+  "博客长文、SEO优化、PDF生成、视频总结、多平台发布。": "Blog posts, SEO writing, PDF generation, video summaries.",
+  "全自动": "Fully Automated",
+  "AI 创作技能包": "AI Creative Pack",
+  "AI 生图、语音合成、视频制作、音乐生成，全栈 AIGC 能力。": "AI image gen, TTS, video creation, music gen. Full-stack AIGC.",
+  "需 API Key": "API Key Required",
+  "ZierClaw 自制技能": "ZierClaw Custom Skills",
+  "可安全发布": "Safe to Publish",
+  "本地 OCR 引擎，支持中英文混合识别。截图秒转文字，无需联网。": "Local OCR engine. Chinese + English. Screenshot to text, no internet needed.",
+  "中文+英文": "CN + EN",
+  "纯本地": "Fully Local",
+  "免费 · 开源": "Free · Open Source",
+  "实时 BTC/ETH 价格查询，多交易所交叉验证，支持定时播报。": "Real-time BTC/ETH. Multi-exchange cross-verification. Scheduled alerts.",
+  "分析运行历史 → 识别能力短板 → 生成改进方案 → 越用越聪明。": "Analyze history → find gaps → generate plans. Gets smarter every day.",
+  "框架模板": "Framework Template",
+  "自主配置": "Self-Configured",
+  "安全可控": "Safe & Controllable",
+  "自驱进化": "Self-Evolving",
+  "（5000+，持续增长）": "(5000+, growing)",
+  "在 ClawHub 探索更多": "Explore More on ClawHub",
+  "全球开发者贡献的 5000+ 技能，覆盖办公、开发、金融、社媒、AI 创作等所有领域": "5000+ community skills across office, dev, finance, social, AI creation",
+  "一行命令安装，即装即用": "One command to install. Ready to use instantly.",
+  "打开 ClawHub 技能市场 →": "Open ClawHub Skill Market →",
+  "ZierClaw 技能商店 · 由墨维护 · 脱敏发布，不含任何用户凭证": "ZierClaw Skill Store · Maintained by Mo · Sanitized, no credentials",
+  "返回 ZierClaw 首页": "← Back to ZierClaw Home"
+};
+
+function toggleLang() {
+  const root = document.documentElement;
+  const currentLang = root.getAttribute('data-lang') || 'zh';
+  const newLang = currentLang === 'zh' ? 'en' : 'zh';
+  root.setAttribute('data-lang', newLang);
+  localStorage.setItem('zrclaw-lang', newLang);
+  document.querySelector('.lang-toggle').textContent = newLang === 'zh' ? '中' : 'EN';
+  applyTranslations(newLang);
+}
+
+function applyTranslations(lang) {
+  document.querySelectorAll('[data-t]').forEach(el => {
+    el.textContent = lang === 'en' ? translations[el.getAttribute('data-t')] || el.textContent : el.getAttribute('data-orig') || el.textContent;
+  });
+}
+
+// Initialize: mark all translatable text with data-t attributes
+(function initI18n() {
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+  const textNodes = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    const text = node.textContent.trim();
+    if (!text || text.length < 2) continue;
+    if (node.parentElement && node.parentElement.closest('script,style,.theme-toggle,.lang-toggle,button.header-toggle')) continue;
+    textNodes.push(node);
+  }
+  
+  // Process each text node - find translation match
+  const reverseMap = {};
+  for (const [zh, en] of Object.entries(translations)) {
+    reverseMap[zh.trim()] = en;
+  }
+  
+  textNodes.forEach(node => {
+    const text = node.textContent.trim();
+    const match = translations[text];
+    if (match) {
+      const span = document.createElement('span');
+      span.setAttribute('data-t', text);
+      span.setAttribute('data-orig', text);
+      span.textContent = text;
+      node.parentNode.replaceChild(span, node);
+    }
+  });
+  
+  // Restore saved language
+  const saved = localStorage.getItem('zrclaw-lang');
+  if (saved) {
+    document.documentElement.setAttribute('data-lang', saved);
+    document.querySelector('.lang-toggle').textContent = saved === 'zh' ? '中' : 'EN';
+    applyTranslations(saved);
+  } else {
+    document.querySelector('.lang-toggle').textContent = '中';
+  }
+})();
+</script>
+
+<script>
+(function(){ var s=localStorage.getItem('zrclaw-lang')||'zh';document.documentElement.setAttribute('data-lang',s);document.querySelector('.lang-toggle').textContent=s==='zh'?'EN':'中'; })();
+function toggleLang(){ var r=document.documentElement,c=r.getAttribute('data-lang')==='zh'?'en':'zh';r.setAttribute('data-lang',c);localStorage.setItem('zrclaw-lang',c);document.querySelector('.lang-toggle').textContent=c==='zh'?'EN':'中'; }
 </script>
 </body>
 </html>
