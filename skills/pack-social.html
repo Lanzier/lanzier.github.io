@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>社媒运营技能包 · ZierClaw</title>
+  <style>
+    :root { --bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#888;--accent:#6366f1;--accent-glow:#818cf8;--border:#1e1e2e;--green:#22c55e;--orange:#f59e0b;--red:#ef4444;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899) }
+    * { margin:0;padding:0;box-sizing:border-box }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.7 }
+    .container { max-width:900px;margin:0 auto;padding:40px 20px }
+    .back-link { display:inline-block;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px;transition:color .2s }
+    .back-link:hover { color:var(--accent-glow) }
+    .detail-hero { text-align:center;padding:20px 0 40px }
+    .detail-hero .icon { font-size:56px;display:block;margin-bottom:12px }
+    .detail-hero h1 { font-size:34px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px }
+    .detail-hero .meta { color:var(--text-muted);font-size:14px }
+    .skill-list { display:flex;flex-direction:column;gap:16px;margin-bottom:40px }
+    .skill-item { background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px }
+    .skill-item h3 { font-size:17px;margin-bottom:4px }
+    .skill-item .sub { font-size:13px;color:var(--text-muted);margin-bottom:12px }
+    .skill-item .tags { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px }
+    .skill-item .tag { font-size:11px;padding:3px 10px;background:rgba(99,102,241,.12);color:var(--accent-glow);border-radius:10px }
+    .status-ready { font-size:12px;padding:3px 10px;border-radius:10px;background:var(--green);color:#000;display:inline-block }
+    .status-need { font-size:12px;padding:3px 10px;border-radius:10px;background:var(--orange);color:#000;display:inline-block }
+    .use-cases { margin:30px 0 }
+    .use-cases h2 { font-size:20px;margin-bottom:16px }
+    .use-case-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px }
+    .use-case { background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px }
+    .use-case .q { font-size:14px;font-style:italic;color:var(--text-muted) }
+    .copy-section { background:var(--card-bg);border:1px solid var(--accent);border-radius:14px;padding:30px;margin:40px 0;text-align:center }
+    .copy-section h2 { font-size:20px;margin-bottom:8px }
+    .copy-section .sub { font-size:13px;color:var(--text-muted);margin-bottom:20px }
+    .code-block { background:#000;border:1px solid var(--border);border-radius:10px;padding:20px;text-align:left;font-family:Consolas,Monaco,monospace;font-size:13px;color:var(--green);white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;margin-bottom:16px }
+    .btn { display:inline-block;padding:12px 32px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:none;color:white;background:var(--gradient) }
+    .btn:hover { transform:scale(1.03);box-shadow:0 8px 25px rgba(99,102,241,.4) }
+    .copied { display:none;color:var(--green);font-size:13px;margin-top:8px }
+    footer { text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;border-top:1px solid var(--border) }
+    footer a { color:var(--accent-glow);text-decoration:none }
+  </style>
+</head>
+<body>
+<div class="container">
+  <a href="/skills.html" class="back-link">← 返回技能商店</a>
+  <section class="detail-hero">
+    <span class="icon">📢</span>
+    <h1>社媒运营技能包</h1>
+    <p class="meta"><span>📦 5 个技能</span><span>⚙️ 需平台凭证</span><span>💰 免费</span></p>
+  </section>
+  <div class="skill-list">
+    <div class="skill-item">
+      <h3>💚 微信公众号</h3>
+      <p class="sub">公众号创作：选题策略、排版规范、发布流程。支持特定写作风格。</p>
+      <div class="tags"><span class="tag">公众号</span><span class="tag">选题</span><span class="tag">排版</span></div>
+      <span class="status-need">需公众号API</span>
+    </div>
+    <div class="skill-item">
+      <h3>🐦 Twitter / X</h3>
+      <p class="sub">发推、Thread、转推、删除。Twitter API 全功能接入。</p>
+      <div class="tags"><span class="tag">Twitter</span><span class="tag">Thread</span><span class="tag">运营</span></div>
+      <span class="status-need">需API Key</span>
+    </div>
+    <div class="skill-item">
+      <h3>📕 小红书运营</h3>
+      <p class="sub">搜索笔记、发布内容、分析评论。基于 xiaohongshu-mcp。</p>
+      <div class="tags"><span class="tag">小红书</span><span class="tag">笔记</span><span class="tag">评论分析</span></div>
+      <span class="status-need">需平台凭证</span>
+    </div>
+    <div class="skill-item">
+      <h3>✍️ SEO 内容写作</h3>
+      <p class="sub">SEO 优化的长文写作，关键词策略，结构化内容。</p>
+      <div class="tags"><span class="tag">SEO</span><span class="tag">关键词</span><span class="tag">长文</span></div>
+      <span class="status-ready">即装即用</span>
+    </div>
+    <div class="skill-item">
+      <h3>🧑 AI 文本人性化</h3>
+      <p class="sub">16种检测模式 + 6种风格转换，去除AI味。支持小红书/知乎/学术风格。</p>
+      <div class="tags"><span class="tag">去AI味</span><span class="tag">风格转换</span><span class="tag">16种检测</span></div>
+      <span class="status-ready">即装即用</span>
+    </div>
+  </div>
+  <div class="use-cases">
+    <h2>💬 你可以这样说</h2>
+    <div class="use-case-grid">
+      <div class="use-case"><div class="q">"写一篇公众号文章，主题是AI助手"</div></div>
+      <div class="use-case"><div class="q">"把这条推文转为Thread"</div></div>
+      <div class="use-case"><div class="q">"分析小红书上关于AI的热门笔记"</div></div>
+      <div class="use-case"><div class="q">"给这篇文章做SEO优化"</div></div>
+      <div class="use-case"><div class="q">"把这段文字改得更有「人味」"</div></div>
+    </div>
+  </div>
+  <div class="copy-section">
+    <h2>📋 一键安装提示词</h2>
+    <p class="sub">复制以下提示词，粘贴给你的 OpenClaw</p>
+    <div class="code-block" id="promptCode">
+请帮我安装以下社媒运营技能，从 https://claw123.ai 搜索并按需安装：
+
+1. 微信公众号 (wechat) — 公众号选题、写作、排版、发布
+2. Twitter / X (twitter) — 发推、Thread、转推管理
+3. 小红书运营 (xiaohongshu) — 笔记搜索、内容发布、评论分析
+4. SEO内容写作 (seo-writer) — SEO优化长文写作
+5. AI文本人性化 (humanizer) — 去除AI味，多风格转换
+
+安装完成后请确认状态。需要API凭证的技能请提醒我配置。
+    </div>
+    <button class="btn" onclick="copyPrompt()">📋 一键复制提示词</button>
+    <div class="copied" id="copiedMsg">✅ 已复制！</div>
+  </div>
+  <footer><p>ZierClaw 技能商店 · <a href="/skills.html">返回技能商店</a></p></footer>
+</div>
+<script>
+function copyPrompt() {
+  const code = document.getElementById('promptCode').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    document.getElementById('copiedMsg').style.display = 'block';
+    setTimeout(() => { document.getElementById('copiedMsg').style.display = 'none'; }, 4000);
+  });
+}
+</script>
+</body>
+</html>

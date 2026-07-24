@@ -162,6 +162,10 @@
       padding: 28px;
       transition: all 0.3s;
       position: relative;
+      text-decoration: none;
+      color: var(--text);
+      display: block;
+      cursor: pointer;
     }
     .pack-card:hover {
       border-color: var(--accent);
@@ -293,7 +297,7 @@
 
   <div class="pack-grid" id="skillGrid">
     <!-- 超级助理包 -->
-    <div class="pack-card" data-tags="助理 办公 效率 邮件 日历 文档 搜索 天气">
+    <a href="skills/pack-assistant.html" class="pack-card" data-tags="助理 办公 效率 邮件 日历 文档 搜索 天气">
       <span class="badge badge-hot">热门</span>
       <span class="card-icon">🧰</span>
       <h3>超级助理技能包</h3>
@@ -310,10 +314,10 @@
         <span>⚙️ 需配置飞书 API</span>
         <span>免费</span>
       </div>
-    </div>
+    </a>
 
     <!-- 社媒运营包 -->
-    <div class="pack-card" data-tags="运营 社媒 公众号 Twitter 小红书 内容 推广">
+    <a href="skills/pack-social.html" class="pack-card" data-tags="运营 社媒 公众号 Twitter 小红书 内容 推广">
       <span class="card-icon">📢</span>
       <h3>社媒运营技能包</h3>
       <p class="desc">公众号/Twitter/小红书多平台内容创作、定时发布、数据监测。</p>
@@ -328,10 +332,10 @@
         <span>⚙️ 需平台凭证</span>
         <span>免费</span>
       </div>
-    </div>
+    </a>
 
     <!-- 金融数据包 -->
-    <div class="pack-card" data-tags="金融 股票 投资 行情 加密货币 监控">
+    <a href="skills/pack-finance.html" class="pack-card" data-tags="金融 股票 投资 行情 加密货币 监控">
       <span class="badge badge-new">新品</span>
       <span class="card-icon">📈</span>
       <h3>金融数据技能包</h3>
@@ -346,10 +350,10 @@
         <span>📡 实时数据</span>
         <span>免费</span>
       </div>
-    </div>
+    </a>
 
     <!-- 开发工具包 -->
-    <div class="pack-card" data-tags="开发 代码 GitHub 部署 编程 自动">
+    <a href="skills/pack-dev.html" class="pack-card" data-tags="开发 代码 GitHub 部署 编程 自动">
       <span class="card-icon">💻</span>
       <h3>开发工具技能包</h3>
       <p class="desc">代码助手、GitHub 管理、自动部署、浏览器调试，开发者必备。</p>
@@ -363,10 +367,10 @@
         <span>🛠️ 即装即用</span>
         <span>免费</span>
       </div>
-    </div>
+    </a>
 
     <!-- 写作创作包 -->
-    <div class="pack-card" data-tags="写作 创作 博客 PDF 文章 内容">
+    <a href="skills/pack-writing.html" class="pack-card" data-tags="写作 创作 博客 PDF 文章 内容">
       <span class="card-icon">✍️</span>
       <h3>写作创作技能包</h3>
       <p class="desc">博客长文、SEO优化、PDF生成、视频总结、多平台发布。</p>
@@ -380,10 +384,10 @@
         <span>📝 全自动</span>
         <span>免费</span>
       </div>
-    </div>
+    </a>
 
     <!-- AI创作包 -->
-    <div class="pack-card" data-tags="AI 图片 语音 视频 生成 创作">
+    <a href="skills/pack-ai.html" class="pack-card" data-tags="AI 图片 语音 视频 生成 创作">
       <span class="card-icon">🎨</span>
       <h3>AI 创作技能包</h3>
       <p class="desc">AI 生图、语音合成、视频制作、音乐生成，全栈 AIGC 能力。</p>

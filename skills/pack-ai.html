@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 创作技能包 · ZierClaw</title>
+<style>
+:root { --bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#888;--accent:#6366f1;--border:#1e1e2e;--green:#22c55e;--orange:#f59e0b;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899) }
+* { margin:0;padding:0;box-sizing:border-box }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.7 }
+.container { max-width:900px;margin:0 auto;padding:40px 20px }
+.back-link { display:inline-block;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px }
+.back-link:hover { color:var(--accent) }
+.detail-hero { text-align:center;padding:20px 0 40px }
+.detail-hero .icon { font-size:56px;display:block;margin-bottom:12px }
+.detail-hero h1 { font-size:34px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px }
+.detail-hero .meta { color:var(--text-muted);font-size:14px }
+.skill-list { display:flex;flex-direction:column;gap:16px;margin-bottom:40px }
+.skill-item { background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px }
+.skill-item h3 { font-size:17px;margin-bottom:4px }
+.skill-item .sub { font-size:13px;color:var(--text-muted);margin-bottom:12px }
+.skill-item .tags { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px }
+.skill-item .tag { font-size:11px;padding:3px 10px;background:rgba(99,102,241,.12);color:var(--accent);border-radius:10px }
+.status-ready { font-size:12px;padding:3px 10px;border-radius:10px;background:var(--green);color:#000;display:inline-block }
+.status-need { font-size:12px;padding:3px 10px;border-radius:10px;background:var(--orange);color:#000;display:inline-block }
+.use-cases { margin:30px 0 }
+.use-cases h2 { font-size:20px;margin-bottom:16px }
+.use-case-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px }
+.use-case { background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px }
+.use-case .q { font-size:14px;font-style:italic;color:var(--text-muted) }
+.copy-section { background:var(--card-bg);border:1px solid var(--accent);border-radius:14px;padding:30px;margin:40px 0;text-align:center }
+.copy-section h2 { font-size:20px;margin-bottom:8px }
+.copy-section .sub { font-size:13px;color:var(--text-muted);margin-bottom:20px }
+.code-block { background:#000;border:1px solid var(--border);border-radius:10px;padding:20px;text-align:left;font-family:Consolas,Monaco,monospace;font-size:13px;color:var(--green);white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;margin-bottom:16px }
+.btn { display:inline-block;padding:12px 32px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:none;color:white;background:var(--gradient) }
+.btn:hover { transform:scale(1.03);box-shadow:0 8px 25px rgba(99,102,241,.4) }
+.copied { display:none;color:var(--green);font-size:13px;margin-top:8px }
+footer { text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;border-top:1px solid var(--border) }
+footer a { color:var(--accent);text-decoration:none }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="/skills.html" class="back-link">← 返回技能商店</a>
+<section class="detail-hero">
+<span class="icon">🎨</span>
+<h1>AI 创作技能包</h1>
+<p class="meta"><span>📦 4 个技能</span><span>⚙️ 需 API Key</span><span>💰 免费</span></p>
+</section>
+<div class="skill-list">
+<div class="skill-item">
+<h3>🖼️ AI 图片生成</h3>
+<p class="sub">Nano Banana Pro (Gemini 3) 文生图、图生图、风格迁移。高质量输出。</p>
+<div class="tags"><span class="tag">Gemini</span><span class="tag">文生图</span><span class="tag">风格迁移</span></div>
+<span class="status-need">需 Gemini API</span>
+</div>
+<div class="skill-item">
+<h3>🎙️ 语音合成</h3>
+<p class="sub">中文多音色 TTS，飞书原生语音条。edge-tts + ffmpeg。</p>
+<div class="tags"><span class="tag">TTS</span><span class="tag">edge-tts</span><span class="tag">多音色</span></div>
+<span class="status-ready">即装即用</span>
+</div>
+<div class="skill-item">
+<h3>🎬 AI 视频制作</h3>
+<p class="sub">Sora/Kling/Seedance/Veo 3 等 37 个模型，文生视频、图生视频。</p>
+<div class="tags"><span class="tag">Sora</span><span class="tag">Kling</span><span class="tag">Veo</span></div>
+<span class="status-need">需各平台API</span>
+</div>
+<div class="skill-item">
+<h3>🎵 AI 音乐生成</h3>
+<p class="sub">从结构化作曲计划生成高质量音频。AI作曲 + 质量验证 + 失败重试。</p>
+<div class="tags"><span class="tag">作曲</span><span class="tag">音频</span><span class="tag">自动重试</span></div>
+<span class="status-need">需API</span>
+</div>
+</div>
+<div class="use-cases">
+<h2>💬 你可以这样说</h2>
+<div class="use-case-grid">
+<div class="use-case"><div class="q">"生成一张赛博朋克风格的猫"</div></div>
+<div class="use-case"><div class="q">"把这段话转成语音发出去"</div></div>
+<div class="use-case"><div class="q">"用AI做一段10秒的产品展示视频"</div></div>
+<div class="use-case"><div class="q">"帮我生成一段Lo-Fi背景音乐"</div></div>
+</div>
+</div>
+<div class="copy-section">
+<h2>📋 一键安装提示词</h2>
+<p class="sub">复制以下提示词，粘贴给你的 OpenClaw</p>
+<div class="code-block" id="promptCode">
+请帮我安装以下AI创作技能，从 https://claw123.ai 搜索并按需安装：
+
+1. AI图片生成 (image-gen) — Gemini 3 文生图和风格迁移
+2. 语音合成 (voice-gen) — 中文多音色TTS语音条
+3. AI视频制作 (video-gen) — Sora/Kling等37个模型
+4. AI音乐生成 (music-gen) — 结构化作曲和音频生成
+
+安装完成后请提醒我配置各平台API Key。
+    </div>
+<button class="btn" onclick="copyPrompt()">📋 一键复制提示词</button>
+<div class="copied" id="copiedMsg">✅ 已复制！</div>
+</div>
+<footer><p>ZierClaw 技能商店 · <a href="/skills.html">返回技能商店</a></p></footer>
+</div>
+<script>
+function copyPrompt() {
+  navigator.clipboard.writeText(document.getElementById('promptCode').innerText).then(() => {
+    document.getElementById('copiedMsg').style.display = 'block';
+    setTimeout(() => { document.getElementById('copiedMsg').style.display = 'none'; }, 4000);
+  });
+}
+</script>
+</body>
+</html>
