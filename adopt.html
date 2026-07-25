@@ -232,29 +232,35 @@ function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang
 
 // Rolling number counter
 (function(){
-  var TARGET=2000000;
+  var START=2000000;
+  var MAX=9999999;
   var digits=document.querySelectorAll('#rollNum span');
   if(!digits.length)return;
-  var finalDigits=TARGET.toString().padStart(digits.length,'0').split('');
-  var maxFrames=80;
-  var frame=0;
-  function easeOutQuart(t){return 1-Math.pow(1-t,4);}
-  function tick(){
-    frame++;
-    var progress=easeOutQuart(Math.min(frame/maxFrames,1));
-    var total=Math.floor(TARGET*progress);
-    var display=total.toString().padStart(digits.length,'0');
-    for(var i=0;i<digits.length;i++){
-      if(digits[i].textContent!==display[i]){
-        digits[i].textContent=display[i];
+  var current=START;
+  var len=digits.length;
+
+  function show(n){
+    var s=n.toString().padStart(len,'0');
+    for(var i=0;i<len;i++){
+      if(digits[i].textContent!==s[i]){
+        digits[i].textContent=s[i];
         digits[i].style.animation='none';
         digits[i].offsetHeight;
         digits[i].style.animation='rollDigit 0.15s ease-out';
       }
     }
-    if(frame<maxFrames)requestAnimationFrame(tick);
-    else{for(var j=0;j<digits.length;j++)digits[j].textContent=finalDigits[j];}
   }
+  show(current);
+
+  function step(){
+    var r=Math.random();
+    var inc=r<0.33?1:r<0.66?2:3;
+    current+=inc;
+    if(current>MAX)current=START;
+    show(current);
+    setTimeout(step,1000);
+  }
+
   var started=false;
   function startIfVisible(){
     if(started)return;
@@ -262,7 +268,8 @@ function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang
     if(!el)return;
     if(el.getBoundingClientRect().top<window.innerHeight+200){
       started=true;
-      requestAnimationFrame(tick);
+      show(current);
+      setTimeout(step,1000);
     }
   }
   window.addEventListener('scroll',startIfVisible);
