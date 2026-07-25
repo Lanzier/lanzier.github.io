@@ -111,11 +111,15 @@ html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
   }
   show(n);
 
-  setInterval(function(){
+  function tick(){
     n+=Math.floor(Math.random()*3)+1;
     if(n>MAX)n=START;
     show(n);
-  },1000);
+    var delays=[300,500,2000,3000];
+    var delay=delays[Math.floor(Math.random()*delays.length)];
+    setTimeout(tick,delay);
+  }
+  setTimeout(tick,1000);
 })();
 </script>
 </section>
