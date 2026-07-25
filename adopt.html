@@ -99,9 +99,41 @@ html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
 <div class="price free">¥0</div>
 <div class="lang-zh"><div class="price-note">永久免费</div></div>
 <div class="lang-en"><div class="price-note">Free Forever</div></div>
-<a href="https://github.com/Lanzier/lanzier.github.io/issues" target="_blank" class="btn btn-primary">
-<span class="lang-zh">获取部署支持 →</span><span class="lang-en">Get Started →</span>
+<div class="install-counter" id="installCounter" style="margin-bottom:20px;padding:10px 16px;background:rgba(99,102,241,.08);border-radius:8px;font-size:13px;color:var(--accent-glow)">
+  <span class="lang-zh">🐾 通过 ZierClaw 安装：<strong><span id="countNum">--</span></strong> 人</span>
+  <span class="lang-en">🐾 Installed via ZierClaw: <strong><span id="countNum">--</span></strong></span>
+</div>
+<a href="#install-steps" class="btn btn-primary" id="installBtn">
+<span class="lang-zh">立即安装 →</span><span class="lang-en">Install Now →</span>
 </a>
+</div>
+
+<div id="install-steps" style="max-width:900px;margin:0 auto 40px;padding:0 20px;display:none">
+  <div class="lang-zh"><h2 style="font-size:28px;margin-bottom:24px;text-align:center">?? 三步安装</h2></div>
+  <div class="lang-en"><h2 style="font-size:28px;margin-bottom:24px;text-align:center">?? Install in 3 Steps</h2></div>
+  <div>
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px">
+      <div class="lang-zh"><h3 style="font-size:16px;margin-bottom:6px">① 打开终端（PowerShell）</h3><p style="font-size:13px;color:var(--text-muted)">按 <code style="background:var(--border);padding:2px 6px;border-radius:4px">Win + R</code>，输入 <code style="background:var(--border);padding:2px 6px;border-radius:4px">powershell</code>，回车</p></div>
+      <div class="lang-en"><h3 style="font-size:16px;margin-bottom:6px">① Open Terminal</h3><p style="font-size:13px;color:var(--text-muted)">Press <code style="background:var(--border);padding:2px 6px;border-radius:4px">Win + R</code>, type <code style="background:var(--border);padding:2px 6px;border-radius:4px">powershell</code>, Enter</p></div>
+    </div>
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px">
+      <div class="lang-zh"><h3 style="font-size:16px;margin-bottom:6px">② 复制粘贴以下命令，回车</h3>
+        <pre class="lang-zh" style="background:#0a0a0f;color:#818cf8;padding:16px;border-radius:8px;overflow-x:auto;font-size:13px;margin-top:8px">iwr -useb https://openclaw.ai/install.ps1 | iex</pre>
+        <pre class="lang-en" style="background:#0a0a0f;color:#818cf8;padding:16px;border-radius:8px;overflow-x:auto;font-size:13px;margin-top:8px">curl -fsSL https://openclaw.ai/install.sh | bash</pre>
+      </div>
+    </div>
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px">
+      <div class="lang-zh"><h3 style="font-size:16px;margin-bottom:6px">③ 按提示完成初始化</h3><p style="font-size:13px;color:var(--text-muted)">安装脚本会自动装好 Node.js 和 OpenClaw，然后引导你配置 AI 模型。几分钟搞定。</p></div>
+      <div class="lang-en"><h3 style="font-size:16px;margin-bottom:6px">③ Follow the Prompts</h3><p style="font-size:13px;color:var(--text-muted)">The installer auto-installs Node.js + OpenClaw, then guides you through AI model setup. Done in minutes.</p></div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:24px;color:var(--text-muted);font-size:13px">
+    <span class="lang-zh">装完后访问 <a href="https://openclaw.ai" target="_blank" style="color:var(--accent-glow)">openclaw.ai</a> 获取更多技能和文档</span>
+    <span class="lang-en">After install, visit <a href="https://openclaw.ai" target="_blank" style="color:var(--accent-glow)">openclaw.ai</a> for skills & docs</span>
+    <br>
+    <span class="lang-zh">有问题？<a href="https://github.com/Lanzier/lanzier.github.io/issues" target="_blank" style="color:var(--accent-glow)">GitHub Issues</a> 联系我们</span>
+    <span class="lang-en">Questions? <a href="https://github.com/Lanzier/lanzier.github.io/issues" target="_blank" style="color:var(--accent-glow)">GitHub Issues</a></span>
+  </div>
 </div>
 
 <div class="option-card">
@@ -192,6 +224,32 @@ function toggleTheme(){var r=document.documentElement,d=!r.classList.contains("l
 (function(){var b=document.querySelector(".theme-toggle");if(b)b.textContent=document.documentElement.classList.contains("light")?"☀️":"🌙"})()
 (function(){var s=localStorage.getItem("zrclaw-lang")||"zh";document.documentElement.setAttribute("data-lang",s);document.querySelector(".lang-toggle").textContent=s==="zh"?"EN":"中"})()
 function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang")==="zh"?"en":"zh";r.setAttribute("data-lang",c);localStorage.setItem("zrclaw-lang",c);document.querySelector(".lang-toggle").textContent=c==="zh"?"EN":"中"}
+
+// Install counter + steps
+(function(){
+  var KEY='zierclaw-install-count';
+  var BASE=17;
+  var count=parseInt(localStorage.getItem(KEY))||0;
+  var el=document.getElementById('countNum');
+  if(el)el.textContent=BASE+count;
+
+  var btn=document.getElementById('installBtn');
+  var steps=document.getElementById('install-steps');
+  if(btn){
+    btn.addEventListener('click',function(e){
+      e.preventDefault();
+      count=parseInt(localStorage.getItem(KEY))||0;
+      if(!localStorage.getItem(KEY+'-clicked')){
+        count++;
+        localStorage.setItem(KEY,count);
+        localStorage.setItem(KEY+'-clicked','1');
+      }
+      if(el)el.textContent=BASE+count;
+      if(steps)steps.style.display='block';
+      steps.scrollIntoView({behavior:'smooth'});
+    });
+  }
+})();
 </script>
 </body>
 </html>
