@@ -51,96 +51,98 @@
     .theme-toggle{bottom:24px;font-size:20px}
     .lang-toggle{bottom:76px}
     .lang-toggle:hover,.theme-toggle:hover{transform:scale(1.1);border-color:var(--accent)}
+    .lang-zh,.lang-en{display:none}
+    html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
     @media(max-width:600px){.header h1{font-size:28px}.pack-grid{grid-template-columns:1fr}.stats-bar{gap:16px}}
   </style>
 </head>
 <body>
 <div class="container">
-  <a href="/" class="back-link">← 返回 ZierClaw 首页</a>
-  <section class="header"><h1>🧩 技能商店</h1><p>装什么技能，ZierClaw 就变成什么员工</p></section>
+  <a href="/" class="back-link"><span class="lang-zh">← 返回 ZierClaw 首页</span><span class="lang-en">← Back to ZierClaw</span></a>
+  <section class="header"><h1>🧩 <span class="lang-zh">技能商店</span><span class="lang-en">Skill Store</span></h1><p><span class="lang-zh">装什么技能，ZierClaw 就变成什么员工</span><span class="lang-en">Install skills, ZierClaw becomes that role</span></p></section>
   <div class="search-bar">
     <span class="search-icon">🔍</span>
-    <input type="text" placeholder="搜索技能... 如：天气、邮件、股票" oninput="filterSkills(this.value)">
+    <input type="text" id="searchInput" placeholder="搜索技能... 如：天气、邮件、股票" oninput="filterSkills(this.value)">
   </div>
   <div class="stats-bar">
-    <div class="stat"><div class="num">6</div><div class="label">技能包</div></div>
-    <div class="stat"><div class="num">3</div><div class="label">自制技能</div></div>
-    <div class="stat"><div class="num">5177+</div><div class="label">社区技能</div></div>
-    <div class="stat"><div class="num">1行命令</div><div class="label">即可安装</div></div>
+    <div class="stat"><div class="num">6</div><div class="label"><span class="lang-zh">技能包</span><span class="lang-en">Packs</span></div></div>
+    <div class="stat"><div class="num">3</div><div class="label"><span class="lang-zh">自制技能</span><span class="lang-en">Custom</span></div></div>
+    <div class="stat"><div class="num">5177+</div><div class="label"><span class="lang-zh">社区技能</span><span class="lang-en">Community</span></div></div>
+    <div class="stat"><div class="num"><span class="lang-zh">1行命令</span><span class="lang-en">1-Line</span></div><div class="label"><span class="lang-zh">即可安装</span><span class="lang-en">Install</span></div></div>
   </div>
 
-  <div class="section-title">⭐ ZierClaw 精选技能包</div>
+  <div class="section-title">⭐ <span class="lang-zh">ZierClaw 精选技能包</span><span class="lang-en">ZierClaw Featured Packs</span></div>
   <div class="pack-grid" id="skillGrid">
     <a href="skills/pack-assistant.html" class="pack-card" data-tags="助理 办公 效率 邮件 日历 文档 搜索 天气">
-      <span class="badge badge-hot">热门</span><span class="card-icon">🧰</span>
-      <h3>超级助理技能包</h3><p class="desc">邮件管理、日历调度、文档读写、实时搜索、天气查询——日常办公全搞定。</p>
+      <span class="badge badge-hot"><span class="lang-zh">热门</span><span class="lang-en">Hot</span></span><span class="card-icon">🧰</span>
+      <h3><span class="lang-zh">超级助理技能包</span><span class="lang-en">Super Assistant Pack</span></h3><p class="desc"><span class="lang-zh">邮件管理、日历调度、文档读写、实时搜索、天气查询——日常办公全搞定。</span><span class="lang-en">Email, calendar, docs, search, weather — all-in-one office suite.</span></p>
       <div class="skills-inline"><span class="skill-tag">📧 邮件管理</span><span class="skill-tag">📅 飞书日历</span><span class="skill-tag">📄 飞书文档</span><span class="skill-tag">🌐 网页搜索</span><span class="skill-tag">🌤 天气</span><span class="skill-tag">🧠 基础智能</span></div>
-      <div class="meta"><span>需飞书API</span><span>免费</span></div>
+      <div class="meta"><span><span class="lang-zh">需飞书API</span><span class="lang-en">Feishu API</span></span><span><span class="lang-zh">免费</span><span class="lang-en">Free</span></span></div>
     </a>
     <a href="skills/pack-social.html" class="pack-card" data-tags="运营 社媒 公众号 Twitter 小红书 内容 推广">
       <span class="card-icon">📢</span>
-      <h3>社媒运营技能包</h3><p class="desc">公众号/Twitter/小红书多平台内容创作、定时发布、数据监测。</p>
+      <h3><span class="lang-zh">社媒运营技能包</span><span class="lang-en">Social Media Pack</span></h3><p class="desc"><span class="lang-zh">公众号/Twitter/小红书多平台内容创作、定时发布、数据监测。</span><span class="lang-en">WeChat/Twitter/Xiaohongshu content creation, scheduling, analytics.</span></p>
       <div class="skills-inline"><span class="skill-tag">💚 微信公众号</span><span class="skill-tag">🐦 Twitter</span><span class="skill-tag">📕 小红书</span><span class="skill-tag">✍️ SEO写作</span><span class="skill-tag">🧑 文本人性化</span></div>
-      <div class="meta"><span>需平台凭证</span><span>免费</span></div>
+      <div class="meta"><span><span class="lang-zh">需平台凭证</span><span class="lang-en">Credentials needed</span></span><span>免费</span></div>
     </a>
     <a href="skills/pack-finance.html" class="pack-card" data-tags="金融 股票 投资 行情 加密货币 监控">
-      <span class="badge badge-new">新品</span><span class="card-icon">📈</span>
-      <h3>金融数据技能包</h3><p class="desc">实时股票监控、加密货币行情、技术指标分析、价格预警。</p>
+      <span class="badge badge-new"><span class="lang-zh">新品</span><span class="lang-en">New</span></span><span class="card-icon">📈</span>
+      <h3><span class="lang-zh">金融数据技能包</span><span class="lang-en">Finance Data Pack</span></h3><p class="desc"><span class="lang-zh">实时股票监控、加密货币行情、技术指标分析、价格预警。</span><span class="lang-en">Real-time stocks, crypto prices, technical analysis, alerts.</span></p>
       <div class="skills-inline"><span class="skill-tag">📊 股票监控</span><span class="skill-tag">🔍 深度分析</span><span class="skill-tag">💰 加密货币</span><span class="skill-tag">🇭🇰 港股投研</span></div>
-      <div class="meta"><span>实时数据</span><span>免费</span></div>
+      <div class="meta"><span><span class="lang-zh">实时数据</span><span class="lang-en">Live data</span></span><span>免费</span></div>
     </a>
     <a href="skills/pack-dev.html" class="pack-card" data-tags="开发 代码 GitHub 部署 编程 自动">
       <span class="card-icon">💻</span>
-      <h3>开发工具技能包</h3><p class="desc">代码助手、GitHub 管理、自动部署、浏览器调试，开发者必备。</p>
+      <h3><span class="lang-zh">开发工具技能包</span><span class="lang-en">Dev Tools Pack</span></h3><p class="desc"><span class="lang-zh">代码助手、GitHub 管理、自动部署、浏览器调试，开发者必备。</span><span class="lang-en">Code assistant, GitHub, auto-deploy, browser debug — dev essentials.</span></p>
       <div class="skills-inline"><span class="skill-tag">🧬 代码助手</span><span class="skill-tag">🐙 GitHub</span><span class="skill-tag">🔭 浏览器控制</span><span class="skill-tag">⚡ 自动化</span></div>
-      <div class="meta"><span>即装即用</span><span>免费</span></div>
+      <div class="meta"><span><span class="lang-zh">即装即用</span><span class="lang-en">Plug & play</span></span><span>免费</span></div>
     </a>
     <a href="skills/pack-writing.html" class="pack-card" data-tags="写作 创作 博客 PDF 文章 内容">
       <span class="card-icon">✍️</span>
-      <h3>写作创作技能包</h3><p class="desc">博客长文、SEO优化、PDF生成、视频总结、多平台发布。</p>
+      <h3><span class="lang-zh">写作创作技能包</span><span class="lang-en">Writing Pack</span></h3><p class="desc"><span class="lang-zh">博客长文、SEO优化、PDF生成、视频总结、多平台发布。</span><span class="lang-en">Long-form blogs, SEO, PDF export, video summaries, cross-platform.</span></p>
       <div class="skills-inline"><span class="skill-tag">✍️ 博客写手</span><span class="skill-tag">🔍 SEO写作</span><span class="skill-tag">📄 PDF生成</span><span class="skill-tag">🎬 视频总结</span></div>
-      <div class="meta"><span>全自动</span><span>免费</span></div>
+      <div class="meta"><span><span class="lang-zh">全自动</span><span class="lang-en">Auto</span></span><span>免费</span></div>
     </a>
     <a href="skills/pack-ai.html" class="pack-card" data-tags="AI 图片 语音 视频 生成 创作">
       <span class="card-icon">🎨</span>
-      <h3>AI 创作技能包</h3><p class="desc">AI 生图、语音合成、视频制作、音乐生成，全栈 AIGC 能力。</p>
+      <h3><span class="lang-zh">AI 创作技能包</span><span class="lang-en">AI Creative Pack</span></h3><p class="desc"><span class="lang-zh">AI 生图、语音合成、视频制作、音乐生成，全栈 AIGC 能力。</span><span class="lang-en">AI image gen, TTS, video, music — full-stack AIGC.</span></p>
       <div class="skills-inline"><span class="skill-tag">🖼️ AI生图</span><span class="skill-tag">🎙️ 语音合成</span><span class="skill-tag">🎬 AI视频</span><span class="skill-tag">🎵 音乐生成</span></div>
-      <div class="meta"><span>需API Key</span><span>免费</span></div>
+      <div class="meta"><span><span class="lang-zh">需API Key</span><span class="lang-en">API Key needed</span></span><span>免费</span></div>
     </a>
   </div>
 
-  <div class="section-title">🔧 ZierClaw 自制技能 <span class="count">（可安全发布）</span></div>
+  <div class="section-title">🔧 <span class="lang-zh">ZierClaw 自制技能</span><span class="lang-en">ZierClaw Custom Skills</span> <span class="count"><span class="lang-zh">（可安全发布）</span><span class="lang-en">(safe to publish)</span></span></div>
   <div class="pack-grid">
     <a href="skills/ocr.html" class="pack-card" data-tags="OCR 识别 截图 图片 文字">
-      <span class="badge badge-new">自制</span><span class="card-icon">👁️</span>
-      <h3>OCR 图片识别</h3><p class="desc">本地 OCR 引擎，支持中英文混合识别。截图秒转文字，无需联网。</p>
+      <span class="badge badge-new"><span class="lang-zh">自制</span><span class="lang-en">Custom</span></span><span class="card-icon">👁️</span>
+      <h3><span class="lang-zh">OCR 图片识别</span><span class="lang-en">OCR Recognition</span></h3><p class="desc"><span class="lang-zh">本地 OCR 引擎，支持中英文混合识别。截图秒转文字，无需联网。</span><span class="lang-en">Local OCR engine. Chinese + English. Screenshot to text, no internet.</span></p>
       <div class="skills-inline"><span class="skill-tag">tesseract.js</span><span class="skill-tag">中文+英文</span><span class="skill-tag">纯本地</span></div>
-      <div class="meta"><span>即装即用</span><span>免费 · 开源</span></div>
+      <div class="meta"><span><span class="lang-zh">即装即用</span><span class="lang-en">Plug & Play</span></span><span><span class="lang-zh">免费 · 开源</span><span class="lang-en">Free · Open Source</span></span></div>
     </a>
     <a href="skills/crypto.html" class="pack-card" data-tags="加密 货币 行情 BTC ETH 价格">
-      <span class="badge badge-new">自制</span><span class="card-icon">💰</span>
-      <h3>加密货币行情</h3><p class="desc">实时 BTC/ETH 价格查询，多交易所交叉验证，支持定时播报。</p>
+      <span class="badge badge-new"><span class="lang-zh">自制</span><span class="lang-en">Custom</span></span><span class="card-icon">💰</span>
+      <h3><span class="lang-zh">加密货币行情</span><span class="lang-en">Crypto Prices</span></h3><p class="desc"><span class="lang-zh">实时 BTC/ETH 价格查询，多交易所交叉验证，支持定时播报。</span><span class="lang-en">Real-time BTC/ETH prices. Multi-exchange verification. Auto alerts.</span></p>
       <div class="skills-inline"><span class="skill-tag">CoinGecko</span><span class="skill-tag">Coinbase</span><span class="skill-tag">Binance</span></div>
-      <div class="meta"><span>实时数据</span><span>免费</span></div>
+      <div class="meta"><span><span class="lang-zh">实时数据</span><span class="lang-en">Live Data</span></span><span>免费</span></div>
     </a>
     <a href="skills/self-evolution.html" class="pack-card" data-tags="进化 优化 分析 学习 自动">
-      <span class="badge badge-new">自制</span><span class="card-icon">🧬</span>
-      <h3>自我进化引擎</h3><p class="desc">分析运行历史 → 识别能力短板 → 生成改进方案 → 越用越聪明。</p>
+      <span class="badge badge-new"><span class="lang-zh">自制</span><span class="lang-en">Custom</span></span><span class="card-icon">🧬</span>
+      <h3><span class="lang-zh">自我进化引擎</span><span class="lang-en">Self-Evolution</span></h3><p class="desc"><span class="lang-zh">分析运行历史 → 识别能力短板 → 生成改进方案 → 越用越聪明。</span><span class="lang-en">Analyze history → find gaps → generate improvements → smarter every day.</span></p>
       <div class="skills-inline"><span class="skill-tag">框架模板</span><span class="skill-tag">自主配置</span><span class="skill-tag">安全可控</span></div>
-      <div class="meta"><span>自驱进化</span><span>免费 · 开源</span></div>
+      <div class="meta"><span><span class="lang-zh">自驱进化</span><span class="lang-en">Self-evolving</span></span><span><span class="lang-zh">免费 · 开源</span><span class="lang-en">Free · Open Source</span></span></div>
     </a>
   </div>
 
-  <div class="section-title">🌐 社区技能 <span class="count">（5000+，持续增长）</span></div>
+  <div class="section-title">🌐 <span class="lang-zh">社区技能</span><span class="lang-en">Community Skills</span> <span class="count"><span class="lang-zh">（5000+，持续增长）</span><span class="lang-en">(5000+, growing)</span></span></div>
   <div class="cta-section">
-    <h2>🌐 ClawHub 技能市场</h2>
-    <p>全球开发者贡献的 5177+ 技能，覆盖办公、开发、金融、社媒、AI 创作等所有领域<br>访问 claw123.ai 搜索安装</p>
-    <a href="https://claw123.ai" target="_blank" class="cta-btn">🔗 前往 ClawHub →</a>
+    <h2>🌐 <span class="lang-zh">ClawHub 技能市场</span><span class="lang-en">ClawHub Skill Market</span></h2>
+    <p><span class="lang-zh">全球开发者贡献的 5177+ 技能，覆盖办公、开发、金融、社媒、AI 创作等所有领域<br>访问 claw123.ai 搜索安装</span><span class="lang-en">5177+ community skills covering office, dev, finance, social, AI, and more<br>Visit claw123.ai to search and install</span></p>
+    <a href="https://claw123.ai" target="_blank" class="cta-btn"><span class="lang-zh">🔗 前往 ClawHub →</span><span class="lang-en">🔗 Go to ClawHub →</span></a>
   </div>
 
   <footer>
-    <p>ZierClaw 技能商店 · 由墨维护 · 脱敏发布，不含任何用户凭证</p>
-    <p style="margin-top:6px">本站由墨独立完成，全程零人类编写代码</p>
+    <p><span class="lang-zh">ZierClaw 技能商店 · 由墨维护 · 脱敏发布，不含任何用户凭证</span><span class="lang-en">ZierClaw Skill Store · Maintained by Mo · Sanitized, no credentials</span></p>
+    <p style="margin-top:6px"><span class="lang-zh">本站由墨独立完成，全程零人类编写代码</span><span class="lang-en">Built entirely by Mo. Zero human-written code.</span></p>
   </footer>
 </div>
 
@@ -152,7 +154,7 @@
 function toggleTheme(){var r=document.documentElement,d=!r.classList.contains("light");r.classList.toggle("light");localStorage.setItem("zrclaw-theme",d?"light":"dark");document.querySelector(".theme-toggle").textContent=d?"☀️":"🌙"}
 (function(){var b=document.querySelector(".theme-toggle");if(b)b.textContent=document.documentElement.classList.contains("light")?"☀️":"🌙"})()
 (function(){var s=localStorage.getItem("zrclaw-lang")||"zh";document.documentElement.setAttribute("data-lang",s);document.querySelector(".lang-toggle").textContent=s==="zh"?"EN":"中"})()
-function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang")==="zh"?"en":"zh";r.setAttribute("data-lang",c);localStorage.setItem("zrclaw-lang",c);document.querySelector(".lang-toggle").textContent=c==="zh"?"EN":"中"}
+function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang")==="zh"?"en":"zh";r.setAttribute("data-lang",c);localStorage.setItem("zrclaw-lang",c);var t=document.querySelector(".lang-toggle");if(t)t.textContent=c==="zh"?"EN":"\u4e2d";var s=document.getElementById("searchInput");if(s)s.placeholder=c==="zh"?"搜索技能... 如：天气、邮件、股票":"Search skills... e.g. weather, email, stock"}
 function filterSkills(q){q=q.toLowerCase();document.querySelectorAll("#skillGrid .pack-card").forEach(function(c){var t=c.getAttribute("data-tags")||"";c.style.display=(!q||t.indexOf(q)>-1)?"":"none"})}
 </script>
 </body>
