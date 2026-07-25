@@ -78,6 +78,20 @@ html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
   <div class="roll-num" id="rollNum" style="font-size:52px;font-weight:800;font-family:'Courier New',monospace;color:var(--accent-glow);text-align:center">2,000,000</div>
   <div class="roll-label"><span class="lang-zh">人已接入 OpenClaw</span><span class="lang-en">People Connected to OpenClaw</span></div>
 </div>
+<script>
+(function rollStart(){
+  var n=2000000, el=document.getElementById('rollNum');
+  if(!el){setTimeout(rollStart,50);return;}
+  function fmt(x){return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+  setInterval(function(){
+    n+=Math.floor(Math.random()*3)+1;
+    if(n>9999999)n=2000000;
+    el.innerHTML=fmt(n);
+  },1000);
+})();
+</script>
+</script>
+</div>
 </section>
 
 <div class="options">
