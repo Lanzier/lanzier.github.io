@@ -1,52 +1,56 @@
 # ZierClaw One-Click Install
-# Auto-elevates to admin if needed for Node.js installation
-
 Write-Host ""
 Write-Host "   ZierClaw One-Click Install" -ForegroundColor Cyan
 Write-Host "   Installing OpenClaw..." -ForegroundColor Cyan
 Write-Host ""
 
-# Check if running as admin
-$isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
+# Check node
+$nodeOk = $false
+try { $v = node -v 2>$null; if ($v) { $nodeOk = $true; Write-Host "   Node.js found: $v" -ForegroundColor Green } } catch {}
 
-if (-not $isAdmin) {
-    Write-Host "   Requesting administrator privileges (needed for Node.js install)..." -ForegroundColor Yellow
-    Write-Host ""
-    Start-Sleep 1
+if (-not $nodeOk) {
+    Write-Host "   Node.js not found. Installing via winget..." -ForegroundColor Yellow
 
-    $scriptPath = $MyInvocation.MyCommand.Path
-    if (-not $scriptPath) {
-        $scriptPath = Join-Path $PSScriptRoot "install.ps1"
+    # Try winget first
+    $wingetOk = $false
+    try { winget --version 2>$null; $wingetOk = $true } catch {}
+
+    if ($wingetOk) {
+        winget install OpenJS.NodeJS.LTS --accept-package-agreements --accept-source-agreements --silent
+        # Refresh PATH
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        try { $v = node -v 2>$null; if ($v) { $nodeOk = $true; Write-Host "   Node.js installed: $v" -ForegroundColor Green } } catch {}
     }
 
-    try {
-        Start-Process powershell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
-        Write-Host "   A new admin window has opened. Please check that window." -ForegroundColor Green
+    if (-not $nodeOk) {
+        Write-Host "   Could not install Node.js automatically." -ForegroundColor Red
+        Write-Host "   Please install manually: https://nodejs.org" -ForegroundColor Yellow
+        Write-Host "   (Download the LTS version, run the installer, then re-run this script)" -ForegroundColor Yellow
         Write-Host ""
-        Read-Host "Press Enter to close this window"
-        exit 0
-    } catch {
-        Write-Host "   Could not elevate. Trying without admin..." -ForegroundColor Yellow
+        Read-Host "Press Enter to exit"
+        exit 1
     }
 }
 
-# Already admin or elevation failed — try install anyway
+# Install OpenClaw
+Write-Host "   Installing OpenClaw via official installer..." -ForegroundColor Cyan
 try {
     iwr -UseBasicParsing -Uri "https://openclaw.ai/install.ps1" | iex
     Write-Host ""
     Write-Host "   Installation complete!" -ForegroundColor Green
     Write-Host ""
-    Write-Host "   Next step: openclaw onboard --install-daemon" -ForegroundColor Yellow
-    Write-Host "   Skills: https://lanzier.github.io" -ForegroundColor Yellow
+    Write-Host "   Next step:" -ForegroundColor Yellow
+    Write-Host "   open a NEW PowerShell window and run:" -ForegroundColor White
+    Write-Host "   openclaw onboard --install-daemon" -ForegroundColor White
+    Write-Host ""
+    Write-Host "   Skills: https://lanzier.github.io" -ForegroundColor Cyan
     Write-Host ""
 } catch {
     Write-Host ""
-    Write-Host "   Installation failed: $_" -ForegroundColor Red
+    Write-Host "   OpenClaw install failed: $_" -ForegroundColor Red
     Write-Host ""
-    Write-Host "   Try running PowerShell as Administrator:" -ForegroundColor Yellow
-    Write-Host "   1. Press Win+R, type powershell" -ForegroundColor White
-    Write-Host "   2. Press Ctrl+Shift+Enter (run as admin)" -ForegroundColor White
-    Write-Host "   3. Run: .\install.ps1" -ForegroundColor White
+    Write-Host "   Manual install (open PowerShell as admin):" -ForegroundColor Yellow
+    Write-Host "   iwr -useb https://openclaw.ai/install.ps1 | iex" -ForegroundColor White
     Write-Host ""
 }
 
