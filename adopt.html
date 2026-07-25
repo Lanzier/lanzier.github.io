@@ -61,15 +61,6 @@ footer a{color:var(--accent-glow);text-decoration:none}
 html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
 .roll-counter{text-align:center}
 .roll-label{font-size:14px;color:var(--text-muted)}
-.roll-digit{display:inline-block;position:relative;width:34px;height:60px;line-height:60px;background:var(--card-bg);border:1px solid var(--border);border-radius:4px;color:var(--accent-glow);text-align:center;vertical-align:middle;overflow:hidden}
-.roll-comma{display:inline-block;width:18px;height:60px;line-height:60px;font-size:36px;font-weight:400;color:var(--text-muted);opacity:0.4;text-align:center;vertical-align:middle}
-.roll-digit .top,.roll-digit .bottom{position:absolute;left:0;width:100%;height:50%;overflow:hidden}
-.roll-digit .top{top:0;line-height:60px}
-.roll-digit .bottom{bottom:0;line-height:0}
-.roll-digit.flip .top{animation:flipTop 0.4s ease-in forwards}
-.roll-digit.flip .bottom{animation:flipBottom 0.4s ease-out forwards}
-@keyframes flipTop{0%{transform:rotateX(0)}100%{transform:rotateX(-90deg);opacity:0}}
-@keyframes flipBottom{0%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
 @media(max-width:600px){.hero h1{font-size:30px}.options{grid-template-columns:1fr}.faq-grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -84,59 +75,28 @@ html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
 <div class="lang-zh"><p class="subtitle">免费领养 · 数据在你手里 · 越养越聪明</p></div>
 <div class="lang-en"><p class="subtitle">Free · Your data stays yours · Gets smarter over time</p></div>
 <div class="roll-counter" style="margin-top:28px">
-  <div class="roll-num" id="rollNum" style="font-size:48px;font-weight:800;font-family:'Courier New',monospace;text-align:center;letter-spacing:2px"></div>
+  <div class="roll-num" id="rollNum" style="font-size:48px;font-weight:800;font-family:'Courier New',monospace;color:var(--accent-glow);text-align:center;letter-spacing:3px">2,143,740</div>
   <div class="roll-label"><span class="lang-zh">人已接入 OpenClaw</span><span class="lang-en">People Connected to OpenClaw</span></div>
 </div>
 <script>
 (function(){
   var START=2143740, MAX=9999999;
-  var n=START;
+  var KEY='zrclaw…oll';
   var el=document.getElementById('rollNum');
   if(!el)return;
 
-  function fmt(x){return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',').split('');}
+  // Restore from localStorage or use start
+  var n=parseInt(localStorage.getItem(KEY));
+  if(!n||n<START||n>MAX)n=START;
 
-  // Build digit slots: 7 digits + 2 commas = 9 chars
-  // Layout: d,d,d,d,d,d,d → 7 digits, commas after pos 1 and 5
-  var chars=['d',',','d','d','d',',','d','d','d']; // positions for 7 digits
-  var digitSlots=[];
-  for(var i=0;i<chars.length;i++){
-    if(chars[i]===','){
-      var c=document.createElement('span');
-      c.className='roll-comma';c.textContent=',';
-      el.appendChild(c);
-    }else{
-      var wrap=document.createElement('span');
-      wrap.className='roll-digit';
-      wrap.innerHTML='<span class="top"></span><span class="bottom"></span>';
-      wrap._val='';
-      el.appendChild(wrap);
-      digitSlots.push(wrap);
-    }
-  }
+  function fmt(x){return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+  function show(v){el.textContent=fmt(v);localStorage.setItem(KEY,v);}
+  show(n);
 
-  function render(val){
-    var s=String(val); // e.g. "2143740" 7 digits
-    for(var j=0;j<digitSlots.length;j++){
-      var pos=digitSlots.length-1-j; // rightmost first
-      var ch=j<s.length?s[s.length-1-j]:'';
-      var dw=digitSlots[pos];
-      if(!dw)continue;
-      if(dw._val===ch)continue;
-      var old=ch;
-      dw.classList.add('flip');
-      dw.querySelector('.top').textContent=dw._val||'';
-      dw.querySelector('.bottom').textContent=ch;
-      dw._val=ch;
-      setTimeout(function(w){w.classList.remove('flip');},400,dw);
-    }
-  }
-
-  render(n);
   setInterval(function(){
     n+=Math.floor(Math.random()*3)+1;
     if(n>MAX)n=START;
-    render(n);
+    show(n);
   },1000);
 })();
 </script>
