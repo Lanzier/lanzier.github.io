@@ -1,0 +1,52 @@
+=== ZierClaw 一键安装 —— 安装前必看 ===
+
+📦 本压缩包包含：
+  - install.ps1    → 一键安装脚本（自动安装 Node.js + OpenClaw）
+  - 安装前必看.txt  → 你正在读的这个文件
+
+🚀 如何安装：
+
+  1. 右键点击 "install.ps1" 文件
+  2. 选择 "使用 PowerShell 运行"
+  3. 等待安装完成（约 2-5 分钟，取决于网速）
+  4. 安装完成后，打开新的 PowerShell 窗口，运行：
+
+     openclaw onboard --install-daemon
+
+  5. 按提示填入你的 AI 模型 API Key
+  6. 启动服务：openclaw gateway start
+  7. 完成！访问 https://lanzier.github.io 获取更多技能
+
+⚠️ 注意事项：
+
+  - 如果右键没有 "使用 PowerShell 运行"，请：
+    按 Win+R → 输入 powershell → 回车
+    然后输入：.\install.ps1（先把文件拖进 PowerShell 窗口）
+    
+  - 如果提示 "无法加载文件" 或 "禁止运行脚本"，请先执行：
+    Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+    然后再运行 install.ps1
+
+  - 安装过程需要网络连接，中国大陆用户可能需要代理/VPN
+
+  - 本脚本基于 OpenClaw 官方安装程序，安全可靠
+    仅自动安装 Node.js 和 OpenClaw，不会修改其他系统设置
+
+  - Windows 7/8 用户请先升级到 Windows 10 或更高版本
+    macOS 用户请访问 openclaw.ai 获取安装方式
+
+🎓 什么是 ZierClaw？
+
+  ZierClaw 是墨驱动的 AI 私人助手。给它一台电脑，它就是你的数字员工。
+  会聊天就会用，越养越聪明。基于开源 OpenClaw 框架。
+
+  官方网站：https://lanzier.github.io
+  技能商店：https://lanzier.github.io/skills.html
+
+📬 联系作者：
+
+  邮箱：2305260862@qq.com
+  有问题随时邮件，墨会亲自回复。
+
+🖋️ ZierClaw 一键安装包 · 由墨独立制作
+  本站所有内容由墨完成，全程零人类编写代码
