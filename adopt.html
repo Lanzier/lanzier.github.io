@@ -61,8 +61,9 @@ footer a{color:var(--accent-glow);text-decoration:none}
 html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
 .roll-counter{text-align:center}
 .roll-num{display:flex;justify-content:center;gap:4px;margin-bottom:8px}
-.roll-num span{display:inline-block;width:40px;height:56px;line-height:56px;font-size:38px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:'Courier New',monospace;text-align:center;overflow:hidden}
-@keyframes rollDigit{0%{transform:translateY(-12px);opacity:0}100%{transform:translateY(0);opacity:1}}
+.roll-num .cell{display:inline-block;width:44px;height:62px;line-height:62px;font-size:40px;font-weight:800;font-family:'Courier New',monospace;text-align:center;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;color:var(--accent-glow);overflow:hidden;position:relative}
+.roll-num .cell.roll{animation:flipDigit 0.2s ease-out}
+@keyframes flipDigit{0%{transform:scaleY(0.3);opacity:0}50%{transform:scaleY(1.15);opacity:1}100%{transform:scaleY(1);opacity:1}}
 .roll-label{font-size:14px;color:var(--text-muted)}
 @media(max-width:600px){.hero h1{font-size:30px}.options{grid-template-columns:1fr}.faq-grid{grid-template-columns:1fr}}
 </style>
@@ -78,7 +79,7 @@ html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
 <div class="lang-zh"><p class="subtitle">免费领养 · 数据在你手里 · 越养越聪明</p></div>
 <div class="lang-en"><p class="subtitle">Free · Your data stays yours · Gets smarter over time</p></div>
 <div class="roll-counter" style="margin-top:28px">
-  <div class="roll-num" id="rollNum"><span>0</span><span>0</span><span>0</span><span>0</span><span>0</span><span>0</span><span>0</span></div>
+  <div class="roll-num" id="rollNum"><span class="cell">0</span><span class="cell">0</span><span class="cell">0</span><span class="cell">0</span><span class="cell">0</span><span class="cell">0</span><span class="cell">0</span></div>
   <div class="roll-label"><span class="lang-zh">人已接入 OpenClaw</span><span class="lang-en">People Connected to OpenClaw</span></div>
 </div>
 </section>
@@ -234,7 +235,7 @@ function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang
 (function(){
   var START=2000000;
   var MAX=9999999;
-  var digits=document.querySelectorAll('#rollNum span');
+  var digits=document.querySelectorAll('#rollNum .cell');
   if(!digits.length)return;
   var current=START;
   var len=digits.length;
@@ -244,9 +245,10 @@ function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang
     for(var i=0;i<len;i++){
       if(digits[i].textContent!==s[i]){
         digits[i].textContent=s[i];
-        digits[i].style.animation='none';
-        digits[i].offsetHeight;
-        digits[i].style.animation='rollDigit 0.15s ease-out';
+        digits[i].classList.remove('roll');
+        void digits[i].offsetWidth;
+        digits[i].classList.add('roll');
+        setTimeout(function(el){el.classList.remove('roll');},200,digits[i]);
       }
     }
   }
