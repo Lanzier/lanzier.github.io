@@ -230,16 +230,17 @@ function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang
 
 // Rolling counter
 (function(){
-  var el=document.getElementById('rollNum');
-  if(!el){console.log('rollNum not found');return;}
   var n=2000000;
   function fmt(x){return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');}
-  el.textContent=fmt(n);
-  setInterval(function(){
+  function tick(){
+    var el=document.getElementById('rollNum');
+    if(!el)return;
     n+=Math.floor(Math.random()*3)+1;
     if(n>9999999)n=2000000;
     el.textContent=fmt(n);
-  },1000);
+    setTimeout(tick,1000);
+  }
+  setTimeout(tick,1000);
 })();
 </script>
 </body>
