@@ -12,7 +12,7 @@ echo    正在启动 OpenClaw 官方安装程序...
 echo    这将自动安装 Node.js + OpenClaw
 echo.
 
-:: Use official installer via PowerShell
+:: Step 1: Run official installer
 powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://openclaw.ai/install.ps1 | iex"
 
 if %errorlevel% neq 0 (
@@ -21,8 +21,8 @@ if %errorlevel% neq 0 (
     echo    ║  ❌ 安装失败                         ║
     echo    ║                                      ║
     echo    ║  可能原因:                           ║
-    echo    ║  1. 网络连接问题，请检查网络          ║
-    echo    ║  2. 需要关闭杀毒软件重试              ║
+    echo    ║  1. 网络问题，检查网络或代理          ║
+    echo    ║  2. 杀毒软件拦截，暂时关闭重试        ║
     echo    ║  3. 手动安装: https://openclaw.ai     ║
     echo    ╚══════════════════════════════════════╝
     echo.
@@ -30,28 +30,36 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-:: Refresh PATH (npm global bin may not be in current session)
-for /f "tokens=*" %%i in ('npm config get prefix') do set NPM_PREFIX=%%i
-set "PATH=%NPM_PREFIX%;%PATH%"
+:: Step 2: Run onboarding via PowerShell (fresh PATH)
+echo.
+echo    ✅ OpenClaw 已安装，正在初始化...
+echo.
+echo    请在新的 PowerShell 窗口中完成配置。
+echo.
+echo    ┌─────────────────────────────────────────┐
+echo    │  如果此窗口卡住，请直接:                 │
+echo    │  按 Win+R → 输入 powershell → 回车       │
+echo    │  然后运行: openclaw onboard              │
+echo    └─────────────────────────────────────────┘
+echo.
+powershell -NoProfile -ExecutionPolicy Bypass -Command "refreshenv 2>$null; openclaw onboard --install-daemon"
 
-:: Run onboarding
-echo.
-echo    ✅ 安装完成，正在启动初始化向导...
-echo.
-openclaw onboard --install-daemon
+if %errorlevel% neq 0 (
+    echo.
+    echo    ⚠️  自动启动失败（PATH 未刷新）
+    echo    请手动操作:
+    echo    1. 关闭此窗口
+    echo    2. 打开新的 PowerShell（Win+R → powershell）
+    echo    3. 运行: openclaw onboard --install-daemon
+)
 
 echo.
 echo    ╔══════════════════════════════════════╗
-echo    ║     ✅ 全部完成！                    ║
+echo    ║     ✅ 安装完成！                    ║
 echo    ║                                      ║
 echo    ║  启动:  openclaw gateway start       ║
 echo    ║  状态:  openclaw status              ║
 echo    ║  技能:  https://lanzier.github.io    ║
-echo    ║                                      ║
-echo    ║  试试对墨说：                        ║
-echo    ║  "帮我查今天天气"                    ║
-echo    ║  "搜xxx最新消息"                     ║
-echo    ║  "帮我写邮件"                        ║
 echo    ╚══════════════════════════════════════╝
 echo.
 pause
