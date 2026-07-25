@@ -27,10 +27,11 @@
     @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
     .hero h1{font-size:48px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
     .hero .subtitle{font-size:18px;color:var(--text-muted);max-width:500px;margin:0 auto}
-    .stats{display:flex;justify-content:center;gap:40px;padding:20px;flex-wrap:wrap}
+    .stats{display:flex;justify-content:center;gap:60px;padding:30px 20px;flex-wrap:wrap}
     .stat{text-align:center}
-    .stat .num{font-size:36px;font-weight:700;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .stat .label{font-size:13px;color:var(--text-muted)}
+    .stat .num{font-size:54px;font-weight:700;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .stat .num .unit{font-size:24px;font-weight:400;background:none;-webkit-background-clip:unset;-webkit-text-fill-color:var(--text-muted);display:inline}
+    .stat .label{font-size:14px;color:var(--text-muted)}
     .section{max-width:900px;margin:0 auto;padding:60px 20px}
     .section h2{font-size:28px;margin-bottom:30px;display:flex;align-items:center;gap:10px}
     .skill-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
@@ -80,8 +81,8 @@
 </section>
 
 <div class="stats">
-  <div class="stat"><div class="num">8</div><div class="lang-zh"><div class="label">技能已激活</div></div><div class="lang-en"><div class="label">Skills Active</div></div></div>
-  <div class="stat"><div class="num">4</div><div class="lang-zh"><div class="label">日龄</div></div><div class="lang-en"><div class="label">Days Old</div></div></div>
+  <div class="stat"><div class="num">8 <span class="unit">个</span></div><div class="lang-zh"><div class="label">技能已激活</div></div><div class="lang-en"><div class="label">Skills Active</div></div></div>
+  <div class="stat"><div class="num">4 <span class="unit">天</span></div><div class="lang-zh"><div class="label">日龄</div></div><div class="lang-en"><div class="label">Days Old</div></div></div>
   <div class="stat"><div class="num">7×24</div><div class="lang-zh"><div class="label">全天候运转</div></div><div class="lang-en"><div class="label">Always Online</div></div></div>
 </div>
 
