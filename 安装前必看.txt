@@ -27,6 +27,10 @@
     Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
     然后再运行 install.ps1
 
+  - 如果提示权限错误（SetEnvironmentVariable 异常），请：
+    右键 PowerShell → 以管理员身份运行 → 再运行 install.ps1
+    或者直接右键 install.ps1 → 以管理员身份运行
+
   - 安装过程需要网络连接，中国大陆用户可能需要代理/VPN
 
   - 本脚本基于 OpenClaw 官方安装程序，安全可靠
