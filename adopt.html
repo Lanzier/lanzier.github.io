@@ -229,22 +229,22 @@ function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang
 (function(){
   var KEY='zrclaw-install-count';
   var BASE=17;
-  var count=parseInt(localStorage.getItem(KEY))||0;
-  var els=document.querySelectorAll('.count-val');
-  function showCount(){for(var i=0;i<els.length;i++)els[i].textContent=BASE+count;}
-  showCount();
+  var count=(parseInt(localStorage.getItem(KEY))||0)+BASE;
+  var els=document.getElementsByClassName('count-val');
+  for(var i=0;i<els.length;i++){els[i].innerText=count;}
 
   var btn=document.getElementById('installBtn');
   var steps=document.getElementById('install-steps');
   if(btn){
     btn.addEventListener('click',function(e){
       e.preventDefault();
-      count=parseInt(localStorage.getItem(KEY))||0;
-      count++;
-      localStorage.setItem(KEY,count);
-      showCount();
-      if(steps)steps.style.display='block';
-      steps.scrollIntoView({behavior:'smooth'});
+      var c=parseInt(localStorage.getItem(KEY))||0;
+      c++;
+      localStorage.setItem(KEY,c);
+      var total=BASE+c;
+      var es=document.getElementsByClassName('count-val');
+      for(var j=0;j<es.length;j++){es[j].innerText=total;}
+      if(steps){steps.style.display='block';steps.scrollIntoView({behavior:'smooth'});}
     });
   }
 })();
