@@ -107,10 +107,6 @@ html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
 <div class="price free">¥0</div>
 <div class="lang-zh"><div class="price-note">永久免费</div></div>
 <div class="lang-en"><div class="price-note">Free Forever</div></div>
-<div class="install-counter" id="installCounter" style="margin-bottom:20px;padding:10px 16px;background:rgba(99,102,241,.08);border-radius:8px;font-size:13px;color:var(--accent-glow)">
-  <span class="lang-zh">🐾 通过 ZierClaw 安装：<strong><span class="count-val">--</span></strong></span>
-  <span class="lang-en">🐾 Installed via ZierClaw: <strong><span class="count-val">--</span></strong></span>
-</div>
 <a href="#install-steps" class="btn btn-primary" id="installBtn">
 <span class="lang-zh">立即安装 →</span><span class="lang-en">Install Now →</span>
 </a>
@@ -232,30 +228,6 @@ function toggleTheme(){var r=document.documentElement,d=!r.classList.contains("l
 (function(){var b=document.querySelector(".theme-toggle");if(b)b.textContent=document.documentElement.classList.contains("light")?"☀️":"🌙"})()
 (function(){var s=localStorage.getItem("zrclaw-lang")||"zh";document.documentElement.setAttribute("data-lang",s);document.querySelector(".lang-toggle").textContent=s==="zh"?"EN":"中"})()
 function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang")==="zh"?"en":"zh";r.setAttribute("data-lang",c);localStorage.setItem("zrclaw-lang",c);document.querySelector(".lang-toggle").textContent=c==="zh"?"EN":"中"}
-
-// Install counter + steps
-(function(){
-  var KEY='zrclaw-install-count';
-  var BASE=17;
-  var count=(parseInt(localStorage.getItem(KEY))||0)+BASE;
-  var els=document.getElementsByClassName('count-val');
-  for(var i=0;i<els.length;i++){els[i].innerText=count;}
-
-  var btn=document.getElementById('installBtn');
-  var steps=document.getElementById('install-steps');
-  if(btn){
-    btn.addEventListener('click',function(e){
-      e.preventDefault();
-      var c=parseInt(localStorage.getItem(KEY))||0;
-      c++;
-      localStorage.setItem(KEY,c);
-      var total=BASE+c;
-      var es=document.getElementsByClassName('count-val');
-      for(var j=0;j<es.length;j++){es[j].innerText=total;}
-      if(steps){steps.style.display='block';steps.scrollIntoView({behavior:'smooth'});}
-    });
-  }
-})();
 
 // Rolling number counter
 (function(){
