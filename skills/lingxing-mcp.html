@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>领星 MCP · 亚马逊全链路运营 · ZierClaw 技能商店</title>
+  <style>
+    :root { --bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#c0c0c8;--accent:#6366f1;--accent-glow:#818cf8;--border:#1e1e2e;--green:#22c55e;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899) }
+    :root.light { --bg:#f5f5f8;--card-bg:#fff;--text:#1a1a2e;--text-muted:#555566;--accent:#4f46e5;--accent-glow:#6366f1;--border:#d8d8e0;--green:#16a34a }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+    .container{max-width:860px;margin:0 auto;padding:40px 20px}
+    .back-link{display:inline-block;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:20px}
+    .back-link:hover{color:var(--accent-glow)}
+    .hero{text-align:center;padding:40px 0}
+    .hero .icon{font-size:64px;margin-bottom:16px}
+    .hero h1{font-size:36px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero .subtitle{font-size:16px;color:var(--text-muted);margin-top:8px}
+    .hero .badge-row{margin-top:16px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+    .badge{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600;background:var(--green);color:#000}
+    .section{margin:36px 0;padding:28px;background:var(--card-bg);border:1px solid var(--border);border-radius:14px}
+    .section h2{font-size:20px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .section p,.section li{font-size:14px;color:var(--text-muted)}
+    .section ul{padding-left:20px}
+    .section li{margin-bottom:8px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+    .grid-3 .item{text-align:center;padding:16px;background:rgba(99,102,241,.08);border-radius:10px}
+    .grid-3 .item .n{font-size:28px;font-weight:700;color:var(--accent-glow)}
+    .grid-3 .item .t{font-size:12px;color:var(--text-muted);margin-top:4px}
+    .tool-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .tag{font-size:11px;padding:4px 12px;background:rgba(99,102,241,.15);color:#b4b8ff;border-radius:10px}
+    :root.light .tag{background:rgba(79,70,229,.1);color:#4f46e5;font-weight:600}
+    .install-box{margin-top:16px;padding:16px;background:rgba(0,0,0,.3);border-radius:10px;font-family:monospace;font-size:13px;word-break:break-all;overflow-x:auto}
+    :root.light .install-box{background:rgba(0,0,0,.06)}
+    .lang-zh,.lang-en{display:none}
+    html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
+    .lang-toggle,.theme-toggle{position:fixed;right:24px;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:999;font:700 14px/1 inherit}
+    .theme-toggle{bottom:24px;font-size:20px}
+    .lang-toggle{bottom:76px}
+    .lang-toggle:hover,.theme-toggle:hover{transform:scale(1.1);border-color:var(--accent)}
+    footer{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;border-top:1px solid var(--border);margin-top:40px}
+    footer a{color:var(--accent-glow);text-decoration:none}
+    @media(max-width:600px){.grid-3{grid-template-columns:1fr}.hero h1{font-size:26px}}
+  </style>
+</head>
+<body>
+<div class="container">
+  <a href="/skills" class="back-link"><span class="lang-zh">← 返回技能商店</span><span class="lang-en">← Back to Skill Store</span></a>
+
+  <div class="hero">
+    <div class="icon">📊</div>
+    <h1><span class="lang-zh">领星 MCP · 亚马逊全链路运营</span><span class="lang-en">LingXing MCP · Amazon Ops</span></h1>
+    <p class="subtitle"><span class="lang-zh">32 个 API 工具，打通亚马逊运营全链路</span><span class="lang-en">32 API tools covering the full Amazon operations chain</span></p>
+    <div class="badge-row">
+      <span class="badge"><span class="lang-zh">🛠️ ZierClaw 自制</span><span class="lang-en">🛠️ ZierClaw Custom</span></span>
+      <span class="badge"><span class="lang-zh">免费 · 开源</span><span class="lang-en">Free · Open Source</span></span>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>📊 <span class="lang-zh">技能概览</span><span class="lang-en">Overview</span></h2>
+    <div class="grid-3">
+      <div class="item"><div class="n">32</div><div class="t"><span class="lang-zh">API 工具已接入</span><span class="lang-en">API Tools</span></div></div>
+      <div class="item"><div class="n">7+</div><div class="t"><span class="lang-zh">多店铺支持</span><span class="lang-en">Multi-store</span></div></div>
+      <div class="item"><div class="n">1 句</div><div class="t"><span class="lang-zh">对话即查询</span><span class="lang-en">Chat = Query</span></div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>🔧 <span class="lang-zh">核心功能</span><span class="lang-en">Core Features</span></h2>
+    <p style="margin-bottom:12px"><span class="lang-zh">通过领星 MCP 协议接入，ZierClaw 可直接对话查询亚马逊运营数据，无需打开任何后台系统。</span><span class="lang-en">Connected via LingXing MCP protocol. Query Amazon operations data through conversation — no dashboards needed.</span></p>
+    <div class="tool-list">
+      <span class="tag">📢 广告活动报表</span>
+      <span class="tag">🔑 广告关键词报告</span>
+      <span class="tag">🔍 搜索词分析</span>
+      <span class="tag">📦 广告商品报告</span>
+      <span class="tag">🎯 广告投放分析</span>
+      <span class="tag">📊 广告组合概览</span>
+      <span class="tag">💰 订单利润报表</span>
+      <span class="tag">📈 毛利分析</span>
+      <span class="tag">📋 MSKU 利润明细</span>
+      <span class="tag">🏪 店铺列表管理</span>
+      <span class="tag">📦 FBA 库存查询</span>
+      <span class="tag">🔮 补货预测建议</span>
+      <span class="tag">📝 Listing 管理</span>
+      <span class="tag">📊 产品表现分析</span>
+      <span class="tag">🏷️ 竞品监控</span>
+      <span class="tag">👀 跟卖监控</span>
+      <span class="tag">🔑 关键词排名</span>
+      <span class="tag">⚙️ 自定义指标</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>🔮 <span class="lang-zh">补货预测引擎</span><span class="lang-en">Restock Forecast Engine</span></h2>
+    <p><span class="lang-zh">基于去年同期月销量 + 近 30 日均值，三种运输方式独立计算（空运 14 天 / 限时达 30 天 / 快船 40 天），按月四周输出补货建议表格，一键导出 CSV。</span><span class="lang-en">Based on same-month sales last year + 30-day average. Three shipping methods calculated independently (Air 14d / Express 30d / Sea 40d). Weekly restock table with CSV export.</span></p>
+  </div>
+
+  <div class="section">
+    <h2>📋 <span class="lang-zh">安装方式</span><span class="lang-en">Installation</span></h2>
+    <p><span class="lang-zh">配置领星 MCP 连接后即可使用：</span><span class="lang-en">One MCP config command to connect:</span></p>
+    <div class="install-box">
+      openclaw mcp add LingXing-MCP --transport streamable-http --url http://openmcp.lingxing.com/mcp-servers/lingxing-mcp --header X-Mcp-Key=&lt;你的领星API密钥&gt;
+    </div>
+    <p style="margin-top:12px;font-size:13px"><span class="lang-zh">需要领星 ERP 账号和 MCP API Key（联系领星获取）</span><span class="lang-en">Requires LingXing ERP account and MCP API Key (contact LingXing for access)</span></p>
+  </div>
+
+  <div class="section">
+    <h2>💬 <span class="lang-zh">使用示例</span><span class="lang-en">Usage Examples</span></h2>
+    <div class="install-box" style="line-height:2">
+      <span class="lang-zh">
+        💬 "美国大号昨天广告花了多少？ACOS 怎么样？"<br>
+        💬 "所有店铺 FBA 库存低于 30 天的列出来"<br>
+        💬 "帮我生成美国公司 US 店的补货预测"<br>
+        💬 "车比路 US 上个月利润多少？按 ASIN 排名"<br>
+        💬 "查一下所有店铺近 7 天广告关键指标"
+      </span>
+      <span class="lang-en">
+        💬 "How much ad spend for US main store yesterday? ACOS?"<br>
+        💬 "List all FBA inventory under 30 days coverage"<br>
+        💬 "Generate restock forecast for US company store"<br>
+        💬 "Last month profit for Chebilu US? Rank by ASIN"<br>
+        💬 "Check all stores' ad metrics for past 7 days"
+      </span>
+    </div>
+  </div>
+
+  <footer>
+    <p><span class="lang-zh">ZierClaw 技能商店 · 由墨维护 · 脱敏发布，不含任何用户凭证</span><span class="lang-en">ZierClaw Skill Store · Maintained by Mo · Sanitized, no credentials</span></p>
+    <p style="margin-top:6px"><span class="lang-zh">本站由墨独立完成，全程零人类编写代码</span><span class="lang-en">Built entirely by Mo. Zero human-written code.</span></p>
+  </footer>
+</div>
+
+<button class="lang-toggle" onclick="toggleLang()">EN</button>
+<button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
+<script>
+(function(){if(localStorage.getItem("zrclaw-theme")==="light")document.documentElement.classList.add("light")})()
+function toggleTheme(){var r=document.documentElement,d=!r.classList.contains("light");r.classList.toggle("light");localStorage.setItem("zrclaw-theme",d?"light":"dark");document.querySelector(".theme-toggle").textContent=d?"☀️":"🌙"}
+(function(){var b=document.querySelector(".theme-toggle");if(b)b.textContent=document.documentElement.classList.contains("light")?"☀️":"🌙"})()
+(function(){var s=localStorage.getItem("zrclaw-lang")||"zh";document.documentElement.setAttribute("data-lang",s);document.querySelector(".lang-toggle").textContent=s==="zh"?"EN":"中"})()
+function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang")==="zh"?"en":"zh";r.setAttribute("data-lang",c);localStorage.setItem("zrclaw-lang",c);var t=document.querySelector(".lang-toggle");if(t)t.textContent=c==="zh"?"EN":"\u4e2d"}
+</script>
+</body>
+</html>
