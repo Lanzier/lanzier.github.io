@@ -3,74 +3,116 @@
 <head><meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>团队工具快速搭建 · ZierClaw</title>
 <style>
-:root{--bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#c0c0c8;--accent:#6366f1;--accent-glow:#818cf8;--border:#1e1e2e;--green:#22c55e;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899)}
-:root.light{--bg:#f5f5f8;--card-bg:#fff;--text:#1a1a2e;--text-muted:#555566;--accent:#4f46e5;--accent-glow:#6366f1;--border:#d8d8e0;--green:#16a34a}
+:root{--bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#c0c0c8;--text-faint:#8888a0;--accent:#6366f1;--accent-glow:#818cf8;--border:#1e1e2e;--green:#22c55e;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899)}
+:root.light{--bg:#f5f5f8;--card-bg:#ffffff;--text:#1a1a2e;--text-muted:#555566;--text-faint:#8888a0;--accent:#4f46e5;--accent-glow:#6366f1;--border:#d8d8e0;--green:#16a34a}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;transition:background .3s,color .3s}
 .container{max-width:860px;margin:0 auto;padding:40px 20px}
-.back-link{display:inline-block;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px}
+.top-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.back-link{display:inline-block;color:var(--text-muted);text-decoration:none;font-size:14px}
 .back-link:hover{color:var(--accent)}
-.detail-hero{text-align:center;padding:16px 0 32px}
+.lang-toggle,.theme-toggle{
+  padding:6px 14px;border-radius:999px;border:1px solid var(--border);background:var(--card-bg);
+  color:var(--text);font-size:13px;cursor:pointer;font-weight:600;margin-left:8px;transition:all .2s;
+}
+.lang-toggle:hover,.theme-toggle:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.detail-hero{text-align:center;padding:10px 0 28px}
 .detail-hero .icon{font-size:54px;display:block;margin-bottom:10px}
 .detail-hero h1{font-size:32px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
-.detail-hero .sub{color:var(--text-muted);font-size:14px;max-width:620px;margin:0 auto}
-.meta{color:var(--text-faint,#8888a0);font-size:13px;margin-top:10px}
+.detail-hero .sub{color:var(--text-muted);font-size:14px;max-width:640px;margin:0 auto;line-height:1.8}
 .tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:18px 0 0}
 .tag{font-size:11px;padding:4px 12px;background:rgba(99,102,241,.15);color:var(--accent-glow);border-radius:10px}
+:root.light .tag{color:var(--accent)}
 .content-section{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:26px 28px;margin-bottom:18px}
 .content-section h2{font-size:18px;margin-bottom:14px}
 .content-section p{font-size:14px;color:var(--text-muted);line-height:1.9}
 .content-section ul{list-style:none;padding:0}
-.content-section li{font-size:14px;color:var(--text-muted);line-height:1.9;padding:6px 0;border-bottom:1px dashed var(--border)}
+.content-section li{font-size:14px;color:var(--text-muted);line-height:1.9;padding:8px 0;border-bottom:1px dashed var(--border)}
 .content-section li:last-child{border-bottom:none}
 .content-section li b{color:var(--text)}
-.footer-note{text-align:center;color:var(--text-faint,#8888a0);font-size:13px;margin-top:28px}
+.footer-note{text-align:center;color:var(--text-faint);font-size:13px;margin-top:26px}
+
+/* 中英切换 */
+.zh,.en{display:none}
+html[data-lang="zh"] .zh{display:inline}
+html[data-lang="en"] .en{display:inline}
+/* 中英下需要块级标签也切换 */
+html[data-lang="zh"] .block-zh{display:block}
+html[data-lang="en"] .block-en{display:block}
 </style>
 </head>
 <body>
 <div class="container">
-  <a class="back-link" href="/skills.html">← 返回技能商店</a>
+  <div class="top-row">
+    <a class="back-link" href="/skills.html">← <span class="zh">返回技能商店</span><span class="en">Back to Skills</span></a>
+    <div>
+      <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+      <button class="lang-toggle" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
 
   <div class="detail-hero">
     <span class="icon">🏗️</span>
-    <h1>团队工具快速搭建</h1>
-    <div class="sub">internal-app-builder — 为团队快速搭建可上线的多人网页工具，一条龙交付</div>
-    <div class="tags"><span class="tag">SKU索引</span><span class="tag">GitHub Pages</span><span class="tag">定时自动化</span><span class="tag">液态玻璃UI</span><span class="tag">本地文件打开</span></div>
+    <h1><span class="zh">团队工具快速搭建</span><span class="en">Internal App Builder</span></h1>
+    <div class="sub"><span class="zh">internal-app-builder — 为团队快速搭建可上线的多人网页工具，一条龙交付</span><span class="en">internal-app-builder — Quickly ship multi-user web tools for your team, end-to-end.</span></div>
+    <div class="tags" style="justify-content:center"><span class="tag">SKU索引</span><span class="tag">GitHub Pages</span><span class="tag">定时更新</span><span class="tag">液态玻璃UI</span><span class="tag">本地打开</span></div>
   </div>
 
   <div class="content-section">
-    <h2>🧠 它能做什么</h2>
-    <p>把「共享盘/内网系统数据 → 网页工具 → 团队使用」全流程自动化。不用写服务器、不用买域名，从数据到上线一站式解决。</p>
+    <h2>🧠 <span class="zh">它能做什么</span><span class="en">What It Does</span></h2>
+    <p><span class="zh">把「共享盘/内网系统数据 → 网页工具 → 团队使用」全流程自动化。不用写服务器、不用买域名，从数据到上线一站式解决。</span><span class="en">Automates the whole "shared-drive data to team web tool" pipeline. No server, no domain — from data to launch in one flow.</span></p>
   </div>
 
   <div class="content-section">
-    <h2>✅ 核心能力</h2>
+    <h2>✅ <span class="zh">核心能力</span><span class="en">Core Abilities</span></h2>
     <ul>
-      <li><b>① 全量索引构建</b> — 扫描共享盘/内网数据，识别 SKU/编号/关键词，自动建索引（带断点续扫，上万文件不丢进度）</li>
-      <li><b>② GitHub Pages 部署</b> — 一键推到 GitHub，免费公网固定域名，同事随时访问，无需自己跑服务器</li>
-      <li><b>③ 定时自动更新</b> — Windows 定时任务每天自动重建索引并推送，数据永远最新，无需手动干预</li>
-      <li><b>④ 精美 UI</b> — iOS 液态玻璃质感、中英切换、日夜模式、动态光斑，专业又好看</li>
-      <li><b>⑤ 打开本地文件</b> — 自定义协议（sku-open://）+ 本地脚本，网页点按钮直接打开共享盘文件夹</li>
-      <li><b>⑥ 一键分发</b> — 打包安装包，同事双击一次即装，无需配置</li>
+      <li><b>① <span class="zh">全量索引构建</span><span class="en">Index Building</span></b> — <span class="zh">扫描共享盘/内网数据，识别 SKU/编号/关键词自动建索引（断点续扫，上万文件不丢进度）</span><span class="en">Scan shared drive &amp; build index, auto-detect SKU/codes (checkpoint resume, no progress loss).</span></li>
+      <li><b>② <span class="zh">GitHub Pages 部署</span><span class="en">GitHub Pages Deploy</span></b> — <span class="zh">一键推 GitHub，免费公网固定域名，同事随时访问，无需自建服务器</span><span class="en">Push to GitHub, free public fixed domain, no server needed.</span></li>
+      <li><b>③ <span class="zh">定时自动更新</span><span class="en">Auto Update</span></b> — <span class="zh">Windows 定时任务每天自动重建索引并推送，数据永远最新</span><span class="en">Scheduled daily re-index &amp; push, always up to date.</span></li>
+      <li><b>④ <span class="zh">精美 UI</span><span class="en">Polished UI</span></b> — <span class="zh">iOS 液态玻璃质感、中英切换、日夜模式、动态光斑</span><span class="en">Liquid-glass UI, bilingual, day/night, animated glows.</span></li>
+      <li><b>⑤ <span class="zh">打开本地文件</span><span class="en">Open Local Files</span></b> — <span class="zh">自定义协议 + 本地脚本，网页点按钮直接打开共享盘文件夹</span><span class="en">Custom protocol + local script, open shared-drive folder from web button.</span></li>
+      <li><b>⑥ <span class="zh">一键分发</span><span class="en">Distribution</span></b> — <span class="zh">打包安装包，同事双击一次即装</span><span class="en">Pack &amp; one-click install for teammates.</span></li>
     </ul>
   </div>
 
   <div class="content-section">
-    <h2>🎯 适用场景</h2>
+    <h2>🎯 <span class="zh">适用场景</span><span class="en">Use Cases</span></h2>
     <ul>
-      <li>🔍 按 SKU / 编号 / 别名 查共享盘文件路径</li>
-      <li>📊 内网报表、产品资料检索</li>
-      <li>🛠️ 团队多人访问的内部网页工具</li>
-      <li>📦 需要打包分发给同事的工具</li>
+      <li>🔍 <span class="zh">按 SKU / 编号 / 别名 查共享盘文件路径</span><span class="en">Find shared-drive files by SKU/code</span></li>
+      <li>📊 <span class="zh">内网报表、产品资料检索</span><span class="en">Internal reports &amp; data lookup</span></li>
+      <li>🛠️ <span class="zh">团队多人访问的内部网页工具</span><span class="en">Multi-user internal web tools</span></li>
+      <li>📦 <span class="zh">需要打包分发给同事的工具</span><span class="en">Tools to distribute to teammates</span></li>
     </ul>
   </div>
 
   <div class="content-section">
-    <h2>🛡️ 免费 · 开源</h2>
-    <p>完全免费开源，零服务费。数据保存在自己的共享盘和本地，不上传任何第三方。</p>
+    <h2>🛡️ <span class="zh">免费 · 开源</span><span class="en">Free · Open Source</span></h2>
+    <p><span class="zh">完全免费开源，零服务费。数据保存在自己的共享盘和本地，不上传任何第三方。</span><span class="en">100% free &amp; open source. Data stays on your own drive — nothing uploaded to third parties.</span></p>
   </div>
 
-  <div class="footer-note">🖋 设计与构建 by 墨</div>
+  <div class="footer-note">🖋 <span class="zh">设计与构建 by 墨</span><span class="en">Designed &amp; Built by Mo</span></div>
 </div>
+
+<script>
+(function(){
+  // 恢复主题
+  if(localStorage.getItem("zrclaw-theme")==="light")document.documentElement.classList.add("light");
+  // 恢复语言
+  var s=localStorage.getItem("zrclaw-lang")||"zh";
+  document.documentElement.setAttribute("data-lang",s);
+  var lt=document.querySelector(".lang-toggle"); if(lt) lt.textContent = s==="zh"?"EN":"中";
+  var tt=document.querySelector(".theme-toggle"); if(tt) tt.textContent = document.documentElement.classList.contains("light")?"☀️":"🌙";
+})();
+function toggleTheme(){
+  var r=document.documentElement,d=!r.classList.contains("light");
+  r.classList.toggle("light"); localStorage.setItem("zrclaw-theme",d?"light":"dark");
+  var t=document.querySelector(".theme-toggle"); if(t) t.textContent=d?"☀️":"🌙";
+}
+function toggleLang(){
+  var r=document.documentElement,c=r.getAttribute("data-lang")==="zh"?"en":"zh";
+  r.setAttribute("data-lang",c); localStorage.setItem("zrclaw-lang",c);
+  var t=document.querySelector(".lang-toggle"); if(t) t.textContent=c==="zh"?"EN":"中";
+}
+</script>
 </body>
 </html>
