@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head><meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>团队工具快速搭建 · ZierClaw</title>
+<style>
+:root{--bg:#0a0a0f;--card-bg:#111118;--text:#e0e0e0;--text-muted:#c0c0c8;--accent:#6366f1;--accent-glow:#818cf8;--border:#1e1e2e;--green:#22c55e;--gradient:linear-gradient(135deg,#6366f1,#a855f7,#ec4899)}
+:root.light{--bg:#f5f5f8;--card-bg:#fff;--text:#1a1a2e;--text-muted:#555566;--accent:#4f46e5;--accent-glow:#6366f1;--border:#d8d8e0;--green:#16a34a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.container{max-width:900px;margin:0 auto;padding:40px 20px}
+.back-link{display:inline-block;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px}
+.back-link:hover{color:var(--accent)}
+.detail-hero{text-align:center;padding:20px 0 40px}
+.detail-hero .icon{font-size:56px;display:block;margin-bottom:12px}
+.detail-hero h1{font-size:34px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.detail-hero .meta{color:var(--text-muted);font-size:14px}
+.content-section{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:30px;margin-bottom:20px}
+.content-section h2{font-size:20px;margin-bottom:12px}
+.content-section p{font-size:14px;color:var(--text-muted);line-height:1.8}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0}
+.tag{font-size:11px;padding:4px 12px;background:rgba(99,102,241,.15);color:var(--accent-glow);border-radius:10px}
+:root.light .tag{color:#4f46e5;font-weight:600}
+.use-cases{margin:30px 0}
+.use-cases h2{font-size:20px;margin-bottom:16px}
+.use-case-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.use-case{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px}
+.use-case .q{font-size:14px;font-style:italic;color:var(--text-muted)}
+.copy-section{background:var(--card-bg);border:1px solid var(--accent);border-radius:14px;padding:30px;margin:40px 0;text-align:center}
+.copy-section h2{font-size:20px;margin-bottom:8px}
+.copy-section .sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.code-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:left;font-family:Consolas,Monaco,monospace;font-size:13px;color:var(--text);overflow-x:auto}
+.footer-note{text-align:center;color:var(--text-muted);font-size:13px;margin-top:30px}
+.lang-zh,.lang-en{display:none}
+html[data-lang="zh"] .lang-zh{display:inline}
+html[data-lang="en"] .lang-en{display:inline}
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="/skills.html">← <span class="lang-zh">返回技能商店</span><span class="lang-en">Back to Skills</span></a>
+  <div class="detail-hero">
+    <span class="icon">🏗️</span>
+    <h1><span class="lang-zh">团队工具快速搭建</span><span class="lang-en">Internal App Builder</span></h1>
+    <div class="meta">internal-app-builder · <span class="lang-zh">免费 · 开源</span><span class="lang-en">Free · Open Source</span></div>
+    <div class="tags"><span class="tag">GitHub Pages</span><span class="tag">液态玻璃UI</span><span class="tag">定时自动化</span><span class="tag">索引构建</span></div>
+  </div>
+
+  <div class="content-section">
+    <h2>🧠 <span class="lang-zh">能力概览</span><span class="lang-en">Overview</span></h2>
+    <p><span class="lang-zh">为团队快速搭建可上线的多人网页工具。核心链路：数据从共享盘/内网系统取出 → 建索引 → 部署到 GitHub Pages（公网固定域名） → Windows 定时自动更新 → 液态玻璃 UI → 必要时用自定义协议打通本地文件打开。一条龙交付。</span><span class="lang-en">Quickly ship multi-user web tools for your team. Index data → GitHub Pages → auto daily update → liquid-glass UI → custom protocol to open local files. End-to-end delivery.</span></p>
+  </div>
+
+  <div class="content-section">
+    <h2>📐 <span class="lang-zh">核心架构</span><span class="lang-en">Architecture</span></h2>
+    <div class="code-block">[数据源 如 \\10.10.10.20\共享盘]<br>   ↓ ① 索引构建器 (build-index.js) → index.json<br>[索引 JSON]<br>   ↓ ② 推到 GitHub 仓库 → GitHub Pages<br>[公网网页 lanzier.github.io/仓库名]<br>   ↓ ③ 定时任务每天重建+推送<br>[自动化更新]<br>   ↓ ④ 可选：自定义协议 sku-open:// + 本地脚本<br>[本地文件打开]</div>
+  </div>
+
+  <div class="use-cases">
+    <h2>🎯 <span class="lang-zh">适用场景</span><span class="lang-en">Use Cases</span></h2>
+    <div class="use-case-grid">
+      <div class="use-case"><div class="q">🔍 <span class="lang-zh">SKU/编号/别名 查共享盘文件路径</span><span class="lang-en">Find shared-drive files by SKU</span></div></div>
+      <div class="use-case"><div class="q">📊 <span class="lang-zh">内网报表/产品资料检索</span><span class="lang-en">Internal reports &amp; data lookup</span></div></div>
+      <div class="use-case"><div class="q">🛠️ <span class="lang-zh">团队多人访问的网页工具</span><span class="lang-en">Multi-user internal web tools</span></div></div>
+      <div class="use-case"><div class="q">📦 <span class="lang-zh">一键打包+安装分发到同事</span><span class="lang-en">Pack &amp; distribute to teammates</span></div></div>
+    </div>
+  </div>
+
+  <div class="copy-section">
+    <h2>🚀 <span class="lang-zh">一键安装</span><span class="lang-en">Install</span></h2>
+    <div class="sub"><span class="lang-zh">ZierClaw 环境一行命令安装</span><span class="lang-en">One-line install for OpenClaw</span></div>
+    <div class="code-block">npx clawhub@latest install internal-app-builder</div>
+  </div>
+
+  <div class="content-section">
+    <h2>🛡️ <span class="lang-zh">免费 · 开源</span><span class="lang-en">Free · Open Source</span></h2>
+    <p><span class="lang-zh">本技能完全免费开源，零服务费。数据保存在你自己的共享盘和内存，不上传任何第三方。</span><span class="lang-en">100% free and open source. Your data stays on your own drive &amp; memory — nothing uploaded to third parties.</span></p>
+  </div>
+
+  <div class="footer-note">🖋 <span class="lang-zh">设计与构建 by 墨</span><span class="lang-en">Designed &amp; Built by Mo</span></div>
+</div>
+<script>
+(function(){var l=localStorage.getItem('zier-lang')||'zh';document.documentElement.setAttribute('data-lang',l);var t=localStorage.getItem('zier-theme');if(t==='light')document.documentElement.classList.add('light');})();
+</script>
+</body>
+</html>
