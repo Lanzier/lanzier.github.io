@@ -37,6 +37,25 @@ if (-not $nodeOk) {
     }
 }
 
+# Check Git
+$gitOk = $false
+try { $gv = git --version 2>$null; if ($gv) { $gitOk = $true; Write-Host "   Git found: $gv" -ForegroundColor Green } } catch {}
+if (-not $gitOk) {
+    Write-Host "   Git not found. Installing via winget..." -ForegroundColor Yellow
+    $winget2Ok = $false
+    try { winget --version 2>$null; $winget2Ok = $true } catch {}
+    if ($winget2Ok) {
+        winget install Git.Git --accept-package-agreements --accept-source-agreements --silent
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        try { $gv = git --version 2>$null; if ($gv) { $gitOk = $true; Write-Host "   Git installed: $gv" -ForegroundColor Green } } catch {}
+    }
+    if (-not $gitOk) {
+        Write-Host "   Could not install Git automatically." -ForegroundColor Yellow
+        Write-Host "   Please install manually: https://git-scm.com" -ForegroundColor Yellow
+        Write-Host ""
+    }
+}
+
 # Install OpenClaw
 Write-Host "   Installing OpenClaw via official installer..." -ForegroundColor Cyan
 try {
