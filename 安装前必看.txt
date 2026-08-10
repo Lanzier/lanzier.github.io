@@ -1,110 +1,49 @@
 === ZierClaw 一键安装 —— 安装前必看 ===
 
-📦 压缩包里有什么：
-  ✅ install.ps1              → 自动安装脚本
-  ✅ ps1文件鼠标右键powershell管理员运行.txt  → 🖱️ 文件名就是安装指南
-  ✅ ZierClaw网站.url          → 双击直达主页
-  ✅ 安装前必看.txt            → 你现在读的这个
+📄 压缩包里有什么：
+  ✅ 安装OpenClaw.bat   →  ⭐ 双击这个，自动安装（推荐）
+  ✅ install.ps1         →  自动安装脚本（bat 会自动调用它）
+  ✅ ZierClaw网站.url    →  双击直达主页
+  ✅ 安装前必看.txt      →  你现在读的这个
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+─────────────────────────
 
 Q：我什么都不懂，怎么装？
 
-  👉 第一步：看文件列表，有一个叫
-     「ps1文件鼠标右键powershell管理员运行」的文件
-     按它说的做 —— 对 install.ps1 右键 → PowerShell 管理员运行
+  👉 第一步：双击「安装OpenClaw.bat」
+     它会自动：请求管理员权限(UAC点"是") → 自动定位到脚本目录 → 自动安装
 
   👉 第二步：等 2-5 分钟，过程全自动
-     如果报错 "无法加载文件"，看下面的 Q2
-     如果报错 "找不到 winget"，看下面的 Q3
-     如果卡在 "Installing OpenClaw..."，看下面的 Q4
+     如果报错"无法加载文件"，看下面 Q2
+     如果报错"找不到 winget"，看下面 Q3
+     如果卡在 "Installing OpenClaw..."，看下面 Q4
+     如果双击 bat 没反应，看下面 Q5
 
-  👉 第三步：装完后，桌面右下角打开开始菜单
+  👉 第三步：装完后，桌面左下角开始菜单
      搜索 "PowerShell" → 打开 → 输入：
      openclaw onboard --install-daemon
-     按提示操作。需要填入 AI 模型的 API Key（类似密码）
+     按提示完成初始化（此时切到 deepseek 模型即可用）
 
-  👉 第四步：搞定了！桌面上不会多出一个图标
-     它跑在后台，像一个隐形管家
-     你可以用浏览器访问 https://lanzier.github.io 学习怎么用它
+─────────────────────────
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Q2：报"无法加载文件 xxx.ps1，因为在此系统上禁止运行脚本"
+  → 打开 PowerShell（管理员），运行：
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+  → 输入 Y 回车，然后重新双击「安装OpenClaw.bat」
 
-Q1：右键没有 PowerShell 选项？
-  → Win11：右键 → 显示更多选项 → 使用 PowerShell 运行
-  → 或者按 Win+R → 输入 "powershell" → 回车
-  → 把 install.ps1 拖进这个窗口 → 按回车执行
+Q3：报"找不到 winget"（电脑太老没内置）
+  → 手动装 Node.js：去 https://nodejs.org 下载 LTS 版安装
+  → 装完重新双击「安装OpenClaw.bat」
 
-Q2：提示"无法加载文件" "禁止运行脚本"？
-  → 说明电脑安全策略挡住了脚本
-  → 先在 PowerShell 里输入下面这行，回车：
-     Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-  → 输入 Y 确认。然后再运行 install.ps1
+Q4：卡在 "Installing OpenClaw..." 不动
+  → 一般是网络下载慢，等 2-3 分钟
+  → 如果还是不行，可能是网络连不上 openclaw.ai
+    （公司网络可能要开代理/换网络重试）
 
-Q3：提示"winget not found" 或 Node.js 装不上？
-  → 你的 Windows 版本太旧，没有 winget
-  → 手动装 Node.js：打开 https://nodejs.org
-  → 点左边绿色的 "LTS" 按钮下载 → 一路下一步 → 装完重启电脑
-  → 重启后再运行 install.ps1（这时候它会识别到 Node.js，直接跳到装 OpenClaw）
+Q5：双击 bat 没反应 / 一闪而过
+  → 右键「安装OpenClaw.bat」→ 选"以管理员身份运行"
+  → 如果右键也没有管理员选项：右键开始菜单 → 终端(管理员)
+    然后输入：cd 到压缩包解压目录，再输入 .\安装OpenClaw.bat
 
-Q4：卡在 "Installing OpenClaw" 很久不动？
-  → 大概率是国内网络连不上海外服务器，这是最常见的问题
-  → 需要开代理/VPN。如果你在用 Clash、V2Ray 等工具：
-    确保代理已开启，然后再试
-  → 如果你的代理端口是 7890（Clash 默认）：
-    打开 PowerShell（管理员）→ 输入：
-    $env:HTTPS_PROXY = "http://127.0.0.1:7890"
-    然后再运行 install.ps1
-  → 没有代理？换个时间段再试，或者连手机热点试试
-
-Q5：装完了，然后呢？怎么用？
-  → 装完没有桌面图标，ZierClaw 是一个命令行程序
-  → 日常操作在浏览器：打开 ZierClaw网站.url 看教程
-  → 刚开始可以做的事情：
-    · 让它帮你写文案、查资料、分析数据
-    · 接入飞书/微信让它变成24小时在线助手
-    · 安装技能包扩展能力（有 5000+ 个社区技能）
-  → 上手视频和教程都在 https://lanzier.github.io
-
-Q6：什么是 API Key？我哪来？
-  → API Key 是调用 AI 模型的"通行证"
-  → 推荐用 DeepSeek（国内可用，便宜）：
-    https://platform.deepseek.com → 注册 → 充值 10 元 → 创建 API Key
-  → 配置时填进去就行，一个月几块钱够用
-
-Q7：Windows 7 / 8 能用吗？
-  → 不能。请升级到 Windows 10 或 11。
-  → Mac 用户：访问 https://openclaw.ai 获取 macOS 安装方式
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🎓 ZierClaw 是什么？
-
-  一句话：你装了个 AI 数字员工。
-  给它指令，它干活。聊天即操作，越养越聪明。
-
-  官网：https://lanzier.github.io
-  技能商店：https://lanzier.github.io/skills.html
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-❤️ 制作不易，打赏作者 orz
-
-  如果 ZierClaw 帮到了你，请墨喝杯咖啡 ☕
-  打开 制作不易-打赏作者orz.docx 即可扫码打赏（微信/支付宝都有）
-
-  任意金额都是鼓励，感激不尽！
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📬 搞不定？
-
-  邮件：2305260862@qq.com
-  看到必回。别怕问，墨本人会亲自帮你。
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🖋️ ZierClaw 一键安装包 · 墨独立制作
-  本站全部内容由 AI 完成，全程零人类编写代码
+─────────────────────────
+有问题邮件联系：taobaozhou666@gmail.com

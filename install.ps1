@@ -1,4 +1,9 @@
 # ZierClaw One-Click Install
+# 自动定位到脚本所在目录（无论从哪个路径打开都生效）
+if ($PSScriptRoot) {
+    Set-Location -Path $PSScriptRoot
+    Write-Host "   切换到脚本目录: $PSScriptRoot" -ForegroundColor DarkGray
+}
 Write-Host ""
 Write-Host "   ZierClaw One-Click Install" -ForegroundColor Cyan
 Write-Host "   Installing OpenClaw..." -ForegroundColor Cyan
@@ -35,7 +40,7 @@ if (-not $nodeOk) {
 # Install OpenClaw
 Write-Host "   Installing OpenClaw via official installer..." -ForegroundColor Cyan
 try {
-    iwr -UseBasicParsing -Uri "https://openclaw.ai/install.ps1" | iex
+    irm https://openclaw.ai/install.ps1 | iex
     Write-Host ""
     Write-Host "   Installation complete!" -ForegroundColor Green
     Write-Host ""
