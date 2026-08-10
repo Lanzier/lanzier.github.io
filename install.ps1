@@ -83,9 +83,14 @@ try {
     Write-Host "   API key configured. Now setting default model..." -ForegroundColor Cyan
     openclaw models set
     Write-Host ""
-    Write-Host "   Finish: install the daemon so it runs in the background." -ForegroundColor Cyan
-    Write-Host "   Next step (run manually, or we try now):" -ForegroundColor White
-    Write-Host "   openclaw onboard --install-daemon" -ForegroundColor White
+    Write-Host "   Your web Dashboard is ready!" -ForegroundColor Green
+    Write-Host "   Opening the Dashboard in your browser..." -ForegroundColor Cyan
+    Start-Sleep -Seconds 2
+    openclaw dashboard
+    Write-Host ""
+    Write-Host "   If it did not open automatically, run:" -ForegroundColor Yellow
+    Write-Host "   openclaw dashboard" -ForegroundColor White
+    Write-Host "   (or set up the background service later: openclaw daemon start)" -ForegroundColor White
     Write-Host ""
     Write-Host "   Skills: https://lanzier.github.io" -ForegroundColor Cyan
     Write-Host ""
@@ -95,7 +100,7 @@ try {
     Write-Host "   Open a NEW PowerShell window and run:" -ForegroundColor Yellow
     Write-Host "   openclaw models auth add" -ForegroundColor White
     Write-Host "   openclaw models set" -ForegroundColor White
-    Write-Host "   openclaw onboard --install-daemon" -ForegroundColor White
+    Write-Host "   openclaw dashboard" -ForegroundColor White
     Write-Host ""
     Write-Host "   Skills: https://lanzier.github.io" -ForegroundColor Cyan
     Write-Host ""
