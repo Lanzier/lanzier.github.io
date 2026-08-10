@@ -14,15 +14,20 @@ Q：我什么都不懂，怎么装？
      它会自动：请求管理员权限(UAC点"是") → 自动定位到脚本目录 → 自动安装
 
   👉 第二步：等 2-5 分钟，过程全自动
+     • 自动装 Node.js、Git、OpenClaw（全自动，无需干预）
      如果报错"无法加载文件"，看下面 Q2
      如果报错"找不到 winget"，看下面 Q3
      如果卡在 "Installing OpenClaw..."，看下面 Q4
      如果双击 bat 没反应，看下面 Q5
 
-  👉 第三步：装完后，桌面左下角开始菜单
-     搜索 "PowerShell" → 打开 → 输入：
-     openclaw onboard --install-daemon
-     按提示完成初始化（此时切到 deepseek 模型即可用）
+  👉 第三步（关键）：绑定你的 AI 秘钥（API Key）
+     装完后会自动弹出配置界面：
+     ① 选你的 AI 服务商（DeepSeek / OpenAI / OpenRouter 等）
+     ② 把你的 API Key 粘贴进去（在哪拿？看下方 Q6）
+     ③ 选一个默认模型（比如 deepseek 就够用）
+     → 然后会自动打开网页版 Dashboard（后台），就能正常聊天了！
+
+  💡 说明：装完直接打开 Dashboard 网页后台，无需再跑 onboard。
 
 ─────────────────────────
 
@@ -44,6 +49,12 @@ Q5：双击 bat 没反应 / 一闪而过
   → 右键「安装OpenClaw.bat」→ 选"以管理员身份运行"
   → 如果右键也没有管理员选项：右键开始菜单 → 终端(管理员)
     然后输入：cd 到压缩包解压目录，再输入 .\安装OpenClaw.bat
+
+Q6：API Key 去哪拿？
+  ✅ DeepSeek   ：https://platform.deepseek.com → API Keys（国内友好，便宜）
+  ✅ OpenAI     ：https://platform.openai.com/api-keys
+  ✅ OpenRouter ：https://openrouter.ai/keys（一个 key 用多种模型）
+  → 每个服务商都需要"注册 → 充值 → 创建 API Key"，把那一串粘进去即可
 
 ─────────────────────────
 有问题邮件联系：taobaozhou666@gmail.com
