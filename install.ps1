@@ -56,25 +56,48 @@ if (-not $gitOk) {
     }
 }
 
-# Install OpenClaw
-Write-Host "   Installing OpenClaw via official installer..." -ForegroundColor Cyan
+Write-Host ""
+Write-Host "   ================================================" -ForegroundColor Cyan
+Write-Host "   Installation complete!" -ForegroundColor Green
+Write-Host "   ================================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "   One more step to make it usable:" -ForegroundColor Yellow
+Write-Host "   You need to add your AI model API key." -ForegroundColor Yellow
+Write-Host ""
+
+# ── 关键：引导用户配置模型 API Key（这样才真正可用）────────────
+Write-Host "   We will now open the API-key setup." -ForegroundColor Cyan
+Write-Host "   (Choose your AI provider, then paste your API key when asked.)" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "   Where to get keys:" -ForegroundColor Yellow
+Write-Host "   - DeepSeek : https://platform.deepseek.com -> API Keys" -ForegroundColor White
+Write-Host "   - OpenAI   : https://platform.openai.com/api-keys" -ForegroundColor White
+Write-Host "   - OpenRouter: https://openrouter.ai/keys" -ForegroundColor White
+Write-Host ""
+Write-Host "   Opening setup in 3 seconds..." -ForegroundColor DarkGreen
+Start-Sleep -Seconds 3
+
 try {
-    irm https://openclaw.ai/install.ps1 | iex
+    openclaw models auth add
     Write-Host ""
-    Write-Host "   Installation complete!" -ForegroundColor Green
+    Write-Host "   API key configured. Now setting default model..." -ForegroundColor Cyan
+    openclaw models set
     Write-Host ""
-    Write-Host "   Next step:" -ForegroundColor Yellow
-    Write-Host "   open a NEW PowerShell window and run:" -ForegroundColor White
+    Write-Host "   Finish: install the daemon so it runs in the background." -ForegroundColor Cyan
+    Write-Host "   Next step (run manually, or we try now):" -ForegroundColor White
     Write-Host "   openclaw onboard --install-daemon" -ForegroundColor White
     Write-Host ""
     Write-Host "   Skills: https://lanzier.github.io" -ForegroundColor Cyan
     Write-Host ""
 } catch {
     Write-Host ""
-    Write-Host "   OpenClaw install failed: $_" -ForegroundColor Red
+    Write-Host "   Skipped interactive setup (or openclaw not on PATH yet)." -ForegroundColor Yellow
+    Write-Host "   Open a NEW PowerShell window and run:" -ForegroundColor Yellow
+    Write-Host "   openclaw models auth add" -ForegroundColor White
+    Write-Host "   openclaw models set" -ForegroundColor White
+    Write-Host "   openclaw onboard --install-daemon" -ForegroundColor White
     Write-Host ""
-    Write-Host "   Manual install (open PowerShell as admin):" -ForegroundColor Yellow
-    Write-Host "   iwr -useb https://openclaw.ai/install.ps1 | iex" -ForegroundColor White
+    Write-Host "   Skills: https://lanzier.github.io" -ForegroundColor Cyan
     Write-Host ""
 }
 
