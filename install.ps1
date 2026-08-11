@@ -32,34 +32,7 @@ if (-not $nodeOk) {
         Write-Host "   Please install manually: https://nodejs.org" -ForegroundColor Yellow
         Write-Host "   (Download the LTS version, run the installer, then re-run this script)" -ForegroundColor Yellow
         Write-Host ""
-        # ── ZierClaw 启动器 + 桌面图标 ────────────
-Write-Host ""
-Write-Host "   Creating ZierClaw desktop launcher..." -ForegroundColor Cyan
-try {
-    # 1) 把启动器复制到固定位置（避免解压目录变动导致失效）
-    $launcherDir = Join-Path $env:USERPROFILE "ZierClaw"
-    if (-not (Test-Path $launcherDir)) { New-Item -ItemType Directory -Path $launcherDir -Force | Out-Null }
-    $vbsSrc = Join-Path $PSScriptRoot "ZierClaw.vbs"
-    $vbsDst = Join-Path $launcherDir "ZierClaw.vbs"
-    if (Test-Path $vbsSrc) { Copy-Item $vbsSrc $vbsDst -Force }
-
-    # 2) 创建桌面快捷方式「ZierClaw」
-    $desktop = [Environment]::GetFolderPath("Desktop")
-    $lnk = Join-Path $desktop "ZierClaw.lnk"
-    $ws = New-Object -ComObject WScript.Shell
-    $sc = $ws.CreateShortcut($lnk)
-    $sc.TargetPath = "wscript.exe"
-    $sc.Arguments = '"' + $vbsDst + '"'
-    $sc.IconLocation = "shell32.dll,43"
-    $sc.Description = "ZierClaw - Open your AI assistant"
-    $sc.Save()
-    Write-Host "   Desktop shortcut created: ZierClaw" -ForegroundColor Green
-} catch {
-    Write-Host "   Could not create launcher: $_" -ForegroundColor Yellow
-}
-Write-Host ""
-
-Read-Host "Press Enter to exit"
+        Read-Host "Press Enter to exit"
         exit 1
     }
 }
@@ -118,5 +91,35 @@ try {
     Write-Host "   Skills: https://lanzier.github.io" -ForegroundColor Cyan
     Write-Host ""
 }
+
+
+# -------------------------------------------------------------------
+# ZierClaw 启动器 + 桌面图标（第2层机箱外壳）
+# -------------------------------------------------------------------
+Write-Host "   Creating ZierClaw desktop launcher..." -ForegroundColor Cyan
+Write-Host ""
+try {
+    # 1) 把启动器复制到固定位置（避免解压目录变动导致失效）
+    $launcherDir = Join-Path $env:USERPROFILE "ZierClaw"
+    if (-not (Test-Path $launcherDir)) { New-Item -ItemType Directory -Path $launcherDir -Force | Out-Null }
+    $vbsSrc = Join-Path $PSScriptRoot "ZierClaw.vbs"
+    $vbsDst = Join-Path $launcherDir "ZierClaw.vbs"
+    if (Test-Path $vbsSrc) { Copy-Item $vbsSrc $vbsDst -Force }
+
+    # 2) 创建桌面快捷方式「ZierClaw」
+    $desktop = [Environment]::GetFolderPath("Desktop")
+    $lnk = Join-Path $desktop "ZierClaw.lnk"
+    $ws = New-Object -ComObject WScript.Shell
+    $sc = $ws.CreateShortcut($lnk)
+    $sc.TargetPath = "wscript.exe"
+    $sc.Arguments = [char]34 + $vbsDst + [char]34
+    $sc.IconLocation = "shell32.dll,43"
+    $sc.Description = "ZierClaw - Open your AI assistant"
+    $sc.Save()
+    Write-Host "   Desktop shortcut created: ZierClaw" -ForegroundColor Green
+} catch {
+    Write-Host "   Could not create launcher: $($_.Exception.Message)" -ForegroundColor Yellow
+}
+Write-Host ""
 
 Read-Host "Press Enter to exit"
