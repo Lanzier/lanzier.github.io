@@ -65,42 +65,28 @@ Write-Host "   One more step to make it usable:" -ForegroundColor Yellow
 Write-Host "   You need to add your AI model API key." -ForegroundColor Yellow
 Write-Host ""
 
-# ── 关键：引导用户配置模型 API Key（这样才真正可用）────────────
-Write-Host "   We will now open the API-key setup." -ForegroundColor Cyan
-Write-Host "   (Choose your AI provider, then paste your API key when asked.)" -ForegroundColor Cyan
+# ── 启动 OpenClaw 官方模型选择向导（openclaw onboard）────────────
+Write-Host "   Launching OpenClaw model setup wizard..." -ForegroundColor Cyan
+Write-Host "   (Follow the on-screen prompts to choose your AI provider + API key.)" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "   Where to get keys:" -ForegroundColor Yellow
-Write-Host "   - DeepSeek : https://platform.deepseek.com -> API Keys" -ForegroundColor White
-Write-Host "   - OpenAI   : https://platform.openai.com/api-keys" -ForegroundColor White
-Write-Host "   - OpenRouter: https://openrouter.ai/keys" -ForegroundColor White
-Write-Host ""
-Write-Host "   Opening setup in 3 seconds..." -ForegroundColor DarkGreen
-Start-Sleep -Seconds 3
+Start-Sleep -Seconds 1
 
 try {
-    openclaw models auth add
+    # 官方模型选择界面 / 初始化向导（选 deepseek/kimi/自用 key 等）
+    openclaw onboard
     Write-Host ""
-    Write-Host "   API key configured. Now setting default model..." -ForegroundColor Cyan
-    openclaw models set
-    Write-Host ""
-    Write-Host "   Your web Dashboard is ready!" -ForegroundColor Green
-    Write-Host "   Opening the Dashboard in your browser..." -ForegroundColor Cyan
+    Write-Host "   Setup complete! Starting the Dashboard..." -ForegroundColor Green
     Start-Sleep -Seconds 2
-    openclaw dashboard
+    try { openclaw dashboard } catch {}
     Write-Host ""
-    Write-Host "   If it did not open automatically, run:" -ForegroundColor Yellow
-    Write-Host "   openclaw dashboard" -ForegroundColor White
-    Write-Host "   (or set up the background service later: openclaw daemon start)" -ForegroundColor White
-    Write-Host ""
+    Write-Host "   If it did not open, run:  openclaw dashboard" -ForegroundColor Yellow
     Write-Host "   Skills: https://lanzier.github.io" -ForegroundColor Cyan
     Write-Host ""
 } catch {
     Write-Host ""
-    Write-Host "   Skipped interactive setup (or openclaw not on PATH yet)." -ForegroundColor Yellow
+    Write-Host "   Skipped the wizard (openclaw may need a new terminal)." -ForegroundColor Yellow
     Write-Host "   Open a NEW PowerShell window and run:" -ForegroundColor Yellow
-    Write-Host "   openclaw models auth add" -ForegroundColor White
-    Write-Host "   openclaw models set" -ForegroundColor White
-    Write-Host "   openclaw dashboard" -ForegroundColor White
+    Write-Host "   openclaw onboard" -ForegroundColor White
     Write-Host ""
     Write-Host "   Skills: https://lanzier.github.io" -ForegroundColor Cyan
     Write-Host ""
