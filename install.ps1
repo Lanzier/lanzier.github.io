@@ -197,33 +197,22 @@ try {
         else { Write-Host "   WARNING: could not locate openclaw command." -ForegroundColor Yellow }
     }
 
-    # 6c) copy all launcher files (vbs + start ps1 + icons) to fixed location
+    # 6c) copy the ZierClaw.exe launcher to a fixed location
     $launcherDir = Join-Path $env:USERPROFILE "ZierClaw"
     if (-not (Test-Path $launcherDir)) { New-Item -ItemType Directory -Path $launcherDir -Force | Out-Null }
-    $vbsDst = Join-Path $launcherDir "ZierClaw.vbs"
-    $startDst = Join-Path $launcherDir "ZierClaw-Start.ps1"
-    $icoDst = Join-Path $launcherDir "zierclaw-icon.ico"
-    $pngDst = Join-Path $launcherDir "zierclaw-icon.png"
-    foreach ($pair in @(
-        @('ZierClaw.vbs', $vbsDst),
-        @('ZierClaw-Start.ps1', $startDst),
-        @('zierclaw-icon.ico', $icoDst),
-        @('zierclaw-icon.png', $pngDst)
-    )) {
-        $srcF = Join-Path $PSScriptRoot $pair[0]
-        if (Test-Path $srcF) { Copy-Item $srcF $pair[1] -Force; Write-Host "   Copied $($pair[0])" -ForegroundColor Green }
-    }
-    Write-Host "   Launcher files ready in $launcherDir" -ForegroundColor Green
+    $exeDst = Join-Path $launcherDir "ZierClaw.exe"
+    $exeSrc = Join-Path $PSScriptRoot "ZierClaw.exe"
+    if (Test-Path $exeSrc) { Copy-Item $exeSrc $exeDst -Force; Write-Host "   ZierClaw.exe installed" -ForegroundColor Green }
+    else { Write-Host "   WARNING: ZierClaw.exe not found in package." -ForegroundColor Yellow }
+    Write-Host "   Launcher ready in $launcherDir" -ForegroundColor Green
 
-    # 6d) create desktop shortcut -> ZierClaw.vbs (branded launcher window)
+    # 6d) create desktop shortcut -> ZierClaw.exe (branded launch window)
     $desktop = [Environment]::GetFolderPath("Desktop")
     $lnk = Join-Path $desktop "ZierClaw.lnk"
     $ws = New-Object -ComObject WScript.Shell
     $sc = $ws.CreateShortcut($lnk)
-    $sc.TargetPath = "wscript.exe"
-    $sc.Arguments = [char]34 + $vbsDst + [char]34
-    if (Test-Path $icoDst) { $sc.IconLocation = $icoDst + ",0" }
-    else { $sc.IconLocation = "shell32.dll,43" }
+    $sc.TargetPath = $exeDst
+    $sc.WorkingDirectory = $launcherDir
     $sc.Description = "ZierClaw - Open your AI assistant"
     $sc.Save()
     Write-Host "   Desktop shortcut created: ZierClaw" -ForegroundColor Green
