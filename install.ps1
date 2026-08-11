@@ -64,6 +64,28 @@ if (-not $nodeOk) {
     }
 }
 
+# Check / Install OpenClaw
+$ocOk = $false
+try { $ochk = Get-Command openclaw -ErrorAction SilentlyContinue; if ($ochk) { $ocOk = $true; Write-Host "   OpenClaw found: $($ochk.Source)" -ForegroundColor Green } } catch {}
+
+if (-not $ocOk) {
+    Write-Host "   OpenClaw not found. Installing via official installer..." -ForegroundColor Yellow
+    try {
+        irm https://openclaw.ai/install.ps1 | iex
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        try { $ochk = Get-Command openclaw -ErrorAction SilentlyContinue; if ($ochk) { $ocOk = $true; Write-Host "   OpenClaw installed: $($ochk.Source)" -ForegroundColor Green } } catch {}
+    } catch {
+        Write-Host "   OpenClaw auto-install failed: $($_.Exception.Message)" -ForegroundColor Red
+    }
+    if (-not $ocOk) {
+        Write-Host "   Please install OpenClaw manually (admin PowerShell):" -ForegroundColor Yellow
+        Write-Host "   iwr -useb https://openclaw.ai/install.ps1 | iex" -ForegroundColor White
+        Write-Host "   then re-run this installer." -ForegroundColor Yellow
+        Read-Host "Press Enter to exit"
+        exit 1
+    }
+}
+
 # Check Git
 $gitOk = $false
 try { $gv = git --version 2>$null; if ($gv) { $gitOk = $true; Write-Host "   Git found: $gv" -ForegroundColor Green } } catch {}
