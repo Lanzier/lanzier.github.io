@@ -98,6 +98,67 @@ if (-not $nodeOk) {
 # 供后续使用的绝对路径（.cmd / node.exe）
 $nodeBin = $nodeExe
 
+# ── 确保 Node 满足 OpenClaw 要求（Node 24.15.0+/22.22.3+ 且 SQLite≥3.51.3）──────
+# 若现有 Node 不达标，则安装 Node 24 LTS 便携版并加到 PATH，
+# 否则 OpenClaw 会想自己装 portable node 而循环失败。
+function Test-ZClawNodeCompliant ([string]$v) {
+    $m = [regex]::Match($v, '^v?(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)')
+    if (-not $m.Success) { return $false }
+    $ma = [int]$m.Groups["major"].Value; $mi = [int]$m.Groups["minor"].Value; $pa = [int]$m.Groups["patch"].Value
+    if ($ma -eq 22) { return ($mi -gt 22 -or ($mi -eq 22 -and $pa -ge 3)) }
+    if ($ma -eq 24) { return ($mi -ge 15) }
+    if ($ma -eq 25) { return ($mi -ge 9) }
+    return ($ma -gt 25)
+}
+
+$nodeCompliant = $false
+if ($nodeExe) {
+    try { $nv = & $nodeExe -v 2>$null; if ($nv) { $nodeCompliant = Test-ZClawNodeCompliant $nv } } catch {}
+}
+if (-not $nodeCompliant) {
+    Write-Host "   Current Node ($($nv)) not OpenClaw-compliant; installing Node 24 LTS portable..." -ForegroundColor Yellow
+    try {
+        $nodeZip = Join-Path $env:TEMP "node24-64.zip"
+        $nodeRoot = Join-Path $env:LOCALAPPDATA "ZierClaw-node24"
+        $dl = Invoke-WebRequest -Uri "https://nodejs.org/dist/latest-v24.x/" -UseBasicParsing -ErrorAction Stop
+        $pm = [regex]::Match($dl.Content, 'node-v[\d.]+-win-x64\.zip')
+        if ($pm.Success -and $pm.Value) {
+            $nodeName = $pm.Value
+            $nodeUrl = "https://nodejs.org/dist/latest-v24.x/" + $nodeName
+            Write-Host "   Downloading $nodeName ..." -ForegroundColor Cyan
+            Invoke-WebRequest -Uri $nodeUrl -OutFile $nodeZip -UseBasicParsing -ErrorAction Stop
+            Write-Host "   Extracting portable Node 24..." -ForegroundColor Cyan
+            if (Test-Path $nodeRoot) { Remove-Item -Recurse -Force $nodeRoot }
+            New-Item -ItemType Directory -Force -Path $nodeRoot | Out-Null
+            & tar -xf $nodeZip -C $nodeRoot --strip-components 1
+            if (Test-Path (Join-Path $nodeRoot "node.exe")) {
+                $env:Path = $nodeRoot + ";" + $env:Path
+                # 写入用户 PATH，一劳永逸
+                $up = [Environment]::GetEnvironmentVariable("Path","User")
+                if ($up -notlike "*" + $nodeRoot + "*") {
+                    [Environment]::SetEnvironmentVariable("Path", $nodeRoot + ";" + $up, "User")
+                    Write-Host "   Added $nodeRoot to user PATH" -ForegroundColor Green
+                }
+                $nodeExe = Join-Path $nodeRoot "node.exe"
+                $nodeCompliant = $true
+                Write-Host "   Node 24 portable installed at $nodeRoot" -ForegroundColor Green
+            } else {
+                Write-Host "   Node 24 extraction failed (node.exe missing)." -ForegroundColor Yellow
+            }
+        } else {
+            Write-Host "   Could not resolve Node 24 download URL." -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Host "   Node 24 install failed: $($_.Exception.Message)" -ForegroundColor Red
+    }
+    Remove-Item $nodeZip -Force -ErrorAction SilentlyContinue
+}
+if (-not $nodeCompliant) {
+    Write-Host "   Could not obtain an OpenClaw-compliant Node. Install Node.js 24 from https://nodejs.org then re-run." -ForegroundColor Red
+    Read-Host "Press Enter to exit"
+    exit 1
+}
+
 # ============================================================
 # 2) Check / Install Git (MUST be present before OpenClaw install)
 # ============================================================
