@@ -76,21 +76,39 @@ if (-not $gitOk) {
         try { $gv = git --version 2>$null; if ($gv) { $gitOk = $true; Write-Host "   Git installed: $gv" -ForegroundColor Green } } catch {}
     }
 
-    # 2b) winget unavailable/failed -> download official Git for Windows installer silently
+    # 2b) winget unavailable/failed -> download Git for Windows installer silently
     if (-not $gitOk) {
-        Write-Host "   winget unavailable. Downloading Git for Windows installer..." -ForegroundColor Yellow
-        try {
-            $gitExe = Join-Path $env:TEMP "git-setup.exe"
-            # 32-bit / 64-bit 通用最新版（git-scm 官方最新）
-            $gitUrl = "https://github.com/git-for-windows/git/releases/latest/download/Git-2.55.0-64-bit.exe"
-            Write-Host "   Downloading Git installer (this may take a while)..." -ForegroundColor Cyan
-            Invoke-WebRequest -Uri $gitUrl -OutFile $gitExe -UseBasicParsing -ErrorAction Stop
+        Write-Host "   winget unavailable. Downloading Git for Windows (China mirror first)..." -ForegroundColor Yellow
+        $gitExe = Join-Path $env:TEMP "git-setup.exe"
+        # 尝试多个镜像源（国内优先，github 兜底）
+        $gitMirrors = @(
+            "https://npmmirror.com/mirrors/git-for-windows/v2.55.0.windows.3/Git-2.55.0-64-bit.exe",
+            "https://mirrors.tuna.tsinghua.edu.cn/github-release/git-for-windows/git/LatestRelease/Git-2.55.0-64-bit.exe",
+            "https://github.com/git-for-windows/git/releases/latest/download/Git-2.55.0-64-bit.exe"
+        )
+        $gitDlOk = $false
+        foreach ($gitUrl in $gitMirrors) {
+            if ($gitDlOk) { break }
+            try {
+                Write-Host "   Trying: $gitUrl" -ForegroundColor Cyan
+                Invoke-WebRequest -Uri $gitUrl -OutFile $gitExe -UseBasicParsing -ErrorAction Stop
+                $gitDlOk = (Test-Path $gitExe) -and ((Get-Item $gitExe).Length -gt 1MB)
+                if ($gitDlOk) { Write-Host "   Download OK." -ForegroundColor Green }
+            } catch {
+                Write-Host "   Mirror failed: $($_.Exception.Message)" -ForegroundColor DarkGray
+            }
+        }
+        if ($gitDlOk) {
             Write-Host "   Installing Git silently..." -ForegroundColor Cyan
-            Start-Process -FilePath $gitExe -ArgumentList "/VERYSILENT /NORESTART /NOCANCEL /SP-" -Wait
-            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-            try { $gv = git --version 2>$null; if ($gv) { $gitOk = $true; Write-Host "   Git installed: $gv" -ForegroundColor Green } } catch {}
-        } catch {
-            Write-Host "   Git auto-install failed: $($_.Exception.Message)" -ForegroundColor Red
+            try {
+                Start-Process -FilePath $gitExe -ArgumentList "/VERYSILENT /NORESTART /NOCANCEL /SP-" -Wait
+                $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+                try { $gv = git --version 2>$null; if ($gv) { $gitOk = $true; Write-Host "   Git installed: $gv" -ForegroundColor Green } } catch {}
+            } catch {
+                Write-Host "   Git install failed: $($_.Exception.Message)" -ForegroundColor Red
+            }
+        } else {
+            Write-Host "   All download mirrors failed." -ForegroundColor Red
         }
     }
 
