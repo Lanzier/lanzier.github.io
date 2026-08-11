@@ -101,7 +101,7 @@ $nodeBin = $nodeExe
 # ── 确保 Node 满足 OpenClaw 要求（Node 24.15.0+/22.22.3+ 且 SQLite≥3.51.3）──────
 # 若现有 Node 不达标，则安装 Node 24 LTS 便携版并加到 PATH，
 # 否则 OpenClaw 会想自己装 portable node 而循环失败。
-function Test-ZClawNodeCompliant ([string]$v) {
+function Test-ZClawNodeVersion ([string]$v) {
     $m = [regex]::Match($v, '^v?(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)')
     if (-not $m.Success) { return $false }
     $ma = [int]$m.Groups["major"].Value; $mi = [int]$m.Groups["minor"].Value; $pa = [int]$m.Groups["patch"].Value
@@ -111,9 +111,41 @@ function Test-ZClawNodeCompliant ([string]$v) {
     return ($ma -gt 25)
 }
 
+function Test-ZClawSqliteVersion ([string]$v) {
+    if ([string]::IsNullOrWhiteSpace($v)) { return $false }
+    $m = [regex]::Match($v, '^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$')
+    if (-not $m.Success) { return $false }
+    $ma = [int]$m.Groups["major"].Value; $mi = [int]$m.Groups["minor"].Value; $pa = [int]$m.Groups["patch"].Value
+    return ($ma -gt 3 -or ($ma -eq 3 -and ($mi -gt 51 -or ($mi -eq 51 -and $pa -ge 3))))
+}
+
+function Get-ZClawSqliteVersion ([string]$nodePath) {
+    $probe = 'const { DatabaseSync } = require("node:sqlite"); const db = new DatabaseSync(":memory:"); try { process.stdout.write(String(db.prepare("SELECT sqlite_version() AS version").get().version)); } finally { db.close(); }'
+    try {
+        $r = ($probe | & $nodePath - 2>$null)
+        if ($LASTEXITCODE -ne 0) { return $null }
+        return $r
+    } catch { return $null }
+}
+
 $nodeCompliant = $false
 if ($nodeExe) {
-    try { $nv = & $nodeExe -v 2>$null; if ($nv) { $nodeCompliant = Test-ZClawNodeCompliant $nv } } catch {}
+    try {
+        $nv = & $nodeExe -v 2>$null
+        if ($nv -and (Test-ZClawNodeVersion $nv)) {
+            $sv = Get-ZClawSqliteVersion $nodeExe
+            if (Test-ZClawSqliteVersion $sv) {
+                $nodeCompliant = $true
+                Write-Host "   Node $nv compliant (SQLite $sv)" -ForegroundColor Green
+            } else {
+                Write-Host "   Node $nv SQLite ($sv) too old; installing compliant Node 24." -ForegroundColor Yellow
+            }
+        } else {
+            Write-Host "   Node version $nv not supported by OpenClaw." -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Host "   Node check error: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
 }
 if (-not $nodeCompliant) {
     Write-Host "   Current Node ($($nv)) not OpenClaw-compliant; installing Node 24 LTS portable..." -ForegroundColor Yellow
