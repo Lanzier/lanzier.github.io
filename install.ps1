@@ -136,7 +136,11 @@ if ($nodeExe) {
             $sv = Get-ZClawSqliteVersion $nodeExe
             if (Test-ZClawSqliteVersion $sv) {
                 $nodeCompliant = $true
-                Write-Host "   Node $nv compliant (SQLite $sv)" -ForegroundColor Green
+                # 关键：把 node 目录加入当前进程 PATH，OpenClaw 的 Get-Command node 才能找到
+                $nd = Split-Path $nodeExe
+                if ($nd -and ($env:Path -notlike "*" + $nd + "*")) { $env:Path = $nd + ";" + $env:Path }
+                $env:Path = [Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [Environment]::GetEnvironmentVariable("Path","User") + ";" + $nd
+                Write-Host "   Node $nv compliant (SQLite $sv); added $nd to PATH" -ForegroundColor Green
             } else {
                 Write-Host "   Node $nv SQLite ($sv) too old; installing compliant Node 24." -ForegroundColor Yellow
             }
