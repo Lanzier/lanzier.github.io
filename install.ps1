@@ -204,6 +204,11 @@ try {
     $exeSrc = Join-Path $PSScriptRoot "ZierClaw.exe"
     if (Test-Path $exeSrc) { Copy-Item $exeSrc $exeDst -Force; Write-Host "   ZierClaw.exe installed" -ForegroundColor Green }
     else { Write-Host "   WARNING: ZierClaw.exe not found in package." -ForegroundColor Yellow }
+    # 复制 exe 运行时依赖的 logo（同目录）和图标
+    foreach ($dep in @('zierclaw-logo.png', 'zierclaw-icon.ico')) {
+        $depSrc = Join-Path $PSScriptRoot $dep
+        if (Test-Path $depSrc) { Copy-Item $depSrc (Join-Path $launcherDir $dep) -Force }
+    }
     Write-Host "   Launcher ready in $launcherDir" -ForegroundColor Green
 
     # 6d) create desktop shortcut -> ZierClaw.exe (branded launch window)

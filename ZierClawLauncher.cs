@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Diagnostics;
 using System.Windows.Forms;
 
@@ -8,81 +9,120 @@ namespace ZierClaw
 {
     public class LauncherForm : Form
     {
+        private bool moving = false;
+        private Point down;
+
+        private const int WinW = 520;
+        private const int WinH = 470;
+
         public LauncherForm()
         {
             this.Text = "ZierClaw";
-            this.ClientSize = new Size(430, 330);
+            this.ClientSize = new Size(WinW, WinH);
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
+            this.FormBorderStyle = FormBorderStyle.None;
             this.DoubleBuffered = true;
+            this.BackColor = Color.FromArgb(99, 102, 241);
 
-            // Title
-            var title = new Label();
-            title.Text = "ZierClaw";
-            title.Font = new Font("Segoe UI", 26, FontStyle.Bold);
-            title.ForeColor = Color.White;
-            title.AutoSize = true;
-            title.Left = (this.ClientSize.Width - title.Width) / 2;
-            title.Top = 60;
-            title.BackColor = Color.Transparent;
-            this.Controls.Add(title);
+            // 关闭按钮（右上角）
+            var close = NewBtn("×", 40, 34, WinW - 46, 6, 14);
+            close.Click += delegate { this.Close(); };
+            close.FlatAppearance.MouseOverBackColor = Color.FromArgb(180, 60, 180);
+            this.Controls.Add(close);
 
-            // Subtitle
-            var sub = new Label();
-            sub.Text = "Your AI assistant";
-            sub.Font = new Font("Segoe UI", 11);
-            sub.ForeColor = Color.FromArgb(235, 230, 255);
-            sub.AutoSize = true;
-            sub.Left = (this.ClientSize.Width - sub.Width) / 2;
-            sub.Top = 112;
-            sub.BackColor = Color.Transparent;
-            this.Controls.Add(sub);
+            // Logo 居中（固定宽高，Left 居中）
+            var logo = new PictureBox();
+            string logoPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "zierclaw-logo.png");
+            if (System.IO.File.Exists(logoPath)) { try { logo.Image = Image.FromFile(logoPath); } catch { } }
+            logo.SizeMode = PictureBoxSizeMode.Zoom;
+            logo.Width = 130; logo.Height = 130;
+            logo.Left = (WinW - logo.Width) / 2;
+            logo.Top = 78;
+            logo.BackColor = Color.Transparent;
+            this.Controls.Add(logo);
 
-            // Launch button
-            var btn = new Button();
-            btn.Text = "Launch ZierClaw";
-            btn.Font = new Font("Segoe UI", 13, FontStyle.Bold);
-            btn.ForeColor = Color.White;
-            btn.FlatStyle = FlatStyle.Flat;
-            btn.FlatAppearance.BorderSize = 0;
-            btn.Width = 220;
-            btn.Height = 52;
-            btn.Left = (this.ClientSize.Width - btn.Width) / 2;
-            btn.Top = 165;
-            btn.Cursor = Cursors.Hand;
-            btn.BackColor = Color.FromArgb(99, 102, 241);
+            // 主标题：固定宽度=WinW，TextAlign 居中
+            this.Controls.Add(NewCenterLabel("ZierClaw", "Microsoft YaHei", 32, FontStyle.Bold, Color.White, 218, 84));
+
+            // 副标题
+            this.Controls.Add(NewCenterLabel("你的 AI 助手", "Microsoft YaHei", 14, FontStyle.Regular, Color.FromArgb(240,238,255), 268, 40));
+
+            // 启动按钮（固定宽，居中）
+            var btn = NewBtn("启  动", 230, 54, (WinW - 230) / 2, 330, 15);
+            btn.BackColor = Color.FromArgb(139, 92, 246);
             btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(109, 40, 217);
             btn.Click += delegate { LaunchDashboard(); };
             this.Controls.Add(btn);
 
-            // Footer
-            var foot = new Label();
-            foot.Text = "Powered by ZierClaw";
-            foot.Font = new Font("Segoe UI", 9);
-            foot.ForeColor = Color.FromArgb(215, 210, 240);
-            foot.AutoSize = true;
-            foot.Left = (this.ClientSize.Width - foot.Width) / 2;
-            foot.Top = 280;
-            foot.BackColor = Color.Transparent;
-            this.Controls.Add(foot);
+            // 底部版权
+            this.Controls.Add(NewCenterLabel("Powered by ZierClaw · 墨", "Microsoft YaHei", 9, FontStyle.Regular, Color.FromArgb(222,219,246), WinH - 36, 0));
+
+            // 拖动
+            this.MouseDown += (s, e) => { moving = true; down = e.Location; };
+            this.MouseMove += (s, e) => { if (moving) this.Location = new Point(this.Location.X + e.X - down.X, this.Location.Y + e.Y - down.Y); };
+            this.MouseUp += (s, e) => moving = false;
+        }
+
+        // 固定全宽、水平居中文本的 Label
+        private Label NewCenterLabel(string text, string font, int size, FontStyle style, Color color, int top, int height)
+        {
+            var l = new Label();
+            l.Text = text;
+            l.Font = new Font(font, size, style);
+            l.ForeColor = color;
+            l.BackColor = Color.Transparent;
+            l.AutoSize = false;
+            l.Width = WinW;
+            l.Height = height;          // 高度（0 表示自适应单行）
+            l.TextAlign = ContentAlignment.MiddleCenter;  // 水平+垂直居中
+            l.Left = 0;
+            l.Top = top;
+            return l;
+        }
+
+        private Button NewBtn(string text, int w, int h, int left, int top, int fontSize)
+        {
+            var b = new Button();
+            b.Text = text;
+            b.Font = new Font("Microsoft YaHei", fontSize, FontStyle.Bold);
+            b.ForeColor = Color.White;
+            b.FlatStyle = FlatStyle.Flat;
+            b.FlatAppearance.BorderSize = 0;
+            b.BackColor = Color.FromArgb(139, 92, 246);
+            b.Width = w; b.Height = h;
+            b.Left = left; b.Top = top;
+            b.Cursor = Cursors.Hand;
+            return b;
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             using (var brush = new LinearGradientBrush(
                 this.ClientRectangle,
-                Color.FromArgb(99, 102, 241),   // #6366f1
-                Color.FromArgb(236, 72, 153),  // #ec4899
-                45f))
+                Color.FromArgb(99, 102, 241),
+                Color.FromArgb(236, 72, 153),
+                35f))
             {
                 e.Graphics.FillRectangle(brush, this.ClientRectangle);
             }
-            // draw a Z letter accent
-            using (var f = new Font("Segoe UI", 60, FontStyle.Bold))
+            // 顶栏：同紫渐变但加深半透明
+            using (var bar = new SolidBrush(Color.FromArgb(60, 0, 0, 0)))
             {
-                TextRenderer.DrawText(e.Graphics, "Z", f, new Point(this.ClientSize.Width - 110, 20), Color.FromArgb(255, 255, 255));
+                e.Graphics.FillRectangle(bar, 0, 0, WinW, 46);
+            }
+            // 顶栏标题（左侧，同色系）
+            using (var f = new Font("Microsoft YaHei", 10, FontStyle.Bold))
+            using (var b = new SolidBrush(Color.White))
+            {
+                e.Graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
+                e.Graphics.DrawString("ZierClaw", f, b, 16, 13);
+            }
+            // 顶栏分隔线
+            using (var line = new Pen(Color.FromArgb(120, 255, 255, 255)))
+            {
+                e.Graphics.DrawLine(line, 0, 46, WinW, 46);
             }
         }
 
@@ -97,8 +137,7 @@ namespace ZierClaw
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Launch failed: " + ex.Message, "ZierClaw",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("启动失败: " + ex.Message, "ZierClaw", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             this.Close();
         }
