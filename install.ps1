@@ -9,6 +9,15 @@ Write-Host "   ZierClaw One-Click Install" -ForegroundColor Cyan
 Write-Host "   Installing OpenClaw..." -ForegroundColor Cyan
 Write-Host ""
 
+# ── 放开 PowerShell 执行策略（避免 openclaw.ps1 被 Restricted 拦截）──────
+try {
+    Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force -ErrorAction Stop
+    Write-Host "   ExecutionPolicy set to RemoteSigned (CurrentUser)" -ForegroundColor Green
+} catch {
+    Write-Host "   Could not set ExecutionPolicy: $($_.Exception.Message)" -ForegroundColor Yellow
+}
+Write-Host ""
+
 # ============================================================
 # Node.js: 完全交给 OpenClaw 官方安装器处理（它会自检并自装合规 Node）
 # ============================================================
