@@ -1,4 +1,4 @@
-# ZierClaw One-Click Install
+﻿# ZierClaw One-Click Install
 # 自动定位到脚本所在目录（无论从哪个路径打开都生效）
 if ($PSScriptRoot) {
     Set-Location -Path $PSScriptRoot
@@ -25,6 +25,33 @@ if (-not $nodeOk) {
         # Refresh PATH
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
         try { $v = node -v 2>$null; if ($v) { $nodeOk = $true; Write-Host "   Node.js installed: $v" -ForegroundColor Green } } catch {}
+    }
+
+    if (-not $nodeOk) {
+        Write-Host "   winget not available. Downloading Node.js LTS installer directly..." -ForegroundColor Yellow
+        # 下载 Node 官方 LTS msi 静默安装（不依赖 winget）
+        try {
+            $msi = Join-Path $env:TEMP "node-lts.msi"
+            Write-Host "   Downloading from nodejs.org ..." -ForegroundColor Cyan
+            $dl = Invoke-WebRequest -Uri "https://nodejs.org/dist/latest-v22.x/" -UseBasicParsing -ErrorAction Stop
+            # 从目录页匹配 x64.msi 下载链接
+            $match = [regex]::Match($dl.Content, 'node-v[\d.]+-x64\.msi')
+            if ($match.Success -and $match.Value) {
+                $file = $match.Value
+                $nodeUrl = "https://nodejs.org/dist/latest-v22.x/" + $file
+                Write-Host "   Downloading $file ..." -ForegroundColor Cyan
+                Invoke-WebRequest -Uri $nodeUrl -OutFile $msi -UseBasicParsing -ErrorAction Stop
+                Write-Host "   Installing Node.js silently..." -ForegroundColor Cyan
+                $msiArgs = '/i "' + $msi + '" /qn'
+                Start-Process msiexec -ArgumentList $msiArgs -Wait
+                $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+                try { $v = node -v 2>$null; if ($v) { $nodeOk = $true; Write-Host "   Node.js installed: $v" -ForegroundColor Green } } catch {}
+            } else {
+                Write-Host "   Could not resolve Node download URL." -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Host "   Auto-install failed: $($_.Exception.Message)" -ForegroundColor Red
+        }
     }
 
     if (-not $nodeOk) {
