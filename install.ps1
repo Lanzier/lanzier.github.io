@@ -92,6 +92,15 @@ Write-Host "   One more step to make it usable:" -ForegroundColor Yellow
 Write-Host "   You need to add your AI model API key." -ForegroundColor Yellow
 Write-Host ""
 
+# ── 确保 openclaw 命令可用（刷新 PATH，含 npm 全局目录）──────
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+$npmGlobal = Join-Path $env:APPDATA "npm"
+if (Test-Path $npmGlobal) { $env:Path = $npmGlobal + ";" + $env:Path }
+$ocChk = Get-Command openclaw -ErrorAction SilentlyContinue
+if ($ocChk) { Write-Host "   openclaw ready: $($ocChk.Source)" -ForegroundColor Green }
+else { Write-Host "   Warning: openclaw not found on PATH yet." -ForegroundColor Yellow }
+Write-Host ""
+
 # ── 启动 OpenClaw 官方模型选择向导（openclaw onboard）────────────
 Write-Host "   Launching OpenClaw model setup wizard..." -ForegroundColor Cyan
 Write-Host "   (Follow the on-screen prompts to choose your AI provider + API key.)" -ForegroundColor Cyan
@@ -122,18 +131,48 @@ try {
 
 # -------------------------------------------------------------------
 # ZierClaw 启动器 + 桌面图标（第2层机箱外壳）
+# 动态探测 openclaw 绝对路径，写入 vbs，不依赖运行时 PATH
 # -------------------------------------------------------------------
-Write-Host "   Creating ZierClaw desktop launcher..." -ForegroundColor Cyan
+Write-Host "   Finalizing ZierClaw launcher..." -ForegroundColor Cyan
 Write-Host ""
 try {
-    # 1) 把启动器复制到固定位置（避免解压目录变动导致失效）
+    # 0) 确保 npm 全局目录进 PATH（一劳永逸）
+    $npmGlobal = Join-Path $env:APPDATA "npm"
+    if (Test-Path $npmGlobal) {
+        $userPath = [Environment]::GetEnvironmentVariable("Path","User")
+        if ($userPath -notlike "*" + $npmGlobal + "*") {
+            [Environment]::SetEnvironmentVariable("Path", $userPath + ";" + $npmGlobal, "User")
+            Write-Host "   Added npm global to PATH: $npmGlobal" -ForegroundColor Green
+        }
+        $env:Path = $npmGlobal + ";" + $env:Path
+    }
+
+    # 1) 探测 openclaw 真实启动命令（cmd 批处理或 exe）并取完整路径
+    $openclawCmd = "openclaw"
+    $g = Get-Command openclaw -ErrorAction SilentlyContinue
+    if ($g -and $g.Source) {
+        $openclawCmd = $g.Source
+        Write-Host "   openclaw located: $openclawCmd" -ForegroundColor Green
+    } else {
+        $guess = Join-Path $npmGlobal "openclaw.cmd"
+        if (Test-Path $guess) { $openclawCmd = $guess; Write-Host "   openclaw located: $guess" -ForegroundColor Green }
+        else { Write-Host "   WARNING: could not locate openclaw command." -ForegroundColor Yellow }
+    }
+
+    # 2) 用模板生成 ZierClaw.vbs（把 __OPENCLAW__ 占位符替换为绝对路径）
     $launcherDir = Join-Path $env:USERPROFILE "ZierClaw"
     if (-not (Test-Path $launcherDir)) { New-Item -ItemType Directory -Path $launcherDir -Force | Out-Null }
-    $vbsSrc = Join-Path $PSScriptRoot "ZierClaw.vbs"
     $vbsDst = Join-Path $launcherDir "ZierClaw.vbs"
-    if (Test-Path $vbsSrc) { Copy-Item $vbsSrc $vbsDst -Force }
+    $template = Join-Path $PSScriptRoot "ZierClaw-Launcher-Template.vbs"
+    if (Test-Path $template) {
+        $vbsBody = (Get-Content $template -Raw).Replace("__OPENCLAW__", $openclawCmd)
+        Set-Content -Path $vbsDst -Value $vbsBody -Encoding ASCII
+        Write-Host "   Launcher script written: $vbsDst" -ForegroundColor Green
+    } else {
+        Write-Host "   Launcher template not found: $template" -ForegroundColor Yellow
+    }
 
-    # 2) 创建桌面快捷方式「ZierClaw」
+    # 3) 创建桌面快捷方式「ZierClaw」（指向 vbs）
     $desktop = [Environment]::GetFolderPath("Desktop")
     $lnk = Join-Path $desktop "ZierClaw.lnk"
     $ws = New-Object -ComObject WScript.Shell
@@ -148,5 +187,4 @@ try {
     Write-Host "   Could not create launcher: $($_.Exception.Message)" -ForegroundColor Yellow
 }
 Write-Host ""
-
 Read-Host "Press Enter to exit"
