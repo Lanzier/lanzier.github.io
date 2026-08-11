@@ -9,32 +9,29 @@ Write-Host "   ZierClaw One-Click Install" -ForegroundColor Cyan
 Write-Host "   Installing OpenClaw..." -ForegroundColor Cyan
 Write-Host ""
 
-# Check node
+# ============================================================
+# 1) Check / Install Node.js
+# ============================================================
 $nodeOk = $false
 try { $v = node -v 2>$null; if ($v) { $nodeOk = $true; Write-Host "   Node.js found: $v" -ForegroundColor Green } } catch {}
 
 if (-not $nodeOk) {
     Write-Host "   Node.js not found. Installing via winget..." -ForegroundColor Yellow
-
-    # Try winget first
     $wingetOk = $false
     try { winget --version 2>$null; $wingetOk = $true } catch {}
 
     if ($wingetOk) {
         winget install OpenJS.NodeJS.LTS --accept-package-agreements --accept-source-agreements --silent
-        # Refresh PATH
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
         try { $v = node -v 2>$null; if ($v) { $nodeOk = $true; Write-Host "   Node.js installed: $v" -ForegroundColor Green } } catch {}
     }
 
     if (-not $nodeOk) {
+        # winget 不可用或失败 -> 下载官方 msi 静默安装
         Write-Host "   winget not available. Downloading Node.js LTS installer directly..." -ForegroundColor Yellow
-        # 下载 Node 官方 LTS msi 静默安装（不依赖 winget）
         try {
             $msi = Join-Path $env:TEMP "node-lts.msi"
-            Write-Host "   Downloading from nodejs.org ..." -ForegroundColor Cyan
             $dl = Invoke-WebRequest -Uri "https://nodejs.org/dist/latest-v22.x/" -UseBasicParsing -ErrorAction Stop
-            # 从目录页匹配 x64.msi 下载链接
             $match = [regex]::Match($dl.Content, 'node-v[\d.]+-x64\.msi')
             if ($match.Success -and $match.Value) {
                 $file = $match.Value
@@ -50,21 +47,65 @@ if (-not $nodeOk) {
                 Write-Host "   Could not resolve Node download URL." -ForegroundColor Yellow
             }
         } catch {
-            Write-Host "   Auto-install failed: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "   Node auto-install failed: $($_.Exception.Message)" -ForegroundColor Red
         }
     }
 
     if (-not $nodeOk) {
-        Write-Host "   Could not install Node.js automatically." -ForegroundColor Red
-        Write-Host "   Please install manually: https://nodejs.org" -ForegroundColor Yellow
-        Write-Host "   (Download the LTS version, run the installer, then re-run this script)" -ForegroundColor Yellow
-        Write-Host ""
+        Write-Host "   Could not install Node automatically. Install LTS from https://nodejs.org then re-run." -ForegroundColor Red
         Read-Host "Press Enter to exit"
         exit 1
     }
 }
 
-# Check / Install OpenClaw
+# ============================================================
+# 2) Check / Install Git (MUST be present before OpenClaw install)
+# ============================================================
+$gitOk = $false
+try { $gv = git --version 2>$null; if ($gv) { $gitOk = $true; Write-Host "   Git found: $gv" -ForegroundColor Green } } catch {}
+
+if (-not $gitOk) {
+    Write-Host "   Git not found. Installing..." -ForegroundColor Yellow
+
+    # 2a) winget first
+    $winget2Ok = $false
+    try { winget --version 2>$null; $winget2Ok = $true } catch {}
+    if ($winget2Ok) {
+        winget install Git.Git --accept-package-agreements --accept-source-agreements --silent
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        try { $gv = git --version 2>$null; if ($gv) { $gitOk = $true; Write-Host "   Git installed: $gv" -ForegroundColor Green } } catch {}
+    }
+
+    # 2b) winget unavailable/failed -> download official Git for Windows installer silently
+    if (-not $gitOk) {
+        Write-Host "   winget unavailable. Downloading Git for Windows installer..." -ForegroundColor Yellow
+        try {
+            $gitExe = Join-Path $env:TEMP "git-setup.exe"
+            # 32-bit / 64-bit 通用最新版（git-scm 官方最新）
+            $gitUrl = "https://github.com/git-for-windows/git/releases/latest/download/Git-2.55.0-64-bit.exe"
+            Write-Host "   Downloading Git installer (this may take a while)..." -ForegroundColor Cyan
+            Invoke-WebRequest -Uri $gitUrl -OutFile $gitExe -UseBasicParsing -ErrorAction Stop
+            Write-Host "   Installing Git silently..." -ForegroundColor Cyan
+            Start-Process -FilePath $gitExe -ArgumentList "/VERYSILENT /NORESTART /NOCANCEL /SP-" -Wait
+            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+            try { $gv = git --version 2>$null; if ($gv) { $gitOk = $true; Write-Host "   Git installed: $gv" -ForegroundColor Green } } catch {}
+        } catch {
+            Write-Host "   Git auto-install failed: $($_.Exception.Message)" -ForegroundColor Red
+        }
+    }
+
+    if (-not $gitOk) {
+        Write-Host "   Could not install Git automatically." -ForegroundColor Red
+        Write-Host "   Install Git for Windows manually: https://git-scm.com/download/win" -ForegroundColor Yellow
+        Write-Host "   then re-run this installer." -ForegroundColor Yellow
+        Read-Host "Press Enter to exit"
+        exit 1
+    }
+}
+
+# ============================================================
+# 3) Check / Install OpenClaw (official installer)
+# ============================================================
 $ocOk = $false
 try { $ochk = Get-Command openclaw -ErrorAction SilentlyContinue; if ($ochk) { $ocOk = $true; Write-Host "   OpenClaw found: $($ochk.Source)" -ForegroundColor Green } } catch {}
 
@@ -86,25 +127,6 @@ if (-not $ocOk) {
     }
 }
 
-# Check Git
-$gitOk = $false
-try { $gv = git --version 2>$null; if ($gv) { $gitOk = $true; Write-Host "   Git found: $gv" -ForegroundColor Green } } catch {}
-if (-not $gitOk) {
-    Write-Host "   Git not found. Installing via winget..." -ForegroundColor Yellow
-    $winget2Ok = $false
-    try { winget --version 2>$null; $winget2Ok = $true } catch {}
-    if ($winget2Ok) {
-        winget install Git.Git --accept-package-agreements --accept-source-agreements --silent
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-        try { $gv = git --version 2>$null; if ($gv) { $gitOk = $true; Write-Host "   Git installed: $gv" -ForegroundColor Green } } catch {}
-    }
-    if (-not $gitOk) {
-        Write-Host "   Could not install Git automatically." -ForegroundColor Yellow
-        Write-Host "   Please install manually: https://git-scm.com" -ForegroundColor Yellow
-        Write-Host ""
-    }
-}
-
 Write-Host ""
 Write-Host "   ================================================" -ForegroundColor Cyan
 Write-Host "   Installation complete!" -ForegroundColor Green
@@ -114,7 +136,9 @@ Write-Host "   One more step to make it usable:" -ForegroundColor Yellow
 Write-Host "   You need to add your AI model API key." -ForegroundColor Yellow
 Write-Host ""
 
-# ── 确保 openclaw 命令可用（刷新 PATH，含 npm 全局目录）──────
+# ============================================================
+# 4) Ensure openclaw command usable (refresh PATH + npm global)
+# ============================================================
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 $npmGlobal = Join-Path $env:APPDATA "npm"
 if (Test-Path $npmGlobal) { $env:Path = $npmGlobal + ";" + $env:Path }
@@ -123,14 +147,14 @@ if ($ocChk) { Write-Host "   openclaw ready: $($ocChk.Source)" -ForegroundColor 
 else { Write-Host "   Warning: openclaw not found on PATH yet." -ForegroundColor Yellow }
 Write-Host ""
 
-# ── 启动 OpenClaw 官方模型选择向导（openclaw onboard）────────────
+# ============================================================
+# 5) Launch official model setup wizard (pick provider + API key)
+# ============================================================
 Write-Host "   Launching OpenClaw model setup wizard..." -ForegroundColor Cyan
 Write-Host "   (Follow the on-screen prompts to choose your AI provider + API key.)" -ForegroundColor Cyan
 Write-Host ""
 Start-Sleep -Seconds 1
-
 try {
-    # 官方模型选择界面 / 初始化向导（选 deepseek/kimi/自用 key 等）
     openclaw onboard
     Write-Host ""
     Write-Host "   Setup complete! Starting the Dashboard..." -ForegroundColor Green
@@ -143,22 +167,19 @@ try {
 } catch {
     Write-Host ""
     Write-Host "   Skipped the wizard (openclaw may need a new terminal)." -ForegroundColor Yellow
-    Write-Host "   Open a NEW PowerShell window and run:" -ForegroundColor Yellow
-    Write-Host "   openclaw onboard" -ForegroundColor White
+    Write-Host "   Open a NEW PowerShell window and run:  openclaw onboard" -ForegroundColor White
     Write-Host ""
     Write-Host "   Skills: https://lanzier.github.io" -ForegroundColor Cyan
     Write-Host ""
 }
 
-
-# -------------------------------------------------------------------
-# ZierClaw 启动器 + 桌面图标（第2层机箱外壳）
-# 动态探测 openclaw 绝对路径，写入 vbs，不依赖运行时 PATH
-# -------------------------------------------------------------------
+# ============================================================
+# 6) ZierClaw desktop launcher (dynamic openclaw path in vbs)
+# ============================================================
 Write-Host "   Finalizing ZierClaw launcher..." -ForegroundColor Cyan
 Write-Host ""
 try {
-    # 0) 确保 npm 全局目录进 PATH（一劳永逸）
+    # 6a) ensure npm global in user PATH (one-time)
     $npmGlobal = Join-Path $env:APPDATA "npm"
     if (Test-Path $npmGlobal) {
         $userPath = [Environment]::GetEnvironmentVariable("Path","User")
@@ -169,7 +190,7 @@ try {
         $env:Path = $npmGlobal + ";" + $env:Path
     }
 
-    # 1) 探测 openclaw 真实启动命令（cmd 批处理或 exe）并取完整路径
+    # 6b) detect real openclaw command full path
     $openclawCmd = "openclaw"
     $g = Get-Command openclaw -ErrorAction SilentlyContinue
     if ($g -and $g.Source) {
@@ -181,7 +202,7 @@ try {
         else { Write-Host "   WARNING: could not locate openclaw command." -ForegroundColor Yellow }
     }
 
-    # 2) 用模板生成 ZierClaw.vbs（把 __OPENCLAW__ 占位符替换为绝对路径）
+    # 6c) generate ZierClaw.vbs from template (replace __OPENCLAW__)
     $launcherDir = Join-Path $env:USERPROFILE "ZierClaw"
     if (-not (Test-Path $launcherDir)) { New-Item -ItemType Directory -Path $launcherDir -Force | Out-Null }
     $vbsDst = Join-Path $launcherDir "ZierClaw.vbs"
@@ -194,7 +215,7 @@ try {
         Write-Host "   Launcher template not found: $template" -ForegroundColor Yellow
     }
 
-    # 3) 创建桌面快捷方式「ZierClaw」（指向 vbs）
+    # 6d) create desktop shortcut
     $desktop = [Environment]::GetFolderPath("Desktop")
     $lnk = Join-Path $desktop "ZierClaw.lnk"
     $ws = New-Object -ComObject WScript.Shell
