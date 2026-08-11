@@ -80,22 +80,27 @@ if (-not $gitOk) {
     if (-not $gitOk) {
         Write-Host "   winget unavailable. Downloading Git for Windows (China mirror first)..." -ForegroundColor Yellow
         $gitExe = Join-Path $env:TEMP "git-setup.exe"
-        # 尝试多个镜像源（国内优先，github 兜底）
+        # 多个镜像源，每个最多重试3次（应对“连接意外关闭”偶发）
+        $enc = [uri]::EscapeDataString('Git for Windows 2.55.0(3)')
         $gitMirrors = @(
-            "https://npmmirror.com/mirrors/git-for-windows/v2.55.0.windows.3/Git-2.55.0-64-bit.exe",
-            "https://mirrors.tuna.tsinghua.edu.cn/github-release/git-for-windows/git/LatestRelease/Git-2.55.0-64-bit.exe",
-            "https://github.com/git-for-windows/git/releases/latest/download/Git-2.55.0-64-bit.exe"
+            ("https://mirror.tuna.tsinghua.edu.cn/github-release/git-for-windows/git/" + $enc + "/Git-2.55.0.3-64-bit.exe"),
+            "https://github.com/git-for-windows/git/releases/latest/download/Git-2.55.0.3-64-bit.exe",
+            "https://git-scm.com/download/win"
         )
         $gitDlOk = $false
         foreach ($gitUrl in $gitMirrors) {
             if ($gitDlOk) { break }
-            try {
-                Write-Host "   Trying: $gitUrl" -ForegroundColor Cyan
-                Invoke-WebRequest -Uri $gitUrl -OutFile $gitExe -UseBasicParsing -ErrorAction Stop
-                $gitDlOk = (Test-Path $gitExe) -and ((Get-Item $gitExe).Length -gt 1MB)
-                if ($gitDlOk) { Write-Host "   Download OK." -ForegroundColor Green }
-            } catch {
-                Write-Host "   Mirror failed: $($_.Exception.Message)" -ForegroundColor DarkGray
+            for ($attempt = 1; $attempt -le 3; $attempt++) {
+                if ($gitDlOk) { break }
+                try {
+                    Write-Host "   Trying (attempt $attempt/3): $gitUrl" -ForegroundColor Cyan
+                    Invoke-WebRequest -Uri $gitUrl -OutFile $gitExe -UseBasicParsing -TimeoutSec 90 -ErrorAction Stop
+                    $gitDlOk = (Test-Path $gitExe) -and ((Get-Item $gitExe).Length -gt 1MB)
+                    if ($gitDlOk) { Write-Host "   Download OK." -ForegroundColor Green }
+                } catch {
+                    Write-Host "   Attempt $attempt failed: $($_.Exception.Message)" -ForegroundColor DarkGray
+                    if ($attempt -lt 3) { Start-Sleep -Seconds 2 }
+                }
             }
         }
         if ($gitDlOk) {
@@ -129,14 +134,20 @@ try { $ochk = Get-Command openclaw -ErrorAction SilentlyContinue; if ($ochk) { $
 
 if (-not $ocOk) {
     Write-Host "   OpenClaw not found. Installing via official installer..." -ForegroundColor Yellow
-    try {
-        irm https://openclaw.ai/install.ps1 | iex
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-        try { $ochk = Get-Command openclaw -ErrorAction SilentlyContinue; if ($ochk) { $ocOk = $true; Write-Host "   OpenClaw installed: $($ochk.Source)" -ForegroundColor Green } } catch {}
-    } catch {
-        Write-Host "   OpenClaw auto-install failed: $($_.Exception.Message)" -ForegroundColor Red
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        if ($ocOk) { break }
+        try {
+            Write-Host "   Downloading & running openclaw installer (attempt $attempt/3)..." -ForegroundColor Cyan
+            irm https://openclaw.ai/install.ps1 | iex
+            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+            try { $ochk = Get-Command openclaw -ErrorAction SilentlyContinue; if ($ochk) { $ocOk = $true; Write-Host "   OpenClaw installed: $($ochk.Source)" -ForegroundColor Green } } catch {}
+        } catch {
+            Write-Host "   Attempt $attempt failed: $($_.Exception.Message)" -ForegroundColor DarkGray
+            if ($attempt -lt 3) { Start-Sleep -Seconds 3 }
+        }
     }
     if (-not $ocOk) {
+        Write-Host "   Could not auto-install OpenClaw after 3 tries." -ForegroundColor Red
         Write-Host "   Please install OpenClaw manually (admin PowerShell):" -ForegroundColor Yellow
         Write-Host "   iwr -useb https://openclaw.ai/install.ps1 | iex" -ForegroundColor White
         Write-Host "   then re-run this installer." -ForegroundColor Yellow
