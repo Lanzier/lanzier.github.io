@@ -1,12 +1,11 @@
-' ZierClaw Launcher - Double-click to open ZierClaw Dashboard
-' Correct approach: silently run "openclaw dashboard".
-' That command auto-detects the user's configured port, starts the
-' gateway if needed, and opens the right Dashboard URL in the browser.
+' ZierClaw Desktop Launcher - shows a branded start window, then opens Dashboard.
 Option Explicit
 
-Dim shell
+Dim shell, base, startPs
 Set shell = CreateObject("WScript.Shell")
+base = shell.ExpandEnvironmentStrings("%USERPROFILE%") & "\ZierClaw"
+startPs = base & "\ZierClaw-Start.ps1"
 
-' Run the openclaw CLI dashboard command silently (no black window).
-' It detects the correct port/URL automatically for THIS user.
-shell.Run "cmd /c start """" /min openclaw dashboard", 0, False
+' Silently run the branded ZierClaw start window (no black console).
+' The start window's button runs "openclaw dashboard" and opens the browser.
+shell.Run "powershell -NoProfile -ExecutionPolicy Bypass -File """ & startPs & """", 0, False
