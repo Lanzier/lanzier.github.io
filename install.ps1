@@ -11,52 +11,92 @@ Write-Host ""
 
 # ============================================================
 # 1) Check / Install Node.js
+# 合并用户+系统 PATH，并多点探测 node 真实路径（避免“已装却检测不到反复重装”）
 # ============================================================
+$env:Path = [Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [Environment]::GetEnvironmentVariable("Path","User")
+
+function Find-NodeExe {
+    # 1) PATH 里找
+    $g = Get-Command node -ErrorAction SilentlyContinue
+    if ($g -and $g.Source) { return $g.Source }
+    # 2) 常见安装路径（含 OpenClaw portable node）
+    $cands = @(
+        "C:\Program Files\nodejs\node.exe",
+        (Join-Path $env:ProgramFiles "nodejs\node.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\nodejs\node.exe"),
+        (Join-Path $env:LOCALAPPDATA "OpenClaw\deps\portable-node\node.exe")
+    )
+    foreach ($c in $cands) { if ($c -and (Test-Path $c)) { return $c } }
+    return $null
+}
+
+$nodeExe = Find-NodeExe
 $nodeOk = $false
-try { $v = node -v 2>$null; if ($v) { $nodeOk = $true; Write-Host "   Node.js found: $v" -ForegroundColor Green } } catch {}
-
+if ($nodeExe) {
+    try {
+        $v = & $nodeExe -v 2>$null
+        if ($v) { $nodeOk = $true; Write-Host "   Node.js found at $nodeExe : $v" -ForegroundColor Green }
+    } catch {}
+}
 if (-not $nodeOk) {
-    Write-Host "   Node.js not found. Installing via winget..." -ForegroundColor Yellow
-    $wingetOk = $false
-    try { winget --version 2>$null; $wingetOk = $true } catch {}
+    Write-Host "   Node.js not found. Trying to locate it..." -ForegroundColor Yellow
 
-    if ($wingetOk) {
-        winget install OpenJS.NodeJS.LTS --accept-package-agreements --accept-source-agreements --silent
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-        try { $v = node -v 2>$null; if ($v) { $nodeOk = $true; Write-Host "   Node.js installed: $v" -ForegroundColor Green } } catch {}
+    # 首次找不到时，再全面刷新一次 PATH 后重试
+    $env:Path = [Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [Environment]::GetEnvironmentVariable("Path","User")
+    $nodeExe = Find-NodeExe
+    if ($nodeExe) {
+        try { $v = & $nodeExe -v 2>$null; if ($v) { $nodeOk = $true; Write-Host "   Node.js found at $nodeExe : $v" -ForegroundColor Green } } catch {}
     }
 
     if (-not $nodeOk) {
-        # winget 不可用或失败 -> 下载官方 msi 静默安装
-        Write-Host "   winget not available. Downloading Node.js LTS installer directly..." -ForegroundColor Yellow
-        try {
-            $msi = Join-Path $env:TEMP "node-lts.msi"
-            $dl = Invoke-WebRequest -Uri "https://nodejs.org/dist/latest-v22.x/" -UseBasicParsing -ErrorAction Stop
-            $match = [regex]::Match($dl.Content, 'node-v[\d.]+-x64\.msi')
-            if ($match.Success -and $match.Value) {
-                $file = $match.Value
-                $nodeUrl = "https://nodejs.org/dist/latest-v22.x/" + $file
-                Write-Host "   Downloading $file ..." -ForegroundColor Cyan
-                Invoke-WebRequest -Uri $nodeUrl -OutFile $msi -UseBasicParsing -ErrorAction Stop
-                Write-Host "   Installing Node.js silently..." -ForegroundColor Cyan
-                $msiArgs = '/i "' + $msi + '" /qn'
-                Start-Process msiexec -ArgumentList $msiArgs -Wait
-                $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-                try { $v = node -v 2>$null; if ($v) { $nodeOk = $true; Write-Host "   Node.js installed: $v" -ForegroundColor Green } } catch {}
-            } else {
-                Write-Host "   Could not resolve Node download URL." -ForegroundColor Yellow
+        Write-Host "   Node.js not installed yet. Installing..." -ForegroundColor Yellow
+
+        # 2a) winget first
+        $wingetOk = $false
+        try { winget --version 2>$null; $wingetOk = $true } catch {}
+        if ($wingetOk) {
+            winget install OpenJS.NodeJS.LTS --accept-package-agreements --accept-source-agreements --silent
+            $env:Path = [Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [Environment]::GetEnvironmentVariable("Path","User")
+            $nodeExe = Find-NodeExe
+            if ($nodeExe) { try { $v = & $nodeExe -v 2>$null; if ($v) { $nodeOk = $true; Write-Host "   Node.js installed: $v" -ForegroundColor Green } } catch {} }
+        }
+
+        # 2b) winget 不可用/失败 -> 下载官方 msi 静默安装
+        if (-not $nodeOk) {
+            Write-Host "   winget unavailable. Downloading Node.js LTS installer directly..." -ForegroundColor Yellow
+            try {
+                $msi = Join-Path $env:TEMP "node-lts.msi"
+                $dl = Invoke-WebRequest -Uri "https://nodejs.org/dist/latest-v22.x/" -UseBasicParsing -ErrorAction Stop
+                $match = [regex]::Match($dl.Content, 'node-v[\d.]+-x64\.msi')
+                if ($match.Success -and $match.Value) {
+                    $file = $match.Value
+                    $nodeUrl = "https://nodejs.org/dist/latest-v22.x/" + $file
+                    Write-Host "   Downloading $file ..." -ForegroundColor Cyan
+                    Invoke-WebRequest -Uri $nodeUrl -OutFile $msi -UseBasicParsing -ErrorAction Stop
+                    Write-Host "   Installing Node.js silently..." -ForegroundColor Cyan
+                    $msiArgs = '/i "' + $msi + '" /qn'
+                    Start-Process msiexec -ArgumentList $msiArgs -Wait
+                    $env:Path = [Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [Environment]::GetEnvironmentVariable("Path","User")
+                    $nodeExe = Find-NodeExe
+                    if ($nodeExe) { try { $v = & $nodeExe -v 2>$null; if ($v) { $nodeOk = $true; Write-Host "   Node.js installed: $v" -ForegroundColor Green } } catch {} }
+                } else {
+                    Write-Host "   Could not resolve Node download URL." -ForegroundColor Yellow
+                }
+            } catch {
+                Write-Host "   Node auto-install failed: $($_.Exception.Message)" -ForegroundColor Red
             }
-        } catch {
-            Write-Host "   Node auto-install failed: $($_.Exception.Message)" -ForegroundColor Red
+        }
+
+        if (-not $nodeOk) {
+            Write-Host "   Could not install Node automatically. Install LTS from https://nodejs.org then re-run." -ForegroundColor Red
+            Read-Host "Press Enter to exit"
+            exit 1
         }
     }
-
-    if (-not $nodeOk) {
-        Write-Host "   Could not install Node automatically. Install LTS from https://nodejs.org then re-run." -ForegroundColor Red
-        Read-Host "Press Enter to exit"
-        exit 1
-    }
 }
+
+# 供后续使用的绝对路径（.cmd / node.exe）
+$nodeBin = $nodeExe
 
 # ============================================================
 # 2) Check / Install Git (MUST be present before OpenClaw install)
