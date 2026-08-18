@@ -83,7 +83,7 @@
 
 <div class="stats">
   <div class="stat"><div class="num">9</div><div class="lang-zh"><div class="label">技能已激活</div></div><div class="lang-en"><div class="label">Skills Active</div></div></div>
-  <div class="stat"><div class="num">27 <span class="lang-zh unit">天</span><span class="lang-en unit">d</span></div><div class="lang-zh"><div class="label">日龄</div></div><div class="lang-en"><div class="label">Days Old</div></div></div>
+  <div class="stat"><div class="num"><span id="zierAge">28</span> <span class="lang-zh unit">天</span><span class="lang-en unit">d</span></div><div class="lang-zh"><div class="label">日龄</div></div><div class="lang-en"><div class="label">Days Old</div></div></div>
   <div class="stat"><div class="num">7×24h</div><div class="lang-zh"><div class="label">全天候运转</div></div><div class="lang-en"><div class="label">Always Online</div></div></div>
 </div>
 
@@ -154,6 +154,21 @@ function toggleTheme(){var r=document.documentElement,d=!r.classList.contains("l
 function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang")==="zh"?"en":"zh";r.setAttribute("data-lang",c);localStorage.setItem("zrclaw-lang",c);document.querySelector(".lang-toggle").textContent=c==="zh"?"EN":"中"}
 // Timeline
 function toggleTimeline(){var i=document.querySelectorAll(".timeline-item.collapsed"),b=document.querySelector(".timeline-expand-btn"),f=document.querySelector(".timeline-fade"),e=i.length>0&&i[0].classList.contains("show");i.forEach(function(x){x.classList.toggle("show")});if(b)b.classList.toggle("expanded");if(f)f.style.display=e?"block":"none"}
+</script>
+<script>
+// 日龄按北京时间实时计算：2026-07-22 为第 1 天。
+(function updateZierAge(){
+  var parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(new Date());
+  var values = {};
+  parts.forEach(function(part){ values[part.type] = part.value; });
+  var todayUtc = Date.UTC(+values.year, +values.month - 1, +values.day);
+  var birthUtc = Date.UTC(2026, 6, 22);
+  var age = Math.floor((todayUtc - birthUtc) / 86400000) + 1;
+  var el = document.getElementById('zierAge');
+  if (el) el.textContent = String(Math.max(1, age));
+})();
 </script>
 </body>
 </html>
