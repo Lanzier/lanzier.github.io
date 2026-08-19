@@ -32,14 +32,11 @@
     .stat .num{font-size:54px;font-weight:700;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
     .stat .num .unit{font-size:24px;font-weight:400;background:none;-webkit-background-clip:unset;-webkit-text-fill-color:var(--text-muted)}
     .stat .label{font-size:14px;color:var(--text-muted)}
-    .zier-console{position:relative;isolation:isolate;max-width:1124px;margin:18px auto 4px;padding:20px 22px;display:grid;grid-template-columns:minmax(220px,1fr) auto minmax(150px,.55fr) auto;align-items:center;gap:22px;border:1px solid rgba(129,140,248,.26);border-radius:22px;background:linear-gradient(135deg,rgba(99,102,241,.13),rgba(168,85,247,.08) 50%,rgba(17,17,24,.62));box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 18px 50px rgba(3,3,14,.22);backdrop-filter:blur(26px) saturate(150%);-webkit-backdrop-filter:blur(26px) saturate(150%);overflow:hidden}
-    .zier-console::before{content:'';position:absolute;z-index:-1;inset:-100% 35% 32% -18%;background:radial-gradient(circle,rgba(129,140,248,.2),transparent 62%);pointer-events:none}
-    :root.light .zier-console{background:linear-gradient(135deg,rgba(255,255,255,.82),rgba(238,238,255,.72));box-shadow:inset 0 1px 0 #fff,0 16px 38px rgba(79,70,229,.1)}
+    .zier-console{position:relative;max-width:1124px;margin:18px auto 4px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:28px;border:1px solid var(--border);border-radius:18px;background:color-mix(in srgb,var(--card-bg) 78%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);backdrop-filter:blur(18px) saturate(125%);-webkit-backdrop-filter:blur(18px) saturate(125%)}
+    :root.light .zier-console{background:rgba(255,255,255,.58);box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
     .console-brand{display:flex;align-items:center;gap:13px;min-width:0}.console-orb{position:relative;width:12px;height:12px;flex:0 0 12px;border-radius:50%;background:#34d399;box-shadow:0 0 0 5px rgba(52,211,153,.1),0 0 18px rgba(52,211,153,.8)}
     .console-orb::after{content:'';position:absolute;inset:-5px;border:1px solid rgba(52,211,153,.42);border-radius:50%;animation:consolePulse 2.2s ease-out infinite}@keyframes consolePulse{0%{transform:scale(.75);opacity:.8}75%,100%{transform:scale(1.65);opacity:0}}
-    .console-kicker{font-size:12px;letter-spacing:.1em;color:var(--accent-glow);text-transform:uppercase}.console-brand strong{display:block;font-size:17px;line-height:1.35}.console-divider{width:1px;height:42px;background:linear-gradient(transparent,var(--border),transparent)}
-    .console-meta span{display:block;font-size:12px;color:var(--text-muted)}.console-meta strong{font-size:18px;white-space:nowrap}.console-actions{display:flex;justify-content:flex-end;gap:10px}.console-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:0 16px;border:1px solid rgba(129,140,248,.28);border-radius:13px;background:rgba(99,102,241,.09);color:var(--text);font-size:14px;font-weight:600;text-decoration:none;font-family:inherit;cursor:pointer;transition:transform .2s,border-color .2s,background .2s}.console-btn:hover,.console-btn:focus-visible{transform:translateY(-2px);border-color:var(--accent-glow);background:rgba(99,102,241,.18);outline:none}.console-btn.primary{color:#fff;border-color:transparent;background:linear-gradient(135deg,#6366f1,#8b5cf6)}
-    .console-toast{position:absolute;right:22px;bottom:8px;padding:7px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text-muted);font-size:12px;opacity:0;transform:translateY(8px);pointer-events:none;transition:.25s}.console-toast.show{opacity:1;transform:translateY(0)}
+    .console-kicker{font-size:11px;letter-spacing:.1em;color:var(--accent-glow);text-transform:uppercase}.console-brand strong{display:block;font-size:16px;line-height:1.35}.console-meta{padding-left:26px;border-left:1px solid var(--border);text-align:right}.console-meta span{display:block;font-size:12px;color:var(--text-muted)}.console-meta strong{font-size:16px;white-space:nowrap}
     .section{max-width:1180px;margin:0 auto;padding:60px 28px}
     .section h2{font-size:28px;margin-bottom:30px;display:flex;align-items:center;gap:10px}
     .skill-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
@@ -72,7 +69,7 @@
     .lang-toggle:hover,.theme-toggle:hover{transform:scale(1.1);border-color:var(--accent)}
     .lang-zh,.lang-en{display:none}
     html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
-    @media(max-width:760px){.zier-console{margin:12px 20px 0;grid-template-columns:1fr auto;gap:16px;padding:18px}.console-divider{display:none}.console-meta{text-align:right}.console-actions{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.console-btn{padding:0 10px}.console-toast{right:18px;bottom:64px}}
+    @media(max-width:760px){.zier-console{margin:12px 20px 0;gap:16px;padding:16px 18px}.console-meta{padding-left:16px}}
     @media(max-width:600px){.hero h1{font-size:32px}.stats{gap:20px}.stat .num{font-size:28px}.skill-grid{grid-template-columns:1fr 1fr}}
   </style>
   <script data-goatcounter="https://zier.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -101,13 +98,7 @@
     <span class="console-orb" aria-hidden="true"></span>
     <div><div class="console-kicker">ZierClaw Console</div><div class="lang-zh"><strong>全部系统正常</strong></div><div class="lang-en"><strong>All systems operational</strong></div></div>
   </div>
-  <span class="console-divider" aria-hidden="true"></span>
   <div class="console-meta"><span class="lang-zh">最近巡检</span><span class="lang-en">Last check</span><strong id="lastInspection">--:--</strong></div>
-  <div class="console-actions">
-    <a class="console-btn primary" href="https://lanzier.github.io/sku-search/"><span>⌕</span><span class="lang-zh">SKU 查询</span><span class="lang-en">SKU Search</span></a>
-    <button class="console-btn" type="button" onclick="showConverterNotice()"><span>↻</span><span class="lang-zh">文件转换器</span><span class="lang-en">File Converter</span></button>
-  </div>
-  <div class="console-toast" id="converterNotice" role="status"><span class="lang-zh">桌面版下载即将开放</span><span class="lang-en">Desktop download coming soon</span></div>
 </aside>
 
 <section class="section">
@@ -186,8 +177,6 @@ enforceTimelineLimit();
   var minutes=(+time.hour%24)*60+(+time.minute),slot=minutes>=1260?'21:00':minutes>=900?'15:00':minutes>=540?'09:00':'21:00';
   var el=document.getElementById('lastInspection');if(el)el.textContent=slot;
 })();
-var converterNoticeTimer;
-function showConverterNotice(){var el=document.getElementById('converterNotice');if(!el)return;el.classList.add('show');clearTimeout(converterNoticeTimer);converterNoticeTimer=setTimeout(function(){el.classList.remove('show')},2200)}
 </script>
 <script>
 // 日龄按北京时间实时计算：2026-07-22 为第 1 天。
