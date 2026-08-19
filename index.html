@@ -36,7 +36,7 @@
     :root.light .zier-console{background:rgba(255,255,255,.58);box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
     .console-brand{display:flex;align-items:center;gap:13px;min-width:0}.console-orb{position:relative;width:12px;height:12px;flex:0 0 12px;border-radius:50%;background:#34d399;box-shadow:0 0 0 5px rgba(52,211,153,.1),0 0 18px rgba(52,211,153,.8)}
     .console-orb::after{content:'';position:absolute;inset:-5px;border:1px solid rgba(52,211,153,.42);border-radius:50%;animation:consolePulse 2.2s ease-out infinite}@keyframes consolePulse{0%{transform:scale(.75);opacity:.8}75%,100%{transform:scale(1.65);opacity:0}}
-    .console-kicker{font-size:11px;letter-spacing:.1em;color:var(--accent-glow);text-transform:uppercase}.console-brand strong{display:block;font-size:16px;line-height:1.35}.console-meta{padding-left:26px;border-left:1px solid var(--border);text-align:right}.console-meta span{display:block;font-size:12px;color:var(--text-muted)}.console-meta strong{font-size:16px;white-space:nowrap}
+    .console-kicker{font-size:11px;letter-spacing:.1em;color:var(--accent-glow);text-transform:uppercase}.console-brand strong{display:block;font-size:16px;line-height:1.35}.console-details{display:flex;align-items:center;gap:0}.console-meta{min-width:148px;padding:0 26px;border-left:1px solid var(--border)}.console-meta span{display:block;font-size:12px;color:var(--text-muted)}.console-meta strong{font-size:15px;white-space:nowrap}.console-alert strong{color:#34d399}
     .section{max-width:1180px;margin:0 auto;padding:60px 28px}
     .section h2{font-size:28px;margin-bottom:30px;display:flex;align-items:center;gap:10px}
     .skill-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
@@ -69,7 +69,8 @@
     .lang-toggle:hover,.theme-toggle:hover{transform:scale(1.1);border-color:var(--accent)}
     .lang-zh,.lang-en{display:none}
     html[data-lang=zh] .lang-zh,html[data-lang=en] .lang-en{display:revert}
-    @media(max-width:760px){.zier-console{margin:12px 20px 0;gap:16px;padding:16px 18px}.console-meta{padding-left:16px}}
+    @media(max-width:760px){.zier-console{margin:12px 20px 0;align-items:flex-start;gap:16px;padding:16px 18px}.console-details{align-items:stretch}.console-meta{min-width:0;padding:0 14px}.console-meta:first-child{padding-left:14px}}
+    @media(max-width:480px){.zier-console{display:block}.console-details{margin-top:15px;padding-top:14px;border-top:1px solid var(--border)}.console-meta:first-child{padding-left:0;border-left:0}.console-meta{flex:1;padding-right:0}}
     @media(max-width:600px){.hero h1{font-size:32px}.stats{gap:20px}.stat .num{font-size:28px}.skill-grid{grid-template-columns:1fr 1fr}}
   </style>
   <script data-goatcounter="https://zier.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -98,7 +99,10 @@
     <span class="console-orb" aria-hidden="true"></span>
     <div><div class="console-kicker">ZierClaw Console</div><div class="lang-zh"><strong>全部系统正常</strong></div><div class="lang-en"><strong>All systems operational</strong></div></div>
   </div>
-  <div class="console-meta"><span class="lang-zh">最近巡检</span><span class="lang-en">Last check</span><strong id="lastInspection">--:--</strong></div>
+  <div class="console-details">
+    <div class="console-meta"><span class="lang-zh">最近巡检</span><span class="lang-en">Last check</span><strong><span class="lang-zh">今天 09:00</span><span class="lang-en">Today 09:00</span></strong></div>
+    <div class="console-meta console-alert"><span class="lang-zh">预警日志</span><span class="lang-en">Alert log</span><strong><span class="lang-zh">暂无预警</span><span class="lang-en">No alerts</span></strong></div>
+  </div>
 </aside>
 
 <section class="section">
@@ -170,13 +174,6 @@ function toggleLang(){var r=document.documentElement,c=r.getAttribute("data-lang
 function enforceTimelineLimit(){var items=Array.from(document.querySelectorAll('.timeline .timeline-item'));items.slice(7).forEach(function(item){item.remove()})}
 function toggleTimeline(){var i=document.querySelectorAll(".timeline-item.collapsed"),b=document.querySelector(".timeline-expand-btn"),f=document.querySelector(".timeline-fade"),e=i.length>0&&i[0].classList.contains("show");i.forEach(function(x){x.classList.toggle("show")});if(b)b.classList.toggle("expanded");if(f)f.style.display=e?"block":"none"}
 enforceTimelineLimit();
-// 控制台：按北京时间显示最近一次固定巡检时段。
-(function updateLastInspection(){
-  var nowParts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Shanghai',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date());
-  var time={};nowParts.forEach(function(part){time[part.type]=part.value});
-  var minutes=(+time.hour%24)*60+(+time.minute),slot=minutes>=1260?'21:00':minutes>=900?'15:00':minutes>=540?'09:00':'21:00';
-  var el=document.getElementById('lastInspection');if(el)el.textContent=slot;
-})();
 </script>
 <script>
 // 日龄按北京时间实时计算：2026-07-22 为第 1 天。
