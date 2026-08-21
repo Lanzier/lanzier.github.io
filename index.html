@@ -190,5 +190,34 @@ enforceTimelineLimit();
   if (el) el.textContent = String(Math.max(1, age));
 })();
 </script>
+<script>
+// 根据巡检记录日期动态显示“今天 / 昨天 / 具体日期”，避免跨日后文案过期。
+(function updateLastInspectionLabel(){
+  fetch('inspection-status.json?v=' + Date.now(), { cache: 'no-store' })
+    .then(function(response){
+      if (!response.ok) throw new Error('inspection status unavailable');
+      return response.json();
+    })
+    .then(function(status){
+      if (!status || !/^\d{4}-\d{2}-\d{2}$/.test(status.date) || !/^\d{2}:\d{2}$/.test(status.time)) return;
+      var parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit'
+      }).formatToParts(new Date());
+      var now = {};
+      parts.forEach(function(part){ now[part.type] = part.value; });
+      var today = Date.UTC(+now.year, +now.month - 1, +now.day);
+      var recorded = status.date.split('-').map(Number);
+      var recordDay = Date.UTC(recorded[0], recorded[1] - 1, recorded[2]);
+      var daysAgo = Math.floor((today - recordDay) / 86400000);
+      var zhPrefix = daysAgo === 0 ? '今天' : daysAgo === 1 ? '昨天' : status.date;
+      var enPrefix = daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : status.date;
+      var zh = document.getElementById('lastInspectionZh');
+      var en = document.getElementById('lastInspectionEn');
+      if (zh) zh.textContent = zhPrefix + ' ' + status.time;
+      if (en) en.textContent = enPrefix + ' ' + status.time;
+    })
+    .catch(function(){ /* 保留服务器渲染的兜底文案 */ });
+})();
+</script>
 </body>
 </html>
