@@ -8,3 +8,13 @@
 .water-total{display:flex!important;align-items:baseline;gap:5px;line-height:1}
 .water-total em{font-style:normal;line-height:1}
 .water-total span{display:inline!important;font-size:.56em!important;line-height:1;color:var(--muted)}
+.water-progress-text{display:block;margin-top:10px;text-align:left;color:var(--muted);font-size:10px}
+.water-progress-text b{display:inline-block;color:var(--ink);font-size:12px;transition:transform .18s ease,color .18s ease;will-change:contents,transform}
+.water-progress-text b.is-counting{transform:scale(1.08);color:#6c9638}
+.water-progress{display:block;height:5px;margin-top:6px;overflow:hidden;border-radius:5px;background:#dfe5d8}
+.water-progress b{display:block;width:0;height:100%;border-radius:5px;background:var(--lime);transition:width .4s ease}
+.water-goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 16px}
+.water-goal-grid label{margin:0;min-width:0}
+.water-goal-grid input{display:none}
+.water-auto-button{width:100%;margin:0 0 10px}
+@media(max-width:370px){.water-goal-grid{grid-template-columns:1fr}}

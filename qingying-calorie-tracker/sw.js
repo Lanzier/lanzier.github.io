@@ -1,5 +1,5 @@
-const CACHE = "qingying-v21";
-const ASSETS = ["./", "./index.html", "./styles.css?v=21", "./water-controls.css?v=21", "./profile-wheels.css?v=21", "./mobile-form-fix.css?v=21", "./mcdonalds-cn-foods.js?v=21", "./china-chain-reference-foods.js?v=21", "./china-foods.js?v=21", "./usda-foods.js?v=21", "./fndds-foods.js?v=21", "./app.js?v=21", "./water-controls.js?v=21", "./optional-forms.js?v=21", "./calorie-animation.js?v=21", "./meal-icons.js?v=21", "./profile-wheels.js?v=21", "./weight-multi-log.js?v=21", "./cancel-dialog.js?v=21", "./force-refresh.js?v=21", "./update-worker.js?v=21", "./manifest.webmanifest", "./icon.svg"];
+const CACHE = "qingying-v22";
+const ASSETS = ["./", "./index.html", "./styles.css?v=22", "./water-controls.css?v=22", "./profile-wheels.css?v=22", "./mobile-form-fix.css?v=22", "./mcdonalds-cn-foods.js?v=22", "./china-chain-reference-foods.js?v=22", "./china-foods.js?v=22", "./usda-foods.js?v=22", "./fndds-foods.js?v=22", "./app.js?v=22", "./water-controls.js?v=22", "./optional-forms.js?v=22", "./calorie-animation.js?v=22", "./meal-icons.js?v=22", "./profile-wheels.js?v=22", "./weight-multi-log.js?v=22", "./water-goal.js?v=22", "./cancel-dialog.js?v=22", "./force-refresh.js?v=22", "./update-worker.js?v=22", "./manifest.webmanifest", "./icon.svg"];
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
