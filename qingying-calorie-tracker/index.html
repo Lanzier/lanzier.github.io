@@ -10,10 +10,10 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg" />
   <link rel="apple-touch-icon" href="icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=22" />
-  <link rel="stylesheet" href="water-controls.css?v=22" />
-  <link rel="stylesheet" href="profile-wheels.css?v=22" />
-  <link rel="stylesheet" href="mobile-form-fix.css?v=22" />
+  <link rel="stylesheet" href="styles.css?v=23" />
+  <link rel="stylesheet" href="water-controls.css?v=23" />
+  <link rel="stylesheet" href="profile-wheels.css?v=23" />
+  <link rel="stylesheet" href="mobile-form-fix.css?v=23" />
   <title>轻盈记 · 热量计算器</title>
 </head>
 <body>
@@ -44,23 +44,28 @@
           <article><span>碳水</span><strong id="carbVal">0g</strong><i><b id="carbBar"></b></i></article>
           <article><span>脂肪</span><strong id="fatVal">0g</strong><i><b id="fatBar"></b></i></article>
         </div>
+        <article class="water-card water-card-wide">
+          <div class="water-summary">
+            <span>饮水</span>
+            <strong class="water-total"><em id="waterCount">0</em><span>杯</span></strong>
+          </div>
+          <div class="water-meter">
+            <small class="water-progress-text" id="waterProgressText"><b id="waterConsumedMl">0</b> / <span id="waterGoalMl">2000</span> ml</small>
+            <i class="water-progress"><b id="waterProgressBar"></b></i>
+            <small id="waterCupSize">每杯约250ml</small>
+          </div>
+          <div class="water-controls" aria-label="饮水杯数调整">
+            <button id="waterMinus" type="button" aria-label="减少一杯水">−</button>
+            <button id="waterPlus" type="button" aria-label="增加一杯水">＋</button>
+          </div>
+        </article>
 
         <div class="section-head"><div><span>今日饮食</span><h2>吃了什么</h2></div><button class="text-button" id="addFoodBtn">＋ 记录</button></div>
         <div id="mealList" class="meal-list"></div>
 
-        <div class="section-head"><div><span>今日状态</span><h2>体重与饮水</h2></div></div>
-        <div class="quick-grid">
+        <div class="section-head"><div><span>今日状态</span><h2>体重记录</h2></div></div>
+        <div class="quick-grid weight-only">
           <button id="logWeightBtn"><span>体重</span><strong id="todayWeight">-- kg</strong><small>点击记录</small></button>
-          <article class="water-card">
-            <span>饮水</span><strong class="water-total"><em id="waterCount">0</em><span>杯</span></strong>
-            <div class="water-controls" aria-label="饮水杯数调整">
-              <button id="waterMinus" type="button" aria-label="减少一杯水">−</button>
-              <small>每杯约250ml</small>
-              <button id="waterPlus" type="button" aria-label="增加一杯水">＋</button>
-            </div>
-            <small class="water-progress-text" id="waterProgressText"><b id="waterConsumedMl">0</b> / <span id="waterGoalMl">2000</span> ml</small>
-            <i class="water-progress"><b id="waterProgressBar"></b></i>
-          </article>
           <button id="waterBtn" type="button" tabindex="-1" aria-hidden="true"></button>
         </div>
       </section>
@@ -130,21 +135,21 @@
   <dialog id="weightDialog"><form method="dialog" id="weightForm"><div class="dialog-head"><div><span>每日记录</span><h2>今天的体重</h2></div><button value="cancel" class="close">×</button></div><label>体重 kg（可选）<input name="weight" type="number" min="35" max="300" step="0.1" /></label><button class="primary" value="default">保存记录</button></form></dialog>
   <dialog id="waterGoalDialog"><form method="dialog" id="waterGoalForm"><div class="dialog-head"><div><span>饮水目标</span><h2>设置每日饮水量</h2></div><button value="cancel" class="close">×</button></div><p class="form-hint">系统会根据当前体重和性别自动定位建议下限；也可上下滑动改成自定义目标。</p><div class="water-goal-grid"><label>每日目标<div class="number-wheel" id="waterGoalWheel"></div><input type="hidden" name="goalMl" value="2000" /></label><label>每杯容量<div class="number-wheel" id="waterCupWheel"></div><input type="hidden" name="cupMl" value="250" /></label></div><div class="estimate" id="waterGoalEstimate">每天约8杯</div><p class="form-hint">适用于温和环境下的普通成年人；炎热或运动大量出汗时需增加，心脏或肾脏疾病请遵医嘱。</p><button type="button" class="secondary water-auto-button" id="useAutoWaterGoal">使用自动建议</button><button class="primary" value="default">保存饮水设置</button></form></dialog>
   <div id="toast" role="status"></div>
-  <script src="mcdonalds-cn-foods.js?v=22"></script>
-  <script src="china-chain-reference-foods.js?v=22"></script>
-  <script src="china-foods.js?v=22"></script>
-  <script src="usda-foods.js?v=22"></script>
-  <script src="fndds-foods.js?v=22"></script>
-  <script src="app.js?v=22"></script>
-  <script src="water-controls.js?v=22"></script>
-  <script src="optional-forms.js?v=22"></script>
-  <script src="calorie-animation.js?v=22"></script>
-  <script src="meal-icons.js?v=22"></script>
-  <script src="profile-wheels.js?v=22"></script>
-  <script src="weight-multi-log.js?v=22"></script>
-  <script src="water-goal.js?v=22"></script>
-  <script src="cancel-dialog.js?v=22"></script>
-  <script src="force-refresh.js?v=22"></script>
-  <script src="update-worker.js?v=22"></script>
+  <script src="mcdonalds-cn-foods.js?v=23"></script>
+  <script src="china-chain-reference-foods.js?v=23"></script>
+  <script src="china-foods.js?v=23"></script>
+  <script src="usda-foods.js?v=23"></script>
+  <script src="fndds-foods.js?v=23"></script>
+  <script src="app.js?v=23"></script>
+  <script src="water-controls.js?v=23"></script>
+  <script src="optional-forms.js?v=23"></script>
+  <script src="calorie-animation.js?v=23"></script>
+  <script src="meal-icons.js?v=23"></script>
+  <script src="profile-wheels.js?v=23"></script>
+  <script src="weight-multi-log.js?v=23"></script>
+  <script src="water-goal.js?v=23"></script>
+  <script src="cancel-dialog.js?v=23"></script>
+  <script src="force-refresh.js?v=23"></script>
+  <script src="update-worker.js?v=23"></script>
 </body>
 </html>

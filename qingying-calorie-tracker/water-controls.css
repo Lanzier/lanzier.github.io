@@ -1,6 +1,11 @@
 .water-card{background:var(--paper);border:1px solid var(--line);border-radius:21px;text-align:left;padding:18px;color:var(--ink)}
-.water-controls{display:grid;grid-template-columns:36px 1fr 36px;align-items:center;gap:8px}
-.water-controls small{text-align:center;font-size:10px}
+.water-card-wide{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px;width:100%;margin:0 0 18px;padding:14px 16px}
+.water-summary{min-width:62px}
+.water-summary>span{display:block;font-size:10px;color:var(--muted)}
+.water-summary .water-total{margin-top:5px}
+.water-meter{min-width:0}
+.water-meter>small:last-child{display:block;margin-top:5px;color:var(--muted);font-size:9px}
+.water-controls{display:grid;grid-template-columns:36px 36px;align-items:center;gap:8px}
 .water-controls button{width:36px;height:32px;padding:0;border:1px solid var(--line);border-radius:11px;background:#edf1df;color:var(--ink);font-size:20px;font-weight:700;text-align:center}
 .water-controls button:active{transform:scale(.95)}
 .water-controls button:disabled{opacity:.35;cursor:not-allowed}
@@ -8,11 +13,12 @@
 .water-total{display:flex!important;align-items:baseline;gap:5px;line-height:1}
 .water-total em{font-style:normal;line-height:1}
 .water-total span{display:inline!important;font-size:.56em!important;line-height:1;color:var(--muted)}
-.water-progress-text{display:block;margin-top:10px;text-align:left;color:var(--muted);font-size:10px}
+.water-progress-text{display:block;margin:0;text-align:left;color:var(--muted);font-size:10px}
 .water-progress-text b{display:inline-block;color:var(--ink);font-size:12px;transition:transform .18s ease,color .18s ease;will-change:contents,transform}
 .water-progress-text b.is-counting{transform:scale(1.08);color:#6c9638}
 .water-progress{display:block;height:5px;margin-top:6px;overflow:hidden;border-radius:5px;background:#dfe5d8}
 .water-progress b{display:block;width:0;height:100%;border-radius:5px;background:var(--lime);transition:width .4s ease}
+@media(max-width:430px){.water-card-wide{gap:9px;padding:13px 12px}.water-summary{min-width:54px}.water-controls{grid-template-columns:32px 32px;gap:6px}.water-controls button{width:32px;height:32px}.water-meter>small:last-child{font-size:8px}}
 .water-goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 16px}
 .water-goal-grid label{margin:0;min-width:0}
 .water-goal-grid input{display:none}

@@ -90,7 +90,7 @@
     animateConsumed(consumed);
     document.querySelector("#waterGoalMl").textContent = goalMl;
     document.querySelector("#waterProgressBar").style.width = `${percent}%`;
-    document.querySelector(".water-controls small").textContent = `每杯约${cupMl}ml`;
+    document.querySelector("#waterCupSize").textContent = `每杯约${cupMl}ml`;
     document.querySelector("#waterGoalSummary").innerHTML = `<h3>每日饮水目标</h3><p>${auto !== false ? "自动建议" : "自定义"} · 每天${goalMl} ml · 每杯${cupMl} ml · 约${Math.ceil(goalMl / cupMl)}杯</p><button class="secondary" id="editWaterGoal">设置饮水量</button>`;
     document.querySelector("#editWaterGoal").onclick = openSettings;
   };
