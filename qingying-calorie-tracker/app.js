@@ -6,7 +6,7 @@ const initial={profile:null,logs:{},weights:[],water:{},customFoods:[]};
 let state=load();
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const today=()=>new Date().toLocaleDateString("en-CA");
-const foods=()=>[...baseFoods,...state.customFoods];
+const foods=()=>[...baseFoods,...(globalThis.USDA_FOODS||[]),...state.customFoods];
 function load(){try{return {...initial,...JSON.parse(localStorage.getItem(KEY)||"{}")}}catch{return structuredClone(initial)}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state));render()}
 function toast(msg){const el=$("#toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1800)}
