@@ -1,0 +1,7 @@
+.water-card{background:var(--paper);border:1px solid var(--line);border-radius:21px;text-align:left;padding:18px;color:var(--ink)}
+.water-controls{display:grid;grid-template-columns:36px 1fr 36px;align-items:center;gap:8px}
+.water-controls small{text-align:center;font-size:10px}
+.water-controls button{width:36px;height:32px;padding:0;border:1px solid var(--line);border-radius:11px;background:#edf1df;color:var(--ink);font-size:20px;font-weight:700;text-align:center}
+.water-controls button:active{transform:scale(.95)}
+.water-controls button:disabled{opacity:.35;cursor:not-allowed}
+#waterBtn{display:none}

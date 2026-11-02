@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#173f35" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="轻盈记" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="water-controls.css?v=3" />
+  <title>轻盈记 · 热量计算器</title>
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">LIGHTER, ONE DAY AT A TIME</p>
+        <h1 id="pageTitle">今天</h1>
+      </div>
+      <button class="icon-button" id="openProfile" aria-label="个人设置">◎</button>
+    </header>
+
+    <main>
+      <section id="todayView" class="view active">
+        <article class="hero-card">
+          <div class="ring" id="calorieRing">
+            <div class="ring-inner"><strong id="remainingCal">--</strong><span>还可摄入</span></div>
+          </div>
+          <div class="hero-copy">
+            <span class="pill" id="goalPill">建立你的目标</span>
+            <h2><span id="eatenCal">0</span> / <span id="targetCal">--</span> kcal</h2>
+            <p id="heroTip">完成身体资料后，即可获得每日热量目标。</p>
+          </div>
+        </article>
+
+        <div class="macro-grid">
+          <article><span>蛋白质</span><strong id="proteinVal">0g</strong><i><b id="proteinBar"></b></i></article>
+          <article><span>碳水</span><strong id="carbVal">0g</strong><i><b id="carbBar"></b></i></article>
+          <article><span>脂肪</span><strong id="fatVal">0g</strong><i><b id="fatBar"></b></i></article>
+        </div>
+
+        <div class="section-head"><div><span>今日饮食</span><h2>吃了什么</h2></div><button class="text-button" id="addFoodBtn">＋ 记录</button></div>
+        <div id="mealList" class="meal-list"></div>
+
+        <div class="section-head"><div><span>今日状态</span><h2>体重与饮水</h2></div></div>
+        <div class="quick-grid">
+          <button id="logWeightBtn"><span>体重</span><strong id="todayWeight">-- kg</strong><small>点击记录</small></button>
+          <article class="water-card">
+            <span>饮水</span><strong><em id="waterCount">0</em> 杯</strong>
+            <div class="water-controls" aria-label="饮水杯数调整">
+              <button id="waterMinus" type="button" aria-label="减少一杯水">−</button>
+              <small>每杯约250ml</small>
+              <button id="waterPlus" type="button" aria-label="增加一杯水">＋</button>
+            </div>
+          </article>
+          <button id="waterBtn" type="button" tabindex="-1" aria-hidden="true"></button>
+        </div>
+      </section>
+
+      <section id="trendView" class="view">
+        <div class="section-head compact"><div><span>趋势</span><h2>你的变化</h2></div></div>
+        <article class="chart-card">
+          <div class="chart-summary"><div><span>最新体重</span><strong id="latestWeight">--</strong></div><div><span>累计变化</span><strong id="weightDelta">--</strong></div></div>
+          <svg id="weightChart" viewBox="0 0 600 260" role="img" aria-label="体重趋势图"></svg>
+          <p id="chartEmpty">至少记录两次体重后显示趋势。</p>
+        </article>
+        <div class="history-list" id="weightHistory"></div>
+      </section>
+
+      <section id="foodsView" class="view">
+        <div class="section-head compact"><div><span>食物库</span><h2>常吃的食物</h2></div><button class="text-button" id="newCustomFood">＋ 新增</button></div>
+        <label class="search"><span>⌕</span><input id="foodSearch" placeholder="搜索食物名称" /></label>
+        <div id="foodLibrary" class="food-library"></div>
+      </section>
+
+      <section id="settingsView" class="view">
+        <div class="section-head compact"><div><span>设置</span><h2>身体与目标</h2></div></div>
+        <article class="settings-card" id="profileSummary"></article>
+        <article class="settings-card">
+          <h3>数据备份</h3><p>数据仅保存在此设备。换手机或清除浏览器数据前，请先导出备份。</p>
+          <div class="button-row"><button class="secondary" id="exportBtn">导出数据</button><label class="secondary upload">导入数据<input type="file" id="importInput" accept="application/json" /></label></div>
+        </article>
+        <article class="settings-card">
+          <h3>页面更新</h3><p>如果手机仍显示旧界面，可强制清除离线页面缓存并重新加载。个人资料、饮食和体重记录不会被删除。</p>
+          <button class="secondary" id="forceRefreshBtn">强制更新页面</button>
+        </article>
+        <article class="settings-card danger-zone"><h3>重新开始</h3><p>清空全部资料、饮食和体重记录，此操作无法撤销。</p><button id="clearBtn">清空所有数据</button></article>
+        <p class="disclaimer">本工具提供一般性的热量估算，不代替医生或营养师建议。孕期、哺乳期、未成年人或有慢性疾病、饮食障碍史时，请先咨询专业人士。</p>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="主导航">
+      <button class="active" data-view="todayView"><span>◉</span>今天</button>
+      <button data-view="trendView"><span>↗</span>趋势</button>
+      <button data-view="foodsView"><span>◇</span>食物</button>
+      <button data-view="settingsView"><span>⌁</span>设置</button>
+    </nav>
+  </div>
+
+  <dialog id="profileDialog">
+    <form method="dialog" id="profileForm">
+      <div class="dialog-head"><div><span>建立目标</span><h2>了解你的身体</h2></div><button value="cancel" class="close">×</button></div>
+      <div class="segmented"><label><input type="radio" name="sex" value="female" checked /><span>女性</span></label><label><input type="radio" name="sex" value="male" /><span>男性</span></label></div>
+      <p class="form-hint">所有资料均可稍后补充；留空时会采用已有资料或参考默认值。</p>
+      <div class="form-grid"><label>年龄（可选）<input name="age" type="number" min="18" max="100" placeholder="30" /></label><label>身高 cm（可选）<input name="height" type="number" min="120" max="230" placeholder="165" /></label><label>当前体重 kg（可选）<input name="weight" type="number" min="35" max="300" step="0.1" placeholder="65" /></label><label>目标体重 kg（可选）<input name="goalWeight" type="number" min="35" max="300" step="0.1" placeholder="58" /></label></div>
+      <label>日常活动量<select name="activity"><option value="1.2">久坐，几乎不运动</option><option value="1.375">轻度，每周运动1–3次</option><option value="1.55">中度，每周运动3–5次</option><option value="1.725">较高，每周运动6–7次</option></select></label>
+      <label>每周减重目标<select name="pace"><option value="0.25">温和 · 0.25 kg</option><option value="0.5" selected>稳健 · 0.5 kg</option><option value="0.75">较快 · 0.75 kg</option></select></label>
+      <div class="estimate" id="profileEstimate">填写资料后显示估算结果</div>
+      <button class="primary" value="default">保存目标</button>
+    </form>
+  </dialog>
+
+  <dialog id="foodDialog"><form method="dialog" id="foodForm"><div class="dialog-head"><div><span>记录饮食</span><h2>添加一份食物</h2></div><button value="cancel" class="close">×</button></div><label>餐次<select name="meal"><option>早餐</option><option>午餐</option><option>晚餐</option><option>加餐</option></select></label><label>食物<select name="foodId" id="foodSelect"></select></label><label>食用重量 g（可选，默认100g）<input name="grams" type="number" min="1" max="3000" value="100" /></label><div class="estimate" id="foodEstimate"></div><button class="primary" value="default">加入今天</button></form></dialog>
+  <dialog id="customFoodDialog"><form method="dialog" id="customFoodForm"><div class="dialog-head"><div><span>自定义</span><h2>新增食物</h2></div><button value="cancel" class="close">×</button></div><label>食物名称（可选）<input name="name" placeholder="例如：自制鸡肉沙拉" /></label><p class="form-hint">以下均按每100克填写；留空按0计算。</p><div class="form-grid"><label>热量 kcal<input name="calories" type="number" min="0" /></label><label>蛋白质 g<input name="protein" type="number" min="0" step="0.1" /></label><label>碳水 g<input name="carbs" type="number" min="0" step="0.1" /></label><label>脂肪 g<input name="fat" type="number" min="0" step="0.1" /></label></div><button class="primary" value="default">保存食物</button></form></dialog>
+  <dialog id="weightDialog"><form method="dialog" id="weightForm"><div class="dialog-head"><div><span>每日记录</span><h2>今天的体重</h2></div><button value="cancel" class="close">×</button></div><label>体重 kg（可选）<input name="weight" type="number" min="35" max="300" step="0.1" /></label><button class="primary" value="default">保存记录</button></form></dialog>
+  <div id="toast" role="status"></div>
+  <script src="app.js?v=6"></script>
+  <script src="water-controls.js?v=6"></script>
+  <script src="optional-forms.js?v=6"></script>
+  <script src="cancel-dialog.js?v=6"></script>
+  <script src="force-refresh.js?v=6"></script>
+  <script src="update-worker.js?v=6"></script>
+</body>
+</html>
