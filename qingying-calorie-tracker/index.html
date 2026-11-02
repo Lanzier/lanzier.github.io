@@ -73,7 +73,7 @@
 
       <section id="foodsView" class="view">
         <div class="section-head compact"><div><span>食物库</span><h2>常吃的食物</h2></div><button class="text-button" id="newCustomFood">＋ 新增</button></div>
-        <p class="form-hint">内置约100种常见食物；扩展数据来源：USDA FoodData Central（每100克）。实际食物因品种与烹饪方式不同会有差异。</p>
+        <p class="form-hint">内置约160种食材与成品；扩展数据来源：USDA FoodData Central / FNDDS（每100克）。品牌商品标注为美国参考，实际配方与规格可能不同。</p>
         <label class="search"><span>⌕</span><input id="foodSearch" placeholder="搜索食物名称" /></label>
         <div id="foodLibrary" class="food-library"></div>
       </section>
@@ -119,12 +119,13 @@
   <dialog id="customFoodDialog"><form method="dialog" id="customFoodForm"><div class="dialog-head"><div><span>自定义</span><h2>新增食物</h2></div><button value="cancel" class="close">×</button></div><label>食物名称（可选）<input name="name" placeholder="例如：自制鸡肉沙拉" /></label><p class="form-hint">以下均按每100克填写；留空按0计算。</p><div class="form-grid"><label>热量 kcal<input name="calories" type="number" min="0" /></label><label>蛋白质 g<input name="protein" type="number" min="0" step="0.1" /></label><label>碳水 g<input name="carbs" type="number" min="0" step="0.1" /></label><label>脂肪 g<input name="fat" type="number" min="0" step="0.1" /></label></div><button class="primary" value="default">保存食物</button></form></dialog>
   <dialog id="weightDialog"><form method="dialog" id="weightForm"><div class="dialog-head"><div><span>每日记录</span><h2>今天的体重</h2></div><button value="cancel" class="close">×</button></div><label>体重 kg（可选）<input name="weight" type="number" min="35" max="300" step="0.1" /></label><button class="primary" value="default">保存记录</button></form></dialog>
   <div id="toast" role="status"></div>
-  <script src="usda-foods.js?v=7"></script>
-  <script src="app.js?v=7"></script>
-  <script src="water-controls.js?v=7"></script>
-  <script src="optional-forms.js?v=7"></script>
-  <script src="cancel-dialog.js?v=7"></script>
-  <script src="force-refresh.js?v=7"></script>
-  <script src="update-worker.js?v=7"></script>
+  <script src="usda-foods.js?v=8"></script>
+  <script src="fndds-foods.js?v=8"></script>
+  <script src="app.js?v=8"></script>
+  <script src="water-controls.js?v=8"></script>
+  <script src="optional-forms.js?v=8"></script>
+  <script src="cancel-dialog.js?v=8"></script>
+  <script src="force-refresh.js?v=8"></script>
+  <script src="update-worker.js?v=8"></script>
 </body>
 </html>

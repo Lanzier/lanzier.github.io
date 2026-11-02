@@ -1,5 +1,5 @@
-const CACHE = "qingying-v7";
-const ASSETS = ["./", "./index.html", "./styles.css?v=3", "./water-controls.css?v=3", "./usda-foods.js?v=7", "./app.js?v=7", "./water-controls.js?v=7", "./optional-forms.js?v=7", "./cancel-dialog.js?v=7", "./force-refresh.js?v=7", "./update-worker.js?v=7", "./manifest.webmanifest", "./icon.svg"];
+const CACHE = "qingying-v8";
+const ASSETS = ["./", "./index.html", "./styles.css?v=3", "./water-controls.css?v=3", "./usda-foods.js?v=8", "./fndds-foods.js?v=8", "./app.js?v=8", "./water-controls.js?v=8", "./optional-forms.js?v=8", "./cancel-dialog.js?v=8", "./force-refresh.js?v=8", "./update-worker.js?v=8", "./manifest.webmanifest", "./icon.svg"];
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
