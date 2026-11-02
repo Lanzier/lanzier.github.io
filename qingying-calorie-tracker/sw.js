@@ -1,5 +1,5 @@
-const CACHE = "qingying-v14";
-const ASSETS = ["./", "./index.html", "./styles.css?v=9", "./water-controls.css?v=9", "./mcdonalds-cn-foods.js?v=14", "./china-chain-reference-foods.js?v=14", "./china-foods.js?v=14", "./usda-foods.js?v=14", "./fndds-foods.js?v=14", "./app.js?v=14", "./water-controls.js?v=14", "./optional-forms.js?v=14", "./cancel-dialog.js?v=14", "./force-refresh.js?v=14", "./update-worker.js?v=14", "./manifest.webmanifest", "./icon.svg"];
+const CACHE = "qingying-v15";
+const ASSETS = ["./", "./index.html", "./styles.css?v=15", "./water-controls.css?v=15", "./mcdonalds-cn-foods.js?v=15", "./china-chain-reference-foods.js?v=15", "./china-foods.js?v=15", "./usda-foods.js?v=15", "./fndds-foods.js?v=15", "./app.js?v=15", "./water-controls.js?v=15", "./optional-forms.js?v=15", "./cancel-dialog.js?v=15", "./force-refresh.js?v=15", "./update-worker.js?v=15", "./manifest.webmanifest", "./icon.svg"];
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));

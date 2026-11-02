@@ -10,8 +10,8 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg" />
   <link rel="apple-touch-icon" href="icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=9" />
-  <link rel="stylesheet" href="water-controls.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=15" />
+  <link rel="stylesheet" href="water-controls.css?v=15" />
   <title>轻盈记 · 热量计算器</title>
 </head>
 <body>
@@ -73,8 +73,8 @@
 
       <section id="foodsView" class="view">
         <div class="section-head compact"><div><span>食物库</span><h2>常吃的食物</h2></div><button class="text-button" id="newCustomFood">＋ 新增</button></div>
-        <p class="form-hint">内置约160种食材与成品；扩展数据来源：USDA FoodData Central / FNDDS（每100克）。品牌商品标注为美国参考，实际配方与规格可能不同。</p>
-        <label class="search"><span>⌕</span><input id="foodSearch" placeholder="搜索食物名称" /></label>
+        <p class="form-hint">内置中国常见菜、连锁品牌单品及基础食材；每项均标注计算单位和数据来源。</p>
+        <div class="search"><input id="foodSearch" placeholder="搜索食物名称" /><button type="button" id="foodSearchBtn" aria-label="搜索">🔍</button></div>
         <div id="foodLibrary" class="food-library"></div>
       </section>
 
@@ -95,10 +95,10 @@
     </main>
 
     <nav class="bottom-nav" aria-label="主导航">
-      <button class="active" data-view="todayView"><span>◉</span>今天</button>
-      <button data-view="trendView"><span>↗</span>趋势</button>
-      <button data-view="foodsView"><span>◇</span>食物</button>
-      <button data-view="settingsView"><span>⌁</span>设置</button>
+      <button class="active" data-view="todayView"><span>📅</span>今天</button>
+      <button data-view="trendView"><span>📊</span>趋势</button>
+      <button data-view="foodsView"><span>🍔</span>食物</button>
+      <button data-view="settingsView"><span>⚙️</span>设置</button>
     </nav>
   </div>
 
@@ -115,20 +115,20 @@
     </form>
   </dialog>
 
-  <dialog id="foodDialog"><form method="dialog" id="foodForm"><div class="dialog-head"><div><span>记录饮食</span><h2>添加一份食物</h2></div><button value="cancel" class="close">×</button></div><label>餐次<select name="meal"><option>早餐</option><option>午餐</option><option>晚餐</option><option>加餐</option></select></label><label>食物<select name="foodId" id="foodSelect"></select></label><label id="foodAmountLabel">食用重量 g（可选，默认100g）<input name="grams" type="number" min="1" max="3000" value="100" /></label><div class="estimate" id="foodEstimate"></div><button class="primary" value="default">加入今天</button></form></dialog>
+  <dialog id="foodDialog"><form method="dialog" id="foodForm"><div class="dialog-head"><div><span>记录饮食</span><h2>添加一份食物</h2></div><button value="cancel" class="close">×</button></div><label>餐次<select name="meal"><option>早餐</option><option>午餐</option><option>晚餐</option><option>加餐</option></select></label><label>搜索食物<div class="dialog-food-search"><input id="foodDialogSearch" type="search" placeholder="输入名称，例如：炒饭" autocomplete="off" /><button type="button" id="foodDialogSearchBtn">🔍 搜索</button></div></label><label>食物<select name="foodId" id="foodSelect"></select></label><label id="foodAmountLabel">食用重量 g（可选，默认100g）<input name="grams" type="number" min="1" max="3000" value="100" /></label><div class="estimate" id="foodEstimate"></div><button class="primary" value="default">加入今天</button></form></dialog>
   <dialog id="customFoodDialog"><form method="dialog" id="customFoodForm"><div class="dialog-head"><div><span>自定义</span><h2>新增食物</h2></div><button value="cancel" class="close">×</button></div><label>食物名称（可选）<input name="name" placeholder="例如：自制鸡肉沙拉" /></label><p class="form-hint">以下均按每100克填写；留空按0计算。</p><div class="form-grid"><label>热量 kcal<input name="calories" type="number" min="0" /></label><label>蛋白质 g<input name="protein" type="number" min="0" step="0.1" /></label><label>碳水 g<input name="carbs" type="number" min="0" step="0.1" /></label><label>脂肪 g<input name="fat" type="number" min="0" step="0.1" /></label></div><button class="primary" value="default">保存食物</button></form></dialog>
   <dialog id="weightDialog"><form method="dialog" id="weightForm"><div class="dialog-head"><div><span>每日记录</span><h2>今天的体重</h2></div><button value="cancel" class="close">×</button></div><label>体重 kg（可选）<input name="weight" type="number" min="35" max="300" step="0.1" /></label><button class="primary" value="default">保存记录</button></form></dialog>
   <div id="toast" role="status"></div>
-  <script src="mcdonalds-cn-foods.js?v=14"></script>
-  <script src="china-chain-reference-foods.js?v=14"></script>
-  <script src="china-foods.js?v=14"></script>
-  <script src="usda-foods.js?v=14"></script>
-  <script src="fndds-foods.js?v=14"></script>
-  <script src="app.js?v=14"></script>
-  <script src="water-controls.js?v=14"></script>
-  <script src="optional-forms.js?v=14"></script>
-  <script src="cancel-dialog.js?v=14"></script>
-  <script src="force-refresh.js?v=14"></script>
-  <script src="update-worker.js?v=14"></script>
+  <script src="mcdonalds-cn-foods.js?v=15"></script>
+  <script src="china-chain-reference-foods.js?v=15"></script>
+  <script src="china-foods.js?v=15"></script>
+  <script src="usda-foods.js?v=15"></script>
+  <script src="fndds-foods.js?v=15"></script>
+  <script src="app.js?v=15"></script>
+  <script src="water-controls.js?v=15"></script>
+  <script src="optional-forms.js?v=15"></script>
+  <script src="cancel-dialog.js?v=15"></script>
+  <script src="force-refresh.js?v=15"></script>
+  <script src="update-worker.js?v=15"></script>
 </body>
 </html>
