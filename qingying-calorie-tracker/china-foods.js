@@ -49,7 +49,5 @@ globalThis.CHINA_FOODS = [
   {id:"cn-1227",name:"豆沙月饼",calories:414,protein:8.2,carbs:65.6,fat:13.6,source:"中国食物成分表参考",builtin:true},
   {id:"cn-1228",name:"五仁月饼",calories:426,protein:8.0,carbs:64.0,fat:16.0,source:"中国食物成分表参考",builtin:true},
   {id:"cn-1230",name:"蛋黄月饼",calories:402,protein:6.0,carbs:50.2,fat:20.0,source:"中国食物成分表参考",builtin:true},
-  {id:"cn-est-tangyuan",name:"黑芝麻汤圆（煮熟）",calories:220,protein:4.0,carbs:38.0,fat:6.0,source:"中国常见做法估算",builtin:true},
-  {id:"cn-1249",name:"鸡柳汉堡（肯德基，中国参考）",calories:271,protein:13.9,carbs:23.8,fat:13.6,source:"中国食物成分表参考",builtin:true},
-  {id:"cn-1251",name:"鸡肉汉堡（肯德基，中国参考）",calories:296,protein:7.9,carbs:31.0,fat:16.3,source:"中国食物成分表参考",builtin:true}
+  {id:"cn-est-tangyuan",name:"黑芝麻汤圆（煮熟）",calories:220,protein:4.0,carbs:38.0,fat:6.0,source:"中国常见做法估算",builtin:true}
 ];

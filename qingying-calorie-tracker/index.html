@@ -115,18 +115,19 @@
     </form>
   </dialog>
 
-  <dialog id="foodDialog"><form method="dialog" id="foodForm"><div class="dialog-head"><div><span>记录饮食</span><h2>添加一份食物</h2></div><button value="cancel" class="close">×</button></div><label>餐次<select name="meal"><option>早餐</option><option>午餐</option><option>晚餐</option><option>加餐</option></select></label><label>食物<select name="foodId" id="foodSelect"></select></label><label>食用重量 g（可选，默认100g）<input name="grams" type="number" min="1" max="3000" value="100" /></label><div class="estimate" id="foodEstimate"></div><button class="primary" value="default">加入今天</button></form></dialog>
+  <dialog id="foodDialog"><form method="dialog" id="foodForm"><div class="dialog-head"><div><span>记录饮食</span><h2>添加一份食物</h2></div><button value="cancel" class="close">×</button></div><label>餐次<select name="meal"><option>早餐</option><option>午餐</option><option>晚餐</option><option>加餐</option></select></label><label>食物<select name="foodId" id="foodSelect"></select></label><label id="foodAmountLabel">食用重量 g（可选，默认100g）<input name="grams" type="number" min="1" max="3000" value="100" /></label><div class="estimate" id="foodEstimate"></div><button class="primary" value="default">加入今天</button></form></dialog>
   <dialog id="customFoodDialog"><form method="dialog" id="customFoodForm"><div class="dialog-head"><div><span>自定义</span><h2>新增食物</h2></div><button value="cancel" class="close">×</button></div><label>食物名称（可选）<input name="name" placeholder="例如：自制鸡肉沙拉" /></label><p class="form-hint">以下均按每100克填写；留空按0计算。</p><div class="form-grid"><label>热量 kcal<input name="calories" type="number" min="0" /></label><label>蛋白质 g<input name="protein" type="number" min="0" step="0.1" /></label><label>碳水 g<input name="carbs" type="number" min="0" step="0.1" /></label><label>脂肪 g<input name="fat" type="number" min="0" step="0.1" /></label></div><button class="primary" value="default">保存食物</button></form></dialog>
   <dialog id="weightDialog"><form method="dialog" id="weightForm"><div class="dialog-head"><div><span>每日记录</span><h2>今天的体重</h2></div><button value="cancel" class="close">×</button></div><label>体重 kg（可选）<input name="weight" type="number" min="35" max="300" step="0.1" /></label><button class="primary" value="default">保存记录</button></form></dialog>
   <div id="toast" role="status"></div>
-  <script src="china-foods.js?v=9"></script>
-  <script src="usda-foods.js?v=9"></script>
-  <script src="fndds-foods.js?v=9"></script>
-  <script src="app.js?v=9"></script>
-  <script src="water-controls.js?v=9"></script>
-  <script src="optional-forms.js?v=9"></script>
-  <script src="cancel-dialog.js?v=9"></script>
-  <script src="force-refresh.js?v=9"></script>
-  <script src="update-worker.js?v=9"></script>
+  <script src="mcdonalds-cn-foods.js?v=10"></script>
+  <script src="china-foods.js?v=10"></script>
+  <script src="usda-foods.js?v=10"></script>
+  <script src="fndds-foods.js?v=10"></script>
+  <script src="app.js?v=10"></script>
+  <script src="water-controls.js?v=10"></script>
+  <script src="optional-forms.js?v=10"></script>
+  <script src="cancel-dialog.js?v=10"></script>
+  <script src="force-refresh.js?v=10"></script>
+  <script src="update-worker.js?v=10"></script>
 </body>
 </html>
