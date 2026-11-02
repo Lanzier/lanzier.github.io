@@ -5,3 +5,6 @@
 .water-controls button:active{transform:scale(.95)}
 .water-controls button:disabled{opacity:.35;cursor:not-allowed}
 #waterBtn{display:none}
+.water-total{display:flex!important;align-items:baseline;gap:5px;line-height:1}
+.water-total em{font-style:normal;line-height:1}
+.water-total span{display:inline!important;font-size:.56em!important;line-height:1;color:var(--muted)}

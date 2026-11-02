@@ -1,5 +1,5 @@
-const CACHE = "qingying-v17";
-const ASSETS = ["./", "./index.html", "./styles.css?v=17", "./water-controls.css?v=17", "./mcdonalds-cn-foods.js?v=17", "./china-chain-reference-foods.js?v=17", "./china-foods.js?v=17", "./usda-foods.js?v=17", "./fndds-foods.js?v=17", "./app.js?v=17", "./water-controls.js?v=17", "./optional-forms.js?v=17", "./calorie-animation.js?v=17", "./cancel-dialog.js?v=17", "./force-refresh.js?v=17", "./update-worker.js?v=17", "./manifest.webmanifest", "./icon.svg"];
+const CACHE = "qingying-v18";
+const ASSETS = ["./", "./index.html", "./styles.css?v=18", "./water-controls.css?v=18", "./mcdonalds-cn-foods.js?v=18", "./china-chain-reference-foods.js?v=18", "./china-foods.js?v=18", "./usda-foods.js?v=18", "./fndds-foods.js?v=18", "./app.js?v=18", "./water-controls.js?v=18", "./optional-forms.js?v=18", "./calorie-animation.js?v=18", "./cancel-dialog.js?v=18", "./force-refresh.js?v=18", "./update-worker.js?v=18", "./manifest.webmanifest", "./icon.svg"];
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
