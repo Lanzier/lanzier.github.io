@@ -6,7 +6,8 @@ const initial={profile:null,logs:{},weights:[],water:{},customFoods:[]};
 let state=load();
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const today=()=>new Date().toLocaleDateString("en-CA");
-const foods=()=>[...(globalThis.MCDONALDS_CN_FOODS||[]),...(globalThis.CHINA_CHAIN_REFERENCE_FOODS||[]),...(globalThis.CHINA_FOODS||[]),...baseFoods,...(globalThis.USDA_FOODS||[]),...(globalThis.FNDDS_FOODS||[]),...state.customFoods];
+const fnddsChinaDish=/炒饭|炒面|炒年糕|米粉|粉丝|饺|馄饨|拉面|方便面汤面/;
+const foods=()=>[...(globalThis.MCDONALDS_CN_FOODS||[]),...(globalThis.CHINA_CHAIN_REFERENCE_FOODS||[]),...(globalThis.CHINA_FOODS||[]),...baseFoods,...(globalThis.USDA_FOODS||[]),...(globalThis.FNDDS_FOODS||[]).filter(x=>!fnddsChinaDish.test(x.name)),...state.customFoods];
 function load(){try{return {...initial,...JSON.parse(localStorage.getItem(KEY)||"{}")}}catch{return structuredClone(initial)}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state));render()}
 function toast(msg){const el=$("#toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1800)}
