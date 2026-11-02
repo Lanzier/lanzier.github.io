@@ -1,6 +1,6 @@
 globalThis.CHINA_FOODS = [
   {id:"cn-serving-chowmein-plate",name:"家常炒面",calories:650,protein:18,carbs:92,fat:22,unit:"serving",servingLabel:"1盘（约350克）",source:"中国常见份量估算",confidence:"约550–750 kcal/盘",builtin:true},
-  {id:"cn-serving-chowmein-box",name:"外卖炒面",calories:750,protein:20,carbs:105,fat:27,unit:"serving",servingLabel:"1盒（约400克）",source:"中国常见份量估算",confidence:"约650–850 kcal/盒",builtin:true},
+  {id:"cn-serving-chowmein-box",name:"外卖炒面",calories:900,protein:22,carbs:110,fat:38,unit:"serving",servingLabel:"1盒（约400克）",source:"中国常见份量估算",confidence:"约750–1100 kcal/盒",builtin:true},
   {id:"cn-287",name:"米饭（蒸，均值）",calories:118,protein:2.6,carbs:25.9,fat:0.3,source:"中国食物成分表参考",builtin:true},
   {id:"cn-272",name:"馒头（均值）",calories:226,protein:7.0,carbs:47.0,fat:1.1,source:"中国食物成分表参考",builtin:true},
   {id:"cn-273",name:"馒头（标准粉）",calories:240,protein:7.8,carbs:49.8,fat:1.0,source:"中国食物成分表参考",builtin:true},
