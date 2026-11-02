@@ -1,4 +1,6 @@
 globalThis.CHINA_FOODS = [
+  {id:"cn-serving-chowmein-plate",name:"家常炒面",calories:650,protein:18,carbs:92,fat:22,unit:"serving",servingLabel:"1盘（约350克）",source:"中国常见份量估算",confidence:"约550–750 kcal/盘",builtin:true},
+  {id:"cn-serving-chowmein-box",name:"外卖炒面",calories:750,protein:20,carbs:105,fat:27,unit:"serving",servingLabel:"1盒（约400克）",source:"中国常见份量估算",confidence:"约650–850 kcal/盒",builtin:true},
   {id:"cn-287",name:"米饭（蒸，均值）",calories:118,protein:2.6,carbs:25.9,fat:0.3,source:"中国食物成分表参考",builtin:true},
   {id:"cn-272",name:"馒头（均值）",calories:226,protein:7.0,carbs:47.0,fat:1.1,source:"中国食物成分表参考",builtin:true},
   {id:"cn-273",name:"馒头（标准粉）",calories:240,protein:7.8,carbs:49.8,fat:1.0,source:"中国食物成分表参考",builtin:true},
@@ -29,7 +31,7 @@ globalThis.CHINA_FOODS = [
   {id:"cn-1291",name:"方便面（干，含油炸面饼）",calories:474,protein:9.5,carbs:61.6,fat:21.1,source:"中国食物成分表参考",builtin:true},
   {id:"cn-1314",name:"什锦炒饭",calories:186,protein:5.0,carbs:29.7,fat:5.6,source:"中国食物成分表参考",builtin:true},
   {id:"cn-1315",name:"虾仁炒饭",calories:135,protein:4.7,carbs:26.3,fat:1.7,source:"中国食物成分表参考",builtin:true},
-  {id:"cn-est-chowmein",name:"家常炒面",calories:185,protein:6.0,carbs:30.0,fat:5.0,source:"中国常见做法估算",builtin:true},
+  {id:"cn-est-chowmein",name:"家常炒面（称重记录）",calories:185,protein:6.0,carbs:30.0,fat:5.0,source:"中国常见做法估算·每100克",builtin:true},
   {id:"cn-est-beef-noodle",name:"牛肉面（带汤）",calories:105,protein:5.2,carbs:15.2,fat:2.6,source:"中国常见做法估算",builtin:true},
   {id:"cn-est-egg-tomato",name:"番茄炒蛋",calories:110,protein:5.2,carbs:4.6,fat:7.8,source:"中国常见做法估算",builtin:true},
   {id:"cn-est-kungpao",name:"宫保鸡丁",calories:176,protein:12.0,carbs:9.0,fat:10.5,source:"中国常见做法估算",builtin:true},
