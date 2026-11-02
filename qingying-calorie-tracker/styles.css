@@ -6,4 +6,4 @@
 .dialog-food-search{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .dialog-food-search input{margin-top:6px}
 .dialog-food-search button{height:43px;border:0;border-radius:13px;background:#e9efd8;color:var(--ink);font-weight:700;padding:0 14px;white-space:nowrap}
-.button-row .secondary{display:flex;align-items:center;justify-content:center;min-height:46px;margin:0}
+.button-row .secondary{display:flex;align-items:center;justify-content:center;min-height:46px;margin:0;font-family:inherit;font-size:14px;font-weight:700;line-height:1.2}
