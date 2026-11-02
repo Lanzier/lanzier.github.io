@@ -25,12 +25,14 @@ document.querySelector("#foodForm").onsubmit = (event) => {
   const raw = Object.fromEntries(new FormData(event.currentTarget));
   const food = foods().find((item) => item.id === raw.foodId) || foods()[0];
   if (!food) return toast("食物库暂时为空");
-  const grams = Math.max(1, numberOr(raw.grams, 100));
-  const multiplier = grams / 100;
+  const isServing = food.unit === "serving";
+  const amount = Math.max(isServing ? 0.5 : 1, numberOr(raw.grams, isServing ? 1 : 100));
+  const multiplier = isServing ? amount : amount / 100;
   (state.logs[today()] ??= []).push({
-    id: crypto.randomUUID(), meal: raw.meal || "加餐", name: food.name, grams,
-    cal: food.calories * multiplier, protein: food.protein * multiplier,
-    carbs: food.carbs * multiplier, fat: food.fat * multiplier
+    id: crypto.randomUUID(), meal: raw.meal || "加餐", name: food.name, grams: amount,
+    displayAmount: isServing ? `${amount}份（${food.servingLabel || "1份"}）` : `${amount}g`,
+    cal: (food.calories ?? 0) * multiplier, protein: (food.protein ?? 0) * multiplier,
+    carbs: (food.carbs ?? 0) * multiplier, fat: (food.fat ?? 0) * multiplier
   });
   save();
   document.querySelector("#foodDialog").close();

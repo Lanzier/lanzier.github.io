@@ -7,3 +7,6 @@
 .dialog-food-search input{margin-top:6px}
 .dialog-food-search button{height:43px;border:0;border-radius:13px;background:#e9efd8;color:var(--ink);font-weight:700;padding:0 14px;white-space:nowrap}
 .button-row .secondary{display:flex;align-items:center;justify-content:center;min-height:46px;margin:0;font-family:inherit;font-size:14px;font-weight:700;line-height:1.2}
+/* Animated calorie balance feedback. */
+#remainingCal{display:inline-block;transition:transform .18s ease,color .18s ease;will-change:contents,transform}
+#remainingCal.is-counting{transform:scale(1.08);color:var(--lime)}
