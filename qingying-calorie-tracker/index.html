@@ -10,8 +10,10 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg" />
   <link rel="apple-touch-icon" href="icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=19" />
-  <link rel="stylesheet" href="water-controls.css?v=19" />
+  <link rel="stylesheet" href="styles.css?v=21" />
+  <link rel="stylesheet" href="water-controls.css?v=21" />
+  <link rel="stylesheet" href="profile-wheels.css?v=21" />
+  <link rel="stylesheet" href="mobile-form-fix.css?v=21" />
   <title>轻盈记 · 热量计算器</title>
 </head>
 <body>
@@ -106,8 +108,13 @@
     <form method="dialog" id="profileForm">
       <div class="dialog-head"><div><span>建立目标</span><h2>了解你的身体</h2></div><button value="cancel" class="close">×</button></div>
       <div class="segmented"><label><input type="radio" name="sex" value="female" checked /><span>女性</span></label><label><input type="radio" name="sex" value="male" /><span>男性</span></label></div>
-      <p class="form-hint">所有资料均可稍后补充；留空时会采用已有资料或参考默认值。</p>
-      <div class="form-grid"><label>年龄（可选）<input name="age" type="number" min="18" max="100" placeholder="30" /></label><label>身高 cm（可选）<input name="height" type="number" min="120" max="230" placeholder="165" /></label><label>当前体重 kg（可选）<input name="weight" type="number" min="35" max="300" step="0.1" placeholder="65" /></label><label>目标体重 kg（可选）<input name="goalWeight" type="number" min="35" max="300" step="0.1" placeholder="58" /></label></div>
+      <p class="form-hint">上下滑动数字滚轮选择；再次编辑时会自动回到已保存数值。</p>
+      <div class="profile-wheel-grid">
+        <label>年龄<div class="number-wheel" data-wheel="age" data-min="18" data-max="100" data-default="30" data-unit="岁"></div><input name="age" type="hidden" value="30" /></label>
+        <label>身高<div class="number-wheel" data-wheel="height" data-min="120" data-max="230" data-default="165" data-unit="cm"></div><input name="height" type="hidden" value="165" /></label>
+        <label>当前体重<div class="number-wheel decimal-wheel" data-wheel="weight" data-min="35" data-max="300" data-default="65" data-unit="kg"></div><input name="weight" type="hidden" value="65" /></label>
+        <label>目标体重<div class="number-wheel decimal-wheel" data-wheel="goalWeight" data-min="35" data-max="300" data-default="58" data-unit="kg"></div><input name="goalWeight" type="hidden" value="58" /></label>
+      </div>
       <label>日常活动量<select name="activity"><option value="1.2">久坐，几乎不运动</option><option value="1.375">轻度，每周运动1–3次</option><option value="1.55">中度，每周运动3–5次</option><option value="1.725">较高，每周运动6–7次</option></select></label>
       <label>每周减重目标<select name="pace"><option value="0.25">温和 · 0.25 kg</option><option value="0.5" selected>稳健 · 0.5 kg</option><option value="0.75">较快 · 0.75 kg</option></select></label>
       <div class="estimate" id="profileEstimate">填写资料后显示估算结果</div>
@@ -119,18 +126,20 @@
   <dialog id="customFoodDialog"><form method="dialog" id="customFoodForm"><div class="dialog-head"><div><span>自定义</span><h2>新增食物</h2></div><button value="cancel" class="close">×</button></div><label>食物名称（可选）<input name="name" placeholder="例如：自制鸡肉沙拉" /></label><p class="form-hint">以下均按每100克填写；留空按0计算。</p><div class="form-grid"><label>热量 kcal<input name="calories" type="number" min="0" /></label><label>蛋白质 g<input name="protein" type="number" min="0" step="0.1" /></label><label>碳水 g<input name="carbs" type="number" min="0" step="0.1" /></label><label>脂肪 g<input name="fat" type="number" min="0" step="0.1" /></label></div><button class="primary" value="default">保存食物</button></form></dialog>
   <dialog id="weightDialog"><form method="dialog" id="weightForm"><div class="dialog-head"><div><span>每日记录</span><h2>今天的体重</h2></div><button value="cancel" class="close">×</button></div><label>体重 kg（可选）<input name="weight" type="number" min="35" max="300" step="0.1" /></label><button class="primary" value="default">保存记录</button></form></dialog>
   <div id="toast" role="status"></div>
-  <script src="mcdonalds-cn-foods.js?v=19"></script>
-  <script src="china-chain-reference-foods.js?v=19"></script>
-  <script src="china-foods.js?v=19"></script>
-  <script src="usda-foods.js?v=19"></script>
-  <script src="fndds-foods.js?v=19"></script>
-  <script src="app.js?v=19"></script>
-  <script src="water-controls.js?v=19"></script>
-  <script src="optional-forms.js?v=19"></script>
-  <script src="calorie-animation.js?v=19"></script>
-  <script src="meal-icons.js?v=19"></script>
-  <script src="cancel-dialog.js?v=19"></script>
-  <script src="force-refresh.js?v=19"></script>
-  <script src="update-worker.js?v=19"></script>
+  <script src="mcdonalds-cn-foods.js?v=21"></script>
+  <script src="china-chain-reference-foods.js?v=21"></script>
+  <script src="china-foods.js?v=21"></script>
+  <script src="usda-foods.js?v=21"></script>
+  <script src="fndds-foods.js?v=21"></script>
+  <script src="app.js?v=21"></script>
+  <script src="water-controls.js?v=21"></script>
+  <script src="optional-forms.js?v=21"></script>
+  <script src="calorie-animation.js?v=21"></script>
+  <script src="meal-icons.js?v=21"></script>
+  <script src="profile-wheels.js?v=21"></script>
+  <script src="weight-multi-log.js?v=21"></script>
+  <script src="cancel-dialog.js?v=21"></script>
+  <script src="force-refresh.js?v=21"></script>
+  <script src="update-worker.js?v=21"></script>
 </body>
 </html>
