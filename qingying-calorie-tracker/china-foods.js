@@ -72,5 +72,11 @@ globalThis.CHINA_FOODS = [
   {id:"cn-1227",name:"豆沙月饼",calories:414,protein:8.2,carbs:65.6,fat:13.6,source:"中国食物成分表参考",builtin:true},
   {id:"cn-1228",name:"五仁月饼",calories:426,protein:8.0,carbs:64.0,fat:16.0,source:"中国食物成分表参考",builtin:true},
   {id:"cn-1230",name:"蛋黄月饼",calories:402,protein:6.0,carbs:50.2,fat:20.0,source:"中国食物成分表参考",builtin:true},
-  {id:"cn-est-tangyuan",name:"黑芝麻汤圆（煮熟）",calories:220,protein:4.0,carbs:38.0,fat:6.0,source:"中国常见做法估算",builtin:true}
+  {id:"cn-est-tangyuan",name:"黑芝麻汤圆（煮熟）",calories:220,protein:4.0,carbs:38.0,fat:6.0,source:"中国常见做法估算",builtin:true},
+  {id:"usda-2705824",name:"牛排（熟，未指定部位）",calories:229,protein:27.0,carbs:0,fat:12.9,source:"USDA FoodData Central · FDC 2705824",builtin:true},
+  {id:"usda-2705841",name:"菲力牛排（熟）",calories:196,protein:30.5,carbs:0,fat:8.25,source:"USDA FoodData Central · FDC 2705841",builtin:true},
+  {id:"usda-2705833",name:"西冷牛排（熟，瘦肉和脂肪）",calories:262,protein:26.2,carbs:0,fat:16.6,source:"USDA FoodData Central · FDC 2705833",builtin:true},
+  {id:"usda-2705829",name:"肋眼牛排（熟，瘦肉和脂肪）",calories:289,protein:23.5,carbs:0,fat:21.6,source:"USDA FoodData Central · FDC 2705829",builtin:true},
+  {id:"usda-2705825",name:"板腱牛排（熟）",calories:225,protein:26.0,carbs:0.21,fat:13.4,source:"USDA FoodData Central · FDC 2705825",builtin:true},
+  {id:"usda-2705827",name:"腹肉牛排（熟）",calories:243,protein:29.1,carbs:0,fat:14.1,source:"USDA FoodData Central · FDC 2705827",builtin:true}
 ];
