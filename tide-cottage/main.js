@@ -191,7 +191,7 @@ function launch() {
         fov: portrait ? 65 : 50,
       };
     }
-    const size = Math.max(1, (.99 / camera.aspect) ** .83);
+    const size = Math.max(1, (1.20 / camera.aspect) ** .90);
     return {
       target: islandTarget.clone(),
       position: new THREE.Vector3(5.9, 4.2, 21.6).multiplyScalar(size).add(islandTarget),
@@ -202,7 +202,7 @@ function launch() {
   function applyPose(pose, view) {
     controls.enableDamping = false;
     controls.minDistance = view === "island" ? 9 : 4.3;
-    controls.maxDistance = view === "island" ? 60 : 10.8;
+    controls.maxDistance = view === "island" ? 70 : 10.8;
     controls.minPolarAngle = view === "island" ? .45 : .78;
     controls.maxPolarAngle = view === "island" ? 1.47 : 1.38;
     controls.minAzimuthAngle = view === "island" ? -Infinity : -.54;
@@ -294,7 +294,7 @@ function launch() {
     const inBounds = Math.abs(projected.x) < .94 && Math.abs(projected.y) < .82 && projected.z >= -1 && projected.z < 1;
     button.hidden = !isVisible || !inBounds;
     if (!button.hidden) {
-      button.style.left = `${(projected.x * .5 + .5) * 100}%`;
+      button.style.left = `clamp(44px, ${(projected.x * .5 + .5) * 100}%, calc(100% - 44px))`;
       button.style.top = `${(.5 - projected.y * .5) * 100}%`;
     }
   }

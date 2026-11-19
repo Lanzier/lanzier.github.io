@@ -154,6 +154,11 @@ noscript { position: fixed; z-index: 9; top: 50%; width: 100%; text-align: cente
   .chat-launch { width: 50px; padding: 5px; justify-content: center; }
   .chat-launch > span:not(.avatar) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 }
+@media (max-width: 360px) {
+  .topbar { padding-inline: 12px; }
+  .top-actions { gap: 4px; }
+  .brand h1 { font-size: 20px; }
+}
 @media (max-height: 450px) {
   .chat-panel { bottom: 69px; height: calc(100% - 88px); }
   .location p { display: none; }
