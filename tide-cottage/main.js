@@ -1,0 +1,565 @@
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { createCoast } from "./coast.js";
+import { createIsland } from "./island.js";
+import { createRoom } from "./room.js";
+import { createCompanions } from "./companions.js";
+import { createChat, createSurf, readStorage, writeStorage } from "./interaction.js";
+
+const byId = id => document.getElementById(id);
+const loading = byId("loading");
+const canvas = byId("world");
+const experience = byId("experience");
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+const ease = amount => amount * amount * (3 - 2 * amount);
+
+try {
+  launch();
+} catch (error) {
+  console.error(error);
+  loading.textContent = "三维场景暂时无法打开。请使用支持 WebGL 2 的浏览器，并开启图形加速。";
+}
+
+function launch() {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
+  renderer.setClearColor("#142c31");
+  const maxPixelRatio = matchMedia("(pointer: coarse)").matches ? 1.5 : 1.65;
+  renderer.setPixelRatio(Math.min(devicePixelRatio, maxPixelRatio));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.28;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const camera = new THREE.PerspectiveCamera(42, 1, .075, 700);
+  const controls = new OrbitControls(camera, canvas);
+  controls.enableDamping = !reduceMotion.matches;
+  controls.dampingFactor = .08;
+  controls.enablePan = false;
+  controls.rotateSpeed = .58;
+  controls.zoomSpeed = .73;
+
+  const islandScene = new THREE.Scene();
+  const roomScene = new THREE.Scene();
+  roomScene.background = new THREE.Color("#253f3e");
+  const island = createIsland(THREE, islandScene);
+  const room = createRoom(THREE, roomScene);
+  const companions = createCompanions(THREE, roomScene, islandScene);
+  companions.island.userData.groundHeight = island.terrainHeight;
+  companions.island.userData.harvestTarget = island.garden.position.clone();
+  const coast = createCoast(THREE, islandScene, island.shorePoint);
+
+  const skyFill = new THREE.HemisphereLight("#d3e9dd", "#a18757", 2.05);
+  const sunlight = new THREE.DirectionalLight("#ffce87", 3.3);
+  sunlight.position.set(-13, 16, 10);
+  sunlight.castShadow = true;
+  const shadowSize = maxPixelRatio < 1.6 ? 1024 : 2048;
+  sunlight.shadow.mapSize.set(shadowSize, shadowSize);
+  sunlight.shadow.camera.left = sunlight.shadow.camera.bottom = -15;
+  sunlight.shadow.camera.right = sunlight.shadow.camera.top = 15;
+  sunlight.shadow.camera.near = .5;
+  sunlight.shadow.camera.far = 55;
+  sunlight.shadow.normalBias = .045;
+  sunlight.shadow.bias = -.00022;
+  sunlight.shadow.radius = 2;
+  const rim = new THREE.DirectionalLight("#ffe2a4", .75);
+  rim.position.set(-13, 8, -11);
+  islandScene.add(skyFill, sunlight, rim);
+
+  const roomSky = new THREE.HemisphereLight("#ffecd0", "#a56542", 1.85);
+  const roomFront = new THREE.DirectionalLight("#fff3dc", 1.55);
+  roomFront.position.set(2, 2.92, 6);
+  roomFront.castShadow = true;
+  roomFront.shadow.mapSize.set(1024, 1024);
+  roomFront.shadow.camera.left = roomFront.shadow.camera.bottom = -6.5;
+  roomFront.shadow.camera.right = roomFront.shadow.camera.top = 6.5;
+  roomFront.shadow.camera.far = 15;
+  roomFront.shadow.normalBias = .025;
+  roomFront.shadow.bias = -.00018;
+  roomScene.add(roomSky, roomFront);
+
+  const modes = ["dusk", "night", "day"];
+  const lightLabels = { dusk: "日落", night: "夜晚", day: "白天" };
+  let light = readStorage("light", "dusk");
+  if (!modes.includes(light)) light = "dusk";
+  let day = Number(light === "day");
+  let night = Number(light === "night");
+  const duskTint = new THREE.Color("#ffcf91");
+  const dayTint = new THREE.Color("#fff0d4");
+  const nightTint = new THREE.Color("#91b9fe");
+
+  const islandTarget = new THREE.Vector3(0, 1.86, .38);
+  const roomTarget = new THREE.Vector3(-.35, 1.10, -.60);
+  const doorAnchor = island.doorAnchor || new THREE.Vector3(-1.94, 2.65, 1.5);
+  const gardenAnchor = island.gardenAnchor || new THREE.Vector3(-4.85, 1.6, 4.3);
+  const doorMarker = byId("door-marker");
+  const gardenMarker = byId("garden-marker");
+  const showIsland = byId("show-island");
+  const showRoom = byId("show-room");
+  const editRoom = byId("edit-room");
+  const tools = byId("furniture-tools");
+  const rotateButton = byId("rotate-furniture");
+
+  let mode = "island";
+  let transition = null;
+  let savedOrbit = null;
+  let edit = false;
+  let selected = null;
+  let gesture = null;
+  let harvestStarted = null;
+  let pickedMelon = null;
+  let melonRegrowth = 0;
+  let toastTimer;
+  let ready = false;
+  let currentTime = 0;
+  let rafId = 0;
+
+  const labels = new Map();
+  const furnitureLayout = { ...readStorage("furniture", {}) };
+  const extentsBox = new THREE.Box3();
+  const furnitureExtents = new WeakMap();
+  for (const item of room.furniture) {
+    const label = item.userData.label;
+    labels.set(item, label);
+    const placement = furnitureLayout?.[label];
+    if (Array.isArray(placement) && placement.length === 3 && placement.every(Number.isFinite)) {
+      item.rotation.y = placement[2] % (Math.PI * 2);
+      setFurniturePosition(item, placement[0], placement[1]);
+    }
+  }
+
+  const outline = new THREE.BoxHelper(new THREE.Object3D(), "#f6cb87");
+  outline.material.depthTest = false;
+  outline.material.transparent = true;
+  outline.material.opacity = .82;
+  outline.renderOrder = 5;
+  outline.visible = false;
+  roomScene.add(outline);
+
+  const ray = new THREE.Raycaster();
+  const ndc = new THREE.Vector2();
+  const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+  const floorPoint = new THREE.Vector3();
+  const projected = new THREE.Vector3();
+  const surf = createSurf();
+  const chat = createChat({
+    panel: byId("chat-panel"),
+    launch: byId("chat-launch"),
+    close: byId("chat-close"),
+    messages: byId("messages"),
+    form: byId("chat-form"),
+    input: byId("chat-input"),
+  }, { harvest, animate, getView: () => mode, getLight: () => light });
+
+  function notify(text) {
+    const toast = byId("toast");
+    toast.textContent = text;
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toast.hidden = true; }, 2950);
+  }
+
+  function updateLightButton() {
+    const button = byId("light-toggle");
+    button.querySelector("span").textContent = lightLabels[light];
+    button.querySelector("use").setAttribute("href", light === "night" ? "#i-moon" : "#i-sun");
+    button.setAttribute("aria-label", `切换昼夜，当前${lightLabels[light]}`);
+    experience.dataset.light = light;
+  }
+
+  function updateInterface() {
+    experience.dataset.view = mode;
+    experience.dataset.editing = String(edit);
+    showIsland.setAttribute("aria-pressed", String(mode === "island"));
+    showRoom.setAttribute("aria-pressed", String(mode === "room"));
+    editRoom.hidden = mode !== "room";
+    editRoom.setAttribute("aria-pressed", String(edit));
+    tools.hidden = !edit;
+    const location = byId("location-label");
+    location.lastChild.textContent = mode === "island" ? " 海岛" : " 小屋";
+    const hint = byId("scene-hint");
+    hint.textContent = edit ? "拖动家具 · R 键旋转" :
+      matchMedia("(pointer: coarse)").matches ? "滑动环顾 · 双指缩放" : "拖动环顾 · 滚轮缩放";
+    controls.enabled = ready && !transition && !edit;
+  }
+
+  function photoPose(view) {
+    const portrait = camera.aspect < .85;
+    if (view === "room") {
+      return {
+        target: roomTarget.clone(),
+        position: new THREE.Vector3(portrait ? 3.5 : 4.42, portrait ? 2.72 : 2.76, portrait ? 6.52 : 5.47),
+        fov: portrait ? 65 : 50,
+      };
+    }
+    const size = Math.max(1, (.99 / camera.aspect) ** .83);
+    return {
+      target: islandTarget.clone(),
+      position: new THREE.Vector3(5.9, 4.2, 21.6).multiplyScalar(size).add(islandTarget),
+      fov: 42,
+    };
+  }
+
+  function applyPose(pose, view) {
+    controls.enableDamping = false;
+    controls.minDistance = view === "island" ? 9 : 4.3;
+    controls.maxDistance = view === "island" ? 60 : 10.8;
+    controls.minPolarAngle = view === "island" ? .45 : .78;
+    controls.maxPolarAngle = view === "island" ? 1.47 : 1.38;
+    controls.minAzimuthAngle = view === "island" ? -Infinity : -.54;
+    controls.maxAzimuthAngle = view === "island" ? Infinity : 1.13;
+    controls.update();
+    camera.position.copy(pose.position);
+    controls.target.copy(pose.target);
+    camera.fov = pose.fov;
+    camera.updateProjectionMatrix();
+    controls.update();
+    controls.enableDamping = !reduceMotion.matches;
+  }
+
+  function resize() {
+    const previous = camera.aspect;
+    const { clientWidth: width, clientHeight: height } = canvas;
+    if (!width || !height) return;
+    renderer.setSize(width, height, false);
+    camera.aspect = width / height;
+    if (!ready || (previous < .85) !== (camera.aspect < .85)) {
+      applyPose(photoPose(mode), mode);
+      savedOrbit = null;
+    }
+    camera.updateProjectionMatrix();
+  }
+
+  function switchScene(next, onArrival) {
+    if (!ready || transition) return false;
+    if (next === mode) {
+      onArrival?.();
+      return true;
+    }
+    if (edit) setEditing(false);
+    if (mode === "island") {
+      savedOrbit = { position: camera.position.clone(), target: controls.target.clone(), fov: camera.fov };
+    }
+    const quick = reduceMotion.matches;
+    transition = {
+      next, onArrival, start: performance.now(), quick, changed: false,
+      position: camera.position.clone(), target: controls.target.clone(),
+    };
+    controls.enabled = false;
+    return true;
+  }
+
+  function moveThroughDoor(now) {
+    if (!transition) return;
+    const flight = transition;
+    const elapsed = now - flight.start;
+    const inward = flight.next === "room";
+    const flyTime = flight.quick ? 0 : inward ? 780 : 110;
+    const changeTime = flyTime + (flight.quick ? 10 : 220);
+    const finishTime = changeTime + (flight.quick ? 12 : 265);
+    const fade = byId("scene-fade");
+
+    if (inward && !flight.changed && !flight.quick) {
+      const progress = ease(Math.min(1, elapsed / flyTime));
+      doorApproach.set(doorAnchor.x + .78, 3.35, doorAnchor.z + 6.6);
+      doorFocus.set(doorAnchor.x + .34, doorAnchor.y - .33, doorAnchor.z);
+      camera.position.lerpVectors(flight.position, doorApproach, progress);
+      flightLook.lerpVectors(flight.target, doorFocus, progress);
+      camera.lookAt(flightLook);
+      if (island.doorHinge) {
+        island.doorHinge.rotation.y = -1.04 * ease(THREE.MathUtils.clamp((progress - .40) / .60, 0, 1));
+      }
+    }
+    if (elapsed >= flyTime && elapsed < changeTime) fade.classList.add("covered");
+    if (elapsed >= changeTime && !flight.changed) {
+      mode = flight.next;
+      flight.changed = true;
+      if (island.doorHinge) island.doorHinge.rotation.y = 0;
+      applyPose(mode === "island" && savedOrbit ? savedOrbit : photoPose(mode), mode);
+      updateInterface();
+      fade.classList.remove("covered");
+    }
+    if (elapsed >= finishTime) {
+      transition = null;
+      updateInterface();
+      flight.onArrival?.();
+    }
+  }
+
+  const doorApproach = new THREE.Vector3();
+  const doorFocus = new THREE.Vector3();
+  const flightLook = new THREE.Vector3();
+
+  function mark(button, anchor, isVisible) {
+    projected.copy(anchor).project(camera);
+    const inBounds = Math.abs(projected.x) < .94 && Math.abs(projected.y) < .82 && projected.z >= -1 && projected.z < 1;
+    button.hidden = !isVisible || !inBounds;
+    if (!button.hidden) {
+      button.style.left = `${(projected.x * .5 + .5) * 100}%`;
+      button.style.top = `${(.5 - projected.y * .5) * 100}%`;
+    }
+  }
+
+  function updateHotspots() {
+    const outside = mode === "island" && !transition;
+    mark(doorMarker, doorAnchor, outside && camera.position.z > doorAnchor.z + 1);
+    mark(gardenMarker, gardenAnchor, outside && (camera.position.z > 2 || camera.position.x < -4));
+  }
+
+  function animate(action) {
+    if (mode === "island" && harvestStarted !== null && action !== "harvest") return;
+    companions.trigger(action, mode);
+  }
+
+  function harvest() {
+    if (!ready || transition || harvestStarted !== null) return false;
+    function start() {
+      if (pickedMelon) pickedMelon.visible = true;
+      pickedMelon = null;
+      harvestStarted = currentTime;
+      gardenMarker.disabled = true;
+      animate("harvest");
+      notify("阿沫去菜园摘西瓜了");
+    }
+    return switchScene("island", start);
+  }
+
+  function setFurniturePosition(item, x, z) {
+    let extents = furnitureExtents.get(item);
+    if (!extents || extents.rotation !== item.rotation.y) {
+      extentsBox.setFromObject(item);
+      extents = {
+        rotation: item.rotation.y,
+        minX: extentsBox.min.x - item.position.x,
+        maxX: extentsBox.max.x - item.position.x,
+        minZ: extentsBox.min.z - item.position.z,
+        maxZ: extentsBox.max.z - item.position.z,
+      };
+      furnitureExtents.set(item, extents);
+    }
+    item.position.x = THREE.MathUtils.clamp(x, -5.07 - extents.minX, 5.16 - extents.maxX);
+    item.position.z = THREE.MathUtils.clamp(z, -4.08 - extents.minZ, 4.28 - extents.maxZ);
+  }
+
+  function saveFurniture(item) {
+    furnitureLayout[labels.get(item)] = [item.position.x, item.position.z, item.rotation.y];
+    writeStorage("furniture", furnitureLayout);
+  }
+
+  function selectFurniture(item) {
+    selected = item;
+    outline.visible = Boolean(item) && edit;
+    if (item) outline.setFromObject(item);
+    byId("furniture-label").textContent = item ? labels.get(item) : "选择一件家具";
+    rotateButton.disabled = !item;
+  }
+
+  function setEditing(enabled) {
+    if (mode !== "room" || transition) return;
+    edit = enabled;
+    gesture = null;
+    selectFurniture(null);
+    updateInterface();
+    if (enabled) canvas.focus({ preventScroll: true });
+  }
+
+  function rotateSelected() {
+    if (!edit || !selected) return;
+    selected.rotation.y = (selected.rotation.y + Math.PI * .25) % (Math.PI * 2);
+    setFurniturePosition(selected, selected.position.x, selected.position.z);
+    selected.updateMatrixWorld(true);
+    outline.update();
+    saveFurniture(selected);
+  }
+
+  function pointRay(event) {
+    const bounds = canvas.getBoundingClientRect();
+    ndc.set(
+      (event.clientX - bounds.left) / bounds.width * 2 - 1,
+      -(event.clientY - bounds.top) / bounds.height * 2 + 1,
+    );
+    ray.setFromCamera(ndc, camera);
+  }
+
+  function hit(roots) {
+    const target = ray.intersectObjects(roots, true)[0]?.object;
+    if (!target) return null;
+    let parent = target;
+    while (parent && !roots.includes(parent)) parent = parent.parent;
+    return parent;
+  }
+
+  canvas.addEventListener("pointerdown", event => {
+    if (!event.isPrimary && event.pointerType === "touch" && gesture) gesture.moved = true;
+    if (!event.isPrimary || event.button !== 0 || !ready || transition) return;
+    gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false, item: null };
+    if (!edit) return;
+    pointRay(event);
+    selectFurniture(hit(room.furniture));
+    if (!selected || !ray.ray.intersectPlane(ground, floorPoint)) return;
+    gesture.item = selected;
+    gesture.offsetX = selected.position.x - floorPoint.x;
+    gesture.offsetZ = selected.position.z - floorPoint.z;
+    canvas.setPointerCapture(event.pointerId);
+  });
+
+  canvas.addEventListener("pointermove", event => {
+    if (!gesture || gesture.id !== event.pointerId) return;
+    if (Math.hypot(gesture.x - event.clientX, gesture.y - event.clientY) > 6) gesture.moved = true;
+    if (!gesture.item || !gesture.moved) return;
+    pointRay(event);
+    if (!ray.ray.intersectPlane(ground, floorPoint)) return;
+    setFurniturePosition(gesture.item, floorPoint.x + gesture.offsetX, floorPoint.z + gesture.offsetZ);
+    gesture.item.updateMatrixWorld(true);
+    outline.update();
+  });
+
+  function finishGesture(event) {
+    if (!gesture || gesture.id !== event.pointerId) return;
+    const { item, moved } = gesture;
+    gesture = null;
+    if (item && moved) saveFurniture(item);
+    if (moved || edit || transition || event.type === "pointercancel") return;
+    pointRay(event);
+    if (mode === "island") {
+      const roots = [companions.island];
+      if (island.door && camera.position.z > doorAnchor.z + 1) roots.push(island.door);
+      if (island.garden && (camera.position.z > 2 || camera.position.x < -4)) roots.push(island.garden);
+      const target = hit(roots);
+      if (target === island.door) switchScene("room");
+      if (target === island.garden) harvest();
+      if (target === companions.island) { animate("greet"); chat.open(); }
+    } else {
+      const target = hit([room.exit, companions.room]);
+      if (target === room.exit) switchScene("island");
+      if (target === companions.room) { animate("greet"); chat.open(); }
+    }
+  }
+  canvas.addEventListener("pointerup", finishGesture);
+  canvas.addEventListener("pointercancel", finishGesture);
+
+  canvas.addEventListener("dblclick", () => { if (edit) rotateSelected(); });
+  canvas.addEventListener("keydown", event => {
+    if (!ready || transition) return;
+    if (edit && selected) {
+      if (event.key.toLowerCase() === "r") rotateSelected();
+      const direction = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[event.key];
+      if (!direction) return;
+      event.preventDefault();
+      setFurniturePosition(selected, selected.position.x + direction[0] * .14, selected.position.z + direction[1] * .14);
+      selected.updateMatrixWorld(true);
+      outline.update();
+      saveFurniture(selected);
+    } else if (!edit) {
+      const direction = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[event.key];
+      if (!direction) return;
+      event.preventDefault();
+      const orbit = new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
+      orbit.theta += direction[0] * .1;
+      orbit.phi += direction[1] * .08;
+      camera.position.setFromSpherical(orbit).add(controls.target);
+      controls.update();
+    }
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key !== "Escape") return;
+    if (chat.isOpen) chat.hide(true);
+    else if (edit) setEditing(false);
+  });
+
+  doorMarker.addEventListener("click", () => switchScene("room"));
+  gardenMarker.addEventListener("click", harvest);
+  showRoom.addEventListener("click", () => switchScene("room"));
+  showIsland.addEventListener("click", () => switchScene("island"));
+  editRoom.addEventListener("click", () => setEditing(!edit));
+  rotateButton.addEventListener("click", () => {
+    rotateSelected();
+    canvas.focus({ preventScroll: true });
+  });
+  byId("reset-camera").addEventListener("click", () => {
+    if (ready && !transition) applyPose(photoPose(mode), mode);
+  });
+  byId("light-toggle").addEventListener("click", () => {
+    light = modes[(modes.indexOf(light) + 1) % modes.length];
+    writeStorage("light", light);
+    updateLightButton();
+  });
+  byId("sound-toggle").addEventListener("click", async event => {
+    const button = event.currentTarget;
+    button.disabled = true;
+    try {
+      const enabled = await surf.set(!surf.audible);
+      button.setAttribute("aria-pressed", String(enabled));
+      button.setAttribute("aria-label", enabled ? "关闭海浪声" : "开启海浪声");
+      button.title = enabled ? "关闭海浪声" : "开启海浪声";
+      button.querySelector("use").setAttribute("href", enabled ? "#i-volume" : "#i-mute");
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  let startTime, previousFrame;
+  function frame(now) {
+    startTime ??= now;
+    currentTime = (now - startTime) / 1000;
+    moveThroughDoor(now);
+    if (!transition) controls.update();
+    const lightBlend = reduceMotion.matches ? 1 : 1 - Math.exp(-(now - (previousFrame ?? now)) / 175);
+    previousFrame = now;
+    day = THREE.MathUtils.lerp(day, Number(light === "day"), lightBlend);
+    night = THREE.MathUtils.lerp(night, Number(light === "night"), lightBlend);
+    sunlight.color.copy(duskTint).lerp(dayTint, day).lerp(nightTint, night);
+    sunlight.intensity = 2.7 + .21 * day - 1.94 * night;
+    skyFill.intensity = 1.79 + .19 * day - 1.23 * night;
+    rim.intensity = .72 - .40 * night;
+    roomSky.intensity = 1.63 + .13 * day - .58 * night;
+    roomFront.intensity = 1.32 - .53 * night;
+
+    const daylight = THREE.MathUtils.clamp(.65 + .35 * day - .57 * night, 0, 1);
+    companions.update(currentTime, mode);
+    if (mode === "island") {
+      coast.update(reduceMotion.matches ? 0 : currentTime, day, night);
+      island.update?.(currentTime, daylight);
+    } else {
+      room.update?.(currentTime, night < .5);
+    }
+    if (harvestStarted !== null && currentTime - harvestStarted >= 2.65 && !pickedMelon) {
+      pickedMelon = island.melons[Math.floor(island.melons.length / 2)];
+      if (pickedMelon) pickedMelon.visible = false;
+    }
+    if (harvestStarted !== null && currentTime - harvestStarted >= 5.65) {
+      harvestStarted = null;
+      melonRegrowth = currentTime + 14;
+      gardenMarker.disabled = false;
+      if (chat.isOpen) chat.message("amo", "摘回来啦！等会儿切给你一块。");
+      notify("阿沫带回了一颗西瓜");
+    }
+    if (harvestStarted === null && pickedMelon && currentTime >= melonRegrowth) {
+      pickedMelon.visible = true;
+      pickedMelon = null;
+    }
+    renderer.render(mode === "island" ? islandScene : roomScene, camera);
+    updateHotspots();
+    if (!ready) {
+      ready = true;
+      loading.hidden = true;
+      updateInterface();
+    }
+    rafId = requestAnimationFrame(frame);
+  }
+
+  canvas.addEventListener("webglcontextlost", event => {
+    event.preventDefault();
+    cancelAnimationFrame(rafId);
+    loading.textContent = "三维场景已暂停，正在等待图形引擎恢复。";
+    loading.hidden = false;
+  });
+  canvas.addEventListener("webglcontextrestored", () => {
+    loading.hidden = true;
+    rafId = requestAnimationFrame(frame);
+  });
+  window.addEventListener("resize", resize);
+  updateLightButton();
+  updateInterface();
+  resize();
+  rafId = requestAnimationFrame(frame);
+}

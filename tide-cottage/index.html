@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#182d2d">
+  <meta name="description" content="在一座海上小岛散步，进小屋坐坐，和岛上的小伙伴阿沫聊聊天。">
+  <title>潮汐小屋 · Tide Cottage</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-island" viewBox="0 0 24 24"><path d="M2.5 19h19M5 16l5.4-7.7a2 2 0 0 1 3.2 0L19 16M3 22c1.8 0 1.8-1 3.6-1s1.8 1 3.6 1 1.8-1 3.6-1 1.8 1 3.6 1 1.8-1 3.6-1M18.8 6a2.3 2.3 0 1 0-3.3-2.8"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zm6 11v-7h6v7"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M4 21h16M7 21V5l9-2v18m0-16h2a2 2 0 0 1 2 2v14m-8-8h.01"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.8 15A8.6 8.6 0 0 1 9 3.2 9 9 0 1 0 20.8 15Z"/><path d="M18 3v4m-2-2h4"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3zm13 0a4 4 0 0 1 0 6m2-8a7 7 0 0 1 0 10"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3zm13 1 5 5m0-5-5 5"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l1.5-3.9A8.5 8.5 0 1 1 21 11.5Z"/><path d="M8.5 11.5h.01m4 0h.01m4 0h.01"/></symbol>
+    <symbol id="i-move" viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M9 6l3-3 3 3m-6 12 3 3 3-3m3-9 3 3-3 3M6 9l-3 3 3 3"/></symbol>
+    <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M20 10A8 8 0 1 0 20 15m0-10v5h-5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="m3 11 18-8-5.5 18-4-8zm8.5 2L21 3"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 18C1 7 11 2 21 3c0 10-4 20-15 16m-3 2c4-5 7-8 12-11"/></symbol>
+    <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.6 8.4-2 5.2-5.2 2 2-5.2z"/></symbol>
+    <symbol id="i-face" viewBox="0 0 48 48">
+      <path fill="#99d0b4" stroke="none" d="M8 25c0-5 2-10 5-13 1-3 0-6 2-7 3-1 6 3 7 5 3-1 5-1 7 0 2-3 5-5 7-4 2 1 1 5 1 8 3 3 4 7 4 11 0 10-7 15-17 15S8 35 8 25Z"/>
+      <path fill="#fff0d4" stroke="none" d="M12 27c0-6 5-9 9-8l3 2 4-2c6-1 9 4 9 8 0 7-6 10-13 10s-12-4-12-10Z"/>
+      <path stroke="#26423c" stroke-width="2.5" d="M18 26v2m12-2v2m-8 2q2 3 4 0"/><path stroke="#eaa28b" stroke-width="2" d="M14 30h2m16 0h2"/>
+      <path fill="#edc783" stroke="none" d="M11 35c7 4 16 5 25 0l-3 7-3-2c-9 3-14 1-19-2Z"/>
+    </symbol>
+  </svg>
+
+  <main class="experience" id="experience" data-view="island" data-light="dusk">
+    <canvas id="world" aria-label="可以拖动视角的三维场景" tabindex="0"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+    <div class="fade" id="scene-fade" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark"><svg><use href="#i-island"/></svg></div>
+        <div>
+          <h1>潮汐小屋</h1>
+          <p>TIDE COTTAGE</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button id="light-toggle" class="glass control light-control" type="button" aria-label="切换昼夜" title="切换昼夜">
+          <svg><use href="#i-sun"/></svg><span>日落</span>
+        </button>
+        <button id="sound-toggle" class="glass control icon-control" type="button" aria-label="开启海浪声" aria-pressed="false" title="开启海浪声">
+          <svg><use href="#i-mute"/></svg>
+        </button>
+        <button id="reset-camera" class="glass control icon-control" type="button" aria-label="重置视角" title="重置视角">
+          <svg><use href="#i-compass"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div id="loading" class="loading" role="status"><span class="loader"></span><span>正在抵达小岛</span></div>
+    <div class="hotspots" id="hotspots">
+      <button id="door-marker" class="hotspot" type="button" hidden><span class="hotspot-icon"><svg><use href="#i-door"/></svg></span><span class="hotspot-label">进屋</span></button>
+      <button id="garden-marker" class="hotspot" type="button" hidden><span class="hotspot-icon"><svg><use href="#i-leaf"/></svg></span><span class="hotspot-label">采西瓜</span></button>
+    </div>
+
+    <div class="furniture-tools glass" id="furniture-tools" hidden>
+      <span id="furniture-label">选择一件家具</span>
+      <button type="button" class="control icon-control" id="rotate-furniture" title="旋转家具" aria-label="旋转家具" disabled><svg><use href="#i-rotate"/></svg></button>
+    </div>
+
+    <footer class="bottom">
+      <div class="location">
+        <span class="location-label" id="location-label"><i></i> 海岛</span>
+        <p id="scene-hint">拖动环顾 <span>·</span> 滚轮缩放</p>
+      </div>
+      <nav class="glass dock" aria-label="切换场景">
+        <button class="dock-button" id="show-island" type="button" aria-pressed="true"><svg><use href="#i-island"/></svg><span>海岛</span></button>
+        <button class="dock-button" id="show-room" type="button" aria-pressed="false"><svg><use href="#i-home"/></svg><span>小屋</span></button>
+        <button class="dock-button" id="edit-room" type="button" aria-pressed="false" hidden><svg><use href="#i-move"/></svg><span>布置</span></button>
+      </nav>
+      <button class="glass chat-launch" id="chat-launch" type="button" aria-expanded="false" aria-controls="chat-panel">
+        <span class="avatar"><svg><use href="#i-face"/></svg></span><span>和阿沫聊聊</span><svg class="chat-launch-icon"><use href="#i-chat"/></svg>
+      </button>
+    </footer>
+
+    <aside id="chat-panel" class="chat-panel glass" aria-label="和阿沫聊天" hidden>
+      <div class="chat-header">
+        <span class="avatar"><svg><use href="#i-face"/></svg></span>
+        <div><h2>阿沫</h2><p>岛上的小伙伴</p></div>
+        <button id="chat-close" class="control icon-control" type="button" aria-label="关闭聊天"><svg><use href="#i-close"/></svg></button>
+      </div>
+      <div id="messages" class="messages" role="log" aria-live="polite"></div>
+      <div class="suggestions">
+        <button type="button" data-suggestion="今天过得怎么样？">问候</button>
+        <button type="button" data-suggestion="我们去摘西瓜吧">去摘西瓜</button>
+      </div>
+      <form id="chat-form" class="chat-form">
+        <input id="chat-input" type="text" maxlength="180" placeholder="和阿沫说点什么…" aria-label="聊天消息" autocomplete="off" required>
+        <button type="submit" aria-label="发送消息"><svg><use href="#i-send"/></svg></button>
+      </form>
+    </aside>
+    <div id="toast" class="toast glass" role="status" hidden></div>
+  </main>
+  <noscript>打开 JavaScript 后即可游览潮汐小屋。</noscript>
+  <script src="scene.bundle.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "tide-cottage",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild main.js --bundle --minify --target=es2020 --legal-comments=none --outfile=scene.bundle.js"
+  },
+  "dependencies": {
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10"
+  }
+}
