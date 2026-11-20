@@ -113,10 +113,10 @@ export function createCompanions(THREE, roomScene, islandScene) {
   function addCompanions(scene, isRoom) {
     const anchor = new THREE.Group();
     anchor.name = isRoom ? '屋内的伙伴' : '岛上的伙伴';
-    anchor.position.set(isRoom ? 1.35 : 1.3, isRoom ? 0 : .75, isRoom ? .6 : 2.5);
+    anchor.position.set(isRoom ? 1.43 : 1.3, isRoom ? 0 : .75, isRoom ? 1.24 : 3.78);
     scene.add(anchor);
     const critter = addCritter(anchor);
-    const cat = addCat(anchor, isRoom ? -2.58 : .82, isRoom ? .44 : .13);
+    const cat = addCat(anchor, isRoom ? -3.58 : .82, isRoom ? .66 : .13);
     return { anchor, critter, cat, isRoom };
   }
 
@@ -134,8 +134,8 @@ export function createCompanions(THREE, roomScene, islandScene) {
     const easing = ease((phase - 6) / 3) * (1 - ease((phase - 16) / 3));
     const walking = (phase > 6 && phase < 9) || (phase > 16 && phase < 19);
     return {
-      x: easing * (isRoom ? .62 : .35),
-      z: easing * (isRoom ? -.61 : -.23),
+      x: easing * (isRoom ? 0 : .35),
+      z: easing * (isRoom ? -.39 : -.16),
       clip: walking ? 'walk' : 'idle',
       elapsed: walking ? phase - (phase < 16 ? 6 : 16) : time,
     };
@@ -205,7 +205,7 @@ export function createCompanions(THREE, roomScene, islandScene) {
     const { anchor, critter, isRoom } = sceneMode === 'room' ? room : island;
     const target = anchor.userData.harvestTarget;
     const durations = { greet: 2.15, eat: 4.4, harvest: 7.2 };
-    if (!Object.prototype.hasOwnProperty.call(durations, action)) return;
+    if (!Object.prototype.hasOwnProperty.call(durations, action) || (isRoom && action === 'harvest')) return;
     pet.preload(action === 'greet' ? 'wave' : 'eat');
     critter.action = {
       name: action,
@@ -213,8 +213,8 @@ export function createCompanions(THREE, roomScene, islandScene) {
       duration: durations[action],
       x: critter.walker.position.x,
       z: critter.walker.position.z,
-      destinationX: target ? target.x - anchor.position.x + .35 : isRoom ? -2.16 : -4.05,
-      destinationZ: target ? target.z - anchor.position.z + .72 : isRoom ? 1.11 : .19
+      destinationX: target ? target.x - anchor.position.x + 2.54 : isRoom ? -2.16 : -4.05,
+      destinationZ: target ? target.z - anchor.position.z + .02 : isRoom ? 1.11 : .19
     };
   }
 

@@ -68,11 +68,6 @@
       <div class="location">
         <span class="location-label" id="location-label"><i></i> 海岛</span>
         <p id="scene-hint">拖动环顾 <span>·</span> 滚轮缩放</p>
-        <div class="asset-credit">
-          <a href="https://github.com/PC2005-cloud/dsh-pet" target="_blank" rel="noopener noreferrer">角色素材 · dsh-pet</a>
-          <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer" aria-label="素材许可 CC BY-NC-SA 4.0">许可</a>
-          <a href="assets/dsh-pet/NOTICE.md" target="_blank" rel="noopener">署名</a>
-        </div>
       </div>
       <nav class="glass dock" aria-label="切换场景">
         <button class="dock-button" id="show-island" type="button" aria-pressed="true"><svg><use href="#i-island"/></svg><span>海岛</span></button>
@@ -87,7 +82,13 @@
     <aside id="chat-panel" class="chat-panel glass" aria-label="和阿沫聊天" hidden>
       <div class="chat-header">
         <span class="avatar"><img src="assets/dsh-pet/portrait.webp" width="36" height="36" alt=""></span>
-        <div><h2>阿沫</h2><p>岛上的小伙伴</p></div>
+        <div><h2>阿沫</h2><p>岛上的小伙伴</p>
+        <div class="asset-credit">
+          <a href="https://github.com/PC2005-cloud/dsh-pet" target="_blank" rel="noopener noreferrer">角色素材 · dsh-pet</a>
+          <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer" aria-label="素材许可 CC BY-NC-SA 4.0">许可</a>
+          <a href="assets/dsh-pet/NOTICE.md" target="_blank" rel="noopener">署名</a>
+        </div>
+        </div>
         <button id="chat-close" class="control icon-control" type="button" aria-label="关闭聊天"><svg><use href="#i-close"/></svg></button>
       </div>
       <div id="messages" class="messages" role="log" aria-live="polite"></div>
@@ -103,6 +104,6 @@
     <div id="toast" class="toast glass" role="status" hidden></div>
   </main>
   <noscript>打开 JavaScript 后即可游览潮汐小屋。</noscript>
-  <script src="scene.bundle.js?v=6" defer></script>
+  <script src="scene.bundle.js?v=7" defer></script>
 </body>
 </html>

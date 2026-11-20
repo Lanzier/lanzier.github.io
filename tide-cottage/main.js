@@ -134,10 +134,11 @@ function launch() {
     const label = item.userData.label;
     const placement = savedPositions?.[label];
     if (Array.isArray(placement) && placement.length === 3 && placement.every(Number.isFinite)) {
+      const originalRotation = item.rotation.y;
       item.rotation.y = placement[2] % (Math.PI * 2);
       const x = legacyLayout ? placement[0] * .74 : placement[0];
       const z = legacyLayout ? placement[1] * .62 : placement[1];
-      setFurniturePosition(item, x, z);
+      if (!setFurniturePosition(item, x, z)) item.rotation.y = originalRotation;
       furnitureLayout[label] = [item.position.x, item.position.z, item.rotation.y];
     }
   }
@@ -364,25 +365,24 @@ function launch() {
     x = THREE.MathUtils.clamp(x, minX, maxX);
     z = THREE.MathUtils.clamp(z, minZ, maxZ);
 
-    const left = COTTAGE.chimneyX - .76 - extents.maxX;
-    const right = COTTAGE.chimneyX + .76 - extents.minX;
-    const behind = fireplaceZ - .33 - extents.maxZ;
-    const ahead = fireplaceZ + .49 - extents.minZ;
-    if (x > left && x < right && z > behind && z < ahead) {
-      const candidates = [[left, z], [right, z], [x, behind], [x, ahead]];
-      let nearest = Infinity;
-      for (const [nextX, nextZ] of candidates) {
-        if (nextX < minX || nextX > maxX || nextZ < minZ || nextZ > maxZ) continue;
-        const distance = (nextX - x) ** 2 + (nextZ - z) ** 2;
-        if (distance >= nearest) continue;
-        nearest = distance;
-        item.position.x = nextX;
-        item.position.z = nextZ;
-      }
-      if (nearest < Infinity) return;
+    const footprint = {
+      minX: x + extents.minX, maxX: x + extents.maxX,
+      minZ: z + extents.minZ, maxZ: z + extents.maxZ,
+    };
+    const overlaps = (minX, maxX, minZ, maxZ) =>
+      footprint.minX < maxX + .025 && footprint.maxX > minX - .025 &&
+      footprint.minZ < maxZ + .025 && footprint.maxZ > minZ - .025;
+    // Keep the fireplace, the companion's walking lane, and the cat's resting spot clear.
+    if (overlaps(COTTAGE.chimneyX - .76, COTTAGE.chimneyX + .76, fireplaceZ - .33, fireplaceZ + .49) ||
+        overlaps(.86, 2.00, .30, 1.80) || overlaps(-2.62, -1.68, 1.49, 2.31)) return false;
+    for (const other of room.furniture) {
+      if (other === item) continue;
+      extentsBox.setFromObject(other);
+      if (overlaps(extentsBox.min.x, extentsBox.max.x, extentsBox.min.z, extentsBox.max.z)) return false;
     }
     item.position.x = x;
     item.position.z = z;
+    return true;
   }
 
   function saveFurniture(item) {
@@ -413,8 +413,12 @@ function launch() {
 
   function rotateSelected() {
     if (!edit || !selected) return;
-    selected.rotation.y = (selected.rotation.y + Math.PI * .25) % (Math.PI * 2);
-    setFurniturePosition(selected, selected.position.x, selected.position.z);
+    const previousRotation = selected.rotation.y;
+    selected.rotation.y = (previousRotation + Math.PI * .25) % (Math.PI * 2);
+    if (!setFurniturePosition(selected, selected.position.x, selected.position.z)) {
+      selected.rotation.y = previousRotation;
+      return;
+    }
     selected.updateMatrixWorld(true);
     outline.update();
     saveFurniture(selected);
