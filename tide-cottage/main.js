@@ -564,7 +564,7 @@ function launch() {
     roomFront.intensity = 1.32 - .53 * night;
 
     const daylight = THREE.MathUtils.clamp(.65 + .35 * day - .57 * night, 0, 1);
-    companions.update(currentTime, mode);
+    companions.update(currentTime, mode, camera);
     room.update(currentTime, night < .5);
     fireplace.update(currentTime, daylight);
     if (mode === "island") {
