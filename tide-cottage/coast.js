@@ -71,6 +71,7 @@ void main() {
 
 const oceanFragment = `
 ${atmosphere}
+uniform vec2 uShoreSize;
 void main() {
   vec2 p = vWorld.xz;
   float distanceToEye = length(vWorld-cameraPosition);
@@ -95,7 +96,7 @@ void main() {
   deep = mix(deep,vec3(.014,.050,.105),uNight);
   blue = mix(blue,vec3(.027,.175,.215),uNight);
   reflection = mix(reflection,vec3(.081,.15,.238),uNight);
-  float shoal = exp(-1.65*abs(length(p/vec2(12.4,9.9))-.87));
+  float shoal = exp(-1.80*abs(length(p/(uShoreSize*1.20))-.87));
   vec3 c = mix(deep,blue,shoal*.70);
   c *= .99 + waveLight*3.8;
   c = mix(c,reflection,fresnel*.48);
@@ -111,12 +112,13 @@ void main() {
 }
 `;
 
-export function createCoast(THREE, scene, shorePoint) {
+export function createCoast(THREE, scene, shorePoint, shoreSize) {
   const uniforms = {
     uTime: { value: 0 },
     uDay: { value: 0 },
     uNight: { value: 0 },
     uSun: { value: new THREE.Vector3(-.60, .15, -.79).normalize() },
+    uShoreSize: { value: new THREE.Vector2(...shoreSize) },
   };
   const sky = new THREE.Mesh(
     new THREE.SphereGeometry(465, 28, 15),

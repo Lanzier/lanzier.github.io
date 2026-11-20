@@ -46,7 +46,7 @@ function launch() {
   const companions = createCompanions(THREE, roomScene, islandScene);
   companions.island.userData.groundHeight = island.terrainHeight;
   companions.island.userData.harvestTarget = island.garden.position.clone();
-  const coast = createCoast(THREE, islandScene, island.shorePoint);
+  const coast = createCoast(THREE, islandScene, island.shorePoint, island.shoreSize);
 
   const skyFill = new THREE.HemisphereLight("#d3e9dd", "#a18757", 2.05);
   const sunlight = new THREE.DirectionalLight("#ffce87", 3.3);
@@ -54,8 +54,8 @@ function launch() {
   sunlight.castShadow = true;
   const shadowSize = maxPixelRatio < 1.6 ? 1024 : 2048;
   sunlight.shadow.mapSize.set(shadowSize, shadowSize);
-  sunlight.shadow.camera.left = sunlight.shadow.camera.bottom = -15;
-  sunlight.shadow.camera.right = sunlight.shadow.camera.top = 15;
+  sunlight.shadow.camera.left = sunlight.shadow.camera.bottom = -18;
+  sunlight.shadow.camera.right = sunlight.shadow.camera.top = 18;
   sunlight.shadow.camera.near = .5;
   sunlight.shadow.camera.far = 55;
   sunlight.shadow.normalBias = .045;
@@ -87,7 +87,7 @@ function launch() {
   const dayTint = new THREE.Color("#fff0d4");
   const nightTint = new THREE.Color("#91b9fe");
 
-  const islandTarget = new THREE.Vector3(0, 1.86, .38);
+  const islandTarget = new THREE.Vector3(0, 1.96, -1.35);
   const roomTarget = new THREE.Vector3(-.35, 1.10, -.60);
   const doorAnchor = island.doorAnchor || new THREE.Vector3(-1.94, 2.65, 1.5);
   const gardenAnchor = island.gardenAnchor || new THREE.Vector3(-4.85, 1.6, 4.3);
@@ -191,10 +191,10 @@ function launch() {
         fov: portrait ? 65 : 50,
       };
     }
-    const size = Math.max(1, (1.20 / camera.aspect) ** .90);
+    const size = Math.max(1, (1.39 / camera.aspect) ** .87);
     return {
       target: islandTarget.clone(),
-      position: new THREE.Vector3(5.9, 4.2, 21.6).multiplyScalar(size).add(islandTarget),
+      position: new THREE.Vector3(-9.04, 14.1, 29.6).multiplyScalar(size).add(islandTarget),
       fov: 42,
     };
   }
@@ -202,7 +202,7 @@ function launch() {
   function applyPose(pose, view) {
     controls.enableDamping = false;
     controls.minDistance = view === "island" ? 9 : 4.3;
-    controls.maxDistance = view === "island" ? 70 : 10.8;
+    controls.maxDistance = view === "island" ? 112 : 10.8;
     controls.minPolarAngle = view === "island" ? .45 : .78;
     controls.maxPolarAngle = view === "island" ? 1.47 : 1.38;
     controls.minAzimuthAngle = view === "island" ? -Infinity : -.54;
