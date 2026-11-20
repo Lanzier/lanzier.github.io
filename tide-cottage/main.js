@@ -223,13 +223,18 @@ function launch() {
     controls.enableDamping = !reduceMotion.matches;
   }
 
+  let viewportWidth = 0;
+  let viewportHeight = 0;
   function resize() {
     const previous = camera.aspect;
-    const { clientWidth: width, clientHeight: height } = canvas;
-    if (!width || !height) return;
+    const { width, height } = experience.getBoundingClientRect();
+    if (!width || !height || (width === viewportWidth && height === viewportHeight)) return;
+    const widthChanged = width !== viewportWidth;
+    viewportWidth = width;
+    viewportHeight = height;
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
-    if (!ready || (previous < .85) !== (camera.aspect < .85)) {
+    if (!ready || (!transition && (widthChanged || (previous < .85) !== (camera.aspect < .85)))) {
       applyPose(photoPose(mode), mode);
       savedOrbit = null;
     }
@@ -602,9 +607,15 @@ function launch() {
   });
   canvas.addEventListener("webglcontextrestored", () => {
     loading.hidden = true;
+    viewportWidth = 0;
+    resize();
     rafId = requestAnimationFrame(frame);
   });
+  // In-app WebKit can relayout dvh without dispatching a window resize.
+  if (typeof ResizeObserver !== "undefined") new ResizeObserver(resize).observe(experience);
+  window.visualViewport?.addEventListener("resize", resize);
   window.addEventListener("resize", resize);
+  window.addEventListener("pageshow", resize);
   updateLightButton();
   updateInterface();
   resize();
