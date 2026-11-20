@@ -1,5 +1,3 @@
-import { createPalms } from "./palms.js";
-
 const TAU = Math.PI * 2;
 const coastX = 10.25;
 const coastZ = 8.05;
@@ -430,9 +428,34 @@ export function createIsland(THREE, scene) {
 
   const leafColors = ['#48734b', '#537c4c', '#65894e', '#719155', '#7b9c5d', '#5d814e', '#3a694f', '#91a860'];
   const leafItems = [];
-  const palms = createPalms(THREE, root, terrainHeight);
-  // Continue from the established seed for the shrubs, flowers and grass.
-  seed = 3212241808;
+  const bark = material('#735440');
+  const darkerBark = material('#60493a');
+  function tree(x, z, height, spread, evergreen) {
+    const y = terrainHeight(x, z) - .025;
+    const lean = range(-.27, .27);
+    pole(root, bark, [x, y, z], [x + lean, y + height * .90, z + .07], height * .061, height * .019);
+    for (let index = 0; index < 7; index += 1) {
+      const angle = index * 2.4 + range(-.35, .35);
+      const rise = .42 + (index / 7) * .44;
+      const reach = spread * (1 - index * (evergreen ? .091 : .058));
+      const px = x + Math.cos(angle) * reach * .75;
+      const pz = z + Math.sin(angle) * reach * .73;
+      const py = y + height * rise;
+      pole(root, darkerBark, [x + lean * rise, py - height * .14, z], [px, py, pz], height * .026, height * .009);
+      for (let blob = 0; blob < 4; blob += 1) {
+        leafItems.push({ x: px + range(-.46, .46) * reach, y: py + range(-.13, .22) * reach, z: pz + range(-.46, .46) * reach, sx: reach * range(.50, .85), sy: reach * range(evergreen ? .23 : .43, evergreen ? .43 : .65), sz: reach * range(.57, .85), ry: range(0, TAU), rz: range(-.24, .24), tint: pick(leafColors) });
+      }
+    }
+    for (let index = 0; index < 6; index += 1) leafItems.push({ x: x + lean + range(-.39, .39) * spread, y: y + height * range(.86, .99), z: z + range(-.38, .38) * spread, sx: spread * range(.27, .53), sy: spread * range(.24, .49), sz: spread * range(.29, .51), ry: range(0, TAU), tint: pick(leafColors.slice(2)) });
+  }
+  tree(-6.3, -1.9, 5.62, 1.93, true);
+  tree(-6.64, -3.8, 4.76, 1.50, true);
+  tree(-7.63, 2.13, 2.91, 1.08, true);
+  tree(5.88, -2.02, 4.89, 1.86, false);
+  tree(6.87, -3.50, 3.89, 1.32, false);
+  tree(7.65, .67, 2.63, 1.04, true);
+  tree(1.10, -5.57, 4.75, 1.28, true);
+  tree(-2.04, -5.70, 3.61, 1.3, true);
 
   for (const [x, z, scale] of [[-7.25, 3.1, .56], [-6.95, 5.18, .48], [-5.93, 5.91, .48], [-7.7, -.7, .58], [7.2, 3.48, .56], [5.3, 4.95, .56], [5.15, 3.48, .4], [3.7, 3.12, .32], [6.27, 5.12, .45], [-2.52, 5.75, .32], [4.79, -.08, .52], [-4.63, 2.79, .36], [-5.74, -.08, .62], [2.47, 6.11, .43], [-3.62, -.5, .24]]) {
     for (let index = 0; index < 7; index += 1) {
@@ -639,7 +662,6 @@ export function createIsland(THREE, scene) {
 
   function update(time, daylight = 1) {
     wind.value = time;
-    palms.update(time);
     boat.position.y = .077 + Math.sin(time * 1.45) * .053;
     boat.rotation.x = Math.sin(time * 1.23) * .034;
     boat.rotation.z = Math.cos(time * 1.13) * .046;
