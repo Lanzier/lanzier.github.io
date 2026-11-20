@@ -1,4 +1,5 @@
 import { createCoastalTrees } from './coastal-trees.js';
+import { COTTAGE } from './cottage-plan.js';
 
 const TAU = Math.PI * 2;
 const coastX = 14.55;
@@ -237,9 +238,12 @@ export function createIsland(THREE, scene) {
 
   const house = new THREE.Group();
   root.add(house);
+  const { floorY, centerZ: roofMiddle, chimneyX, chimneyZ, chimneyBaseY } = COTTAGE;
+  const roomMount = new THREE.Group();
+  roomMount.position.set(0, floorY, roofMiddle);
+  house.add(roomMount);
   const front = 1.21;
   const back = -4.05;
-  const roofMiddle = -1.42;
   const bottom = 1.04;
   const eave = 3.67;
   const ridge = 5.17;
@@ -251,7 +255,7 @@ export function createIsland(THREE, scene) {
   const slate = material('#3d5256');
   const floor = material('#ad7854');
   box(house, mortar, 0, .89, (front + back) / 2, 7.98, .36, 5.50);
-  box(house, floor, 0, 1.07, (front + back) / 2, wallSpan, .13, 5.24);
+  box(house, floor, 0, floorY - .065, roofMiddle, wallSpan, .13, 5.24);
   const foundation = [];
   for (let row = 0; row < 2; row += 1) {
     for (let index = 0; index < 19; index += 1) {
@@ -297,7 +301,7 @@ export function createIsland(THREE, scene) {
   box(house, frontSidePanel, 3.47, 2.36, front, .85, 2.59, .16);
   box(house, frontSidePanel, .88, 1.29, front, 4.20, .48, .16);
   box(house, frontSidePanel, .88, 3.47, front, 4.20, .33, .16);
-  for (const x of [-3.88, -2.57, -1.29, .91, 2.99, 3.88]) box(house, timber, x, 2.36, front + .036, .15, 2.73, .22);
+  for (const x of [-3.88, .91, 2.99, 3.88]) box(house, timber, x, 2.36, front + .036, .15, 2.73, .22);
   for (const y of [1.11, 3.63]) box(house, timber, 0, y, front + .049, 7.97, .19, .23);
   for (const y of [1.53, 3.35]) box(house, woodLight, .86, y, front + .098, 4.30, .10, .22);
   box(house, wood, .85, 2.91, front + .09, 4.21, .058, .12);
@@ -308,32 +312,8 @@ export function createIsland(THREE, scene) {
     pane.castShadow = false;
   }
 
-  const backCabinet = material('#677d73');
-  box(house, backCabinet, 1.80, 1.61, -3.68, 2.48, 1.11, .58);
-  box(house, woodLight, 1.80, 2.19, -3.64, 2.59, .13, .69);
-  for (const x of [.94, 1.54, 2.15, 2.75]) {
-    box(house, teal, x, 1.62, -3.367, .51, .79, .064);
-    mesh(house, pebble, gold, x + .16, 1.80, -3.325, .042, .042, .030);
-  }
-  box(house, woodLight, -.56, 2.77, -3.86, 1.61, .078, .41);
-  for (let index = 0; index < 12; index += 1) {
-    const height = range(.16, .41);
-    box(house, pick([teal, coral, cream, gold, woodLight]), -1.23 + index * .124, 2.815 + height / 2, -3.81, range(.08, .12), height, .22).rotation.z = range(-.075, .075);
-  }
-  box(house, teal, -1.91, 1.40, -1.57, 1.29, .55, 1.00);
-  box(house, teal, -1.91, 1.73, -2.03, 1.29, .71, .22);
-  box(house, cream, -1.91, 1.72, -1.49, 1.17, .16, .79);
-  box(house, coral, -1.65, 1.95, -1.83, .38, .41, .18).rotation.z = -.17;
-  const rug = material('#92aa96');
-  box(house, cream, .28, 1.14, -.46, 2.56, .018, 1.63);
-  box(house, rug, .28, 1.151, -.46, 2.41, .014, 1.47);
-  for (const x of [-.28, .81]) for (const z of [-.72, -.07]) box(house, wood, x, 1.38, z, .073, .46, .073);
-  box(house, woodLight, .26, 1.625, -.39, 1.32, .102, .88);
-  box(house, teal, .52, 1.688, -.44, .30, .033, .23).rotation.y = -.24;
-  mesh(house, cylinder, cream, -.025, 1.73, -.43, .075, .12, .075);
-  const mugHandle = mesh(house, new THREE.TorusGeometry(.053, .013, 6, 10), cream, .047, 1.738, -.43);
-  mugHandle.rotation.z = -.25;
-
+  // Keep the porch, shingles and planting variations from the original scene.
+  seed = 2500481594;
   const porch = [];
   for (let index = 0; index < 9; index += 1) {
     porch.push({ x: .02, y: 1.015, z: 1.34 + index * .137, sx: 8.29, sy: .122, sz: .130, tint: pick(['#ad7b56', '#b88764', '#b0815c', '#a47450', '#c08d64']) });
@@ -352,6 +332,9 @@ export function createIsland(THREE, scene) {
   box(house, wood, 2.93, 1.65, 1.60, 1.10, .19, .075);
 
   const door = new THREE.Group();
+  for (const x of [-2.57, -1.29]) box(door, timber, x, 2.36, front + .036, .15, 2.73, .22);
+  box(door, timber, -1.93, 3.57, front + .054, 1.19, .13, .18);
+  box(door, wood, -1.93, 1.11, front + .07, 1.14, .075, .21);
   const doorHinge = new THREE.Group();
   doorHinge.position.set(-2.49, bottom + .063, front + .102);
   house.add(door);
@@ -397,18 +380,19 @@ export function createIsland(THREE, scene) {
   batch(house, cube, tiles);
 
   const brick = material('#99654c');
-  box(house, brick, 2.35, 5.08, -2.00, .64, 1.41, .56);
+  const chimneyTopY = 5.785;
+  box(house, brick, chimneyX, (chimneyTopY + chimneyBaseY) / 2, chimneyZ, .64, chimneyTopY - chimneyBaseY, .56);
   const masonry = [];
   for (let row = 0; row < 6; row += 1) {
     const y = 4.44 + row * .225;
     for (let column = 0; column < 2; column += 1) {
-      masonry.push({ x: 2.20 + column * .3 + (row % 2 - .5) * .04, y, z: -1.713, sx: .284, sy: .20, sz: .05, tint: pick(['#b27960', '#9f5c47', '#b06f53', '#a56a55']) });
-      masonry.push({ x: 2.685, y, z: -2.13 + column * .259, sx: .046, sy: .203, sz: .237, tint: pick(['#a16450', '#ad6e58', '#9f5c47']) });
+      masonry.push({ x: chimneyX - .15 + column * .3 + (row % 2 - .5) * .04, y, z: chimneyZ + .287, sx: .284, sy: .20, sz: .05, tint: pick(['#b27960', '#9f5c47', '#b06f53', '#a56a55']) });
+      masonry.push({ x: chimneyX + .335, y, z: chimneyZ - .13 + column * .259, sx: .046, sy: .203, sz: .237, tint: pick(['#a16450', '#ad6e58', '#9f5c47']) });
     }
   }
   batch(house, cube, masonry);
-  box(house, mortar, 2.35, 5.80, -2.00, .77, .154, .67);
-  box(house, timber, 2.35, 5.885, -2.00, .40, .026, .35);
+  box(house, mortar, chimneyX, 5.80, chimneyZ, .77, .154, .67);
+  box(house, timber, chimneyX, 5.885, chimneyZ, .40, .026, .35);
 
   const lampGlass = material('#ffda8f', { emissive: '#ffc373', emissiveIntensity: 2.1 });
   function lantern(parent, x, y, z, size) {
@@ -422,14 +406,6 @@ export function createIsland(THREE, scene) {
   const porchLamp = new THREE.PointLight('#ffac57', 8.5, 5.3, 1.8);
   porchLamp.position.set(-2.94, 2.92, 1.66);
   house.add(porchLamp);
-  const windowLamp = new THREE.PointLight('#ffba64', 15, 8, 1.75);
-  windowLamp.position.set(.73, 2.79, -.33);
-  house.add(windowLamp);
-  const tableLamp = new THREE.PointLight('#ffd19a', 4.2, 4.8, 1.5);
-  tableLamp.position.set(2.02, 2.43, -2.70);
-  house.add(tableLamp);
-  mesh(house, new THREE.CylinderGeometry(.19, .35, .36, 12), cream, 2.02, 2.60, -2.70);
-  pole(house, timber, [2.02, 2.23, -2.70], [2.02, 2.55, -2.70], .032);
   lantern(dock, .02, .90, 7.65, .19);
 
   const leafColors = ['#48734b', '#537c4c', '#65894e', '#719155', '#7b9c5d', '#5d814e', '#3a694f', '#91a860'];
@@ -655,19 +631,18 @@ export function createIsland(THREE, scene) {
     for (const { puff, delay } of smoke) {
       const life = (time * .23 + delay) % 1;
       const scale = .078 + life * .31;
-      puff.position.set(2.35 + life * .93 + Math.sin(life * 5.8 + time * .63) * life * .19, 5.89 + life * 1.68, -2 - life * .28);
+      puff.position.set(chimneyX + life * .93 + Math.sin(life * 5.8 + time * .63) * life * .19, 5.89 + life * 1.68, chimneyZ - life * .28);
       puff.scale.set(scale * 1.14, scale, scale * 1.2);
       puff.material.opacity = Math.sin(life * Math.PI) * .11;
     }
     porchLamp.intensity = (8.5 + Math.sin(time * 5.1) * .45) * (1.66 - daylight * .62);
-    windowLamp.intensity = 15 * (1.78 - daylight * .71);
-    tableLamp.intensity = 4.2 * (1.62 - daylight * .62);
-    windowGlass.opacity = .33 - daylight * .15;
+    windowGlass.opacity = .21 - daylight * .09;
   }
 
   return {
     door,
     doorHinge,
+    roomMount,
     garden,
     doorAnchor: new THREE.Vector3(-1.94, 2.58, 1.48),
     gardenAnchor: new THREE.Vector3(gardenX, gardenY + .77, gardenZ),

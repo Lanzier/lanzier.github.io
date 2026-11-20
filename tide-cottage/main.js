@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createCoast } from "./coast.js";
+import { COTTAGE } from "./cottage-plan.js";
+import { createFireplace } from "./fireplace.js";
 import { createIsland } from "./island.js";
 import { createRoom } from "./room.js";
 import { createCompanions } from "./companions.js";
@@ -43,6 +45,15 @@ function launch() {
   roomScene.background = new THREE.Color("#253f3e");
   const island = createIsland(THREE, islandScene);
   const room = createRoom(THREE, roomScene);
+  const fireplace = createFireplace(THREE, {
+    flueHeight: COTTAGE.chimneyBaseY - COTTAGE.floorY + .08,
+  });
+  const fireplaceZ = COTTAGE.chimneyZ - COTTAGE.centerZ;
+  fireplace.group.position.set(COTTAGE.chimneyX, 0, fireplaceZ);
+  room.contents.add(fireplace.group);
+  const insideDoor = island.door.clone();
+  insideDoor.position.set(0, -COTTAGE.floorY, -COTTAGE.centerZ);
+  room.cabin.add(insideDoor);
   const companions = createCompanions(THREE, roomScene, islandScene);
   companions.island.userData.groundHeight = island.terrainHeight;
   companions.island.userData.harvestTarget = island.garden.position.clone();
@@ -67,11 +78,11 @@ function launch() {
 
   const roomSky = new THREE.HemisphereLight("#ffecd0", "#a56542", 1.85);
   const roomFront = new THREE.DirectionalLight("#fff3dc", 1.55);
-  roomFront.position.set(2, 2.92, 6);
+  roomFront.position.set(2, 2.26, 4.5);
   roomFront.castShadow = true;
   roomFront.shadow.mapSize.set(1024, 1024);
-  roomFront.shadow.camera.left = roomFront.shadow.camera.bottom = -6.5;
-  roomFront.shadow.camera.right = roomFront.shadow.camera.top = 6.5;
+  roomFront.shadow.camera.left = roomFront.shadow.camera.bottom = -5.1;
+  roomFront.shadow.camera.right = roomFront.shadow.camera.top = 5.1;
   roomFront.shadow.camera.far = 15;
   roomFront.shadow.normalBias = .025;
   roomFront.shadow.bias = -.00018;
@@ -88,7 +99,7 @@ function launch() {
   const nightTint = new THREE.Color("#91b9fe");
 
   const islandTarget = new THREE.Vector3(0, 1.96, -1.35);
-  const roomTarget = new THREE.Vector3(-.35, 1.10, -.60);
+  const roomTarget = new THREE.Vector3(.12, .98, -.42);
   const doorAnchor = island.doorAnchor || new THREE.Vector3(-1.94, 2.65, 1.5);
   const gardenAnchor = island.gardenAnchor || new THREE.Vector3(-4.85, 1.6, 4.3);
   const doorMarker = byId("door-marker");
@@ -113,19 +124,25 @@ function launch() {
   let currentTime = 0;
   let rafId = 0;
 
-  const labels = new Map();
-  const furnitureLayout = { ...readStorage("furniture", {}) };
+  const savedFurniture = readStorage("furniture", {});
+  const legacyLayout = savedFurniture.version !== 2;
+  const savedPositions = legacyLayout ? savedFurniture : savedFurniture.items;
+  const furnitureLayout = {};
   const extentsBox = new THREE.Box3();
   const furnitureExtents = new WeakMap();
   for (const item of room.furniture) {
     const label = item.userData.label;
-    labels.set(item, label);
-    const placement = furnitureLayout?.[label];
+    const placement = savedPositions?.[label];
     if (Array.isArray(placement) && placement.length === 3 && placement.every(Number.isFinite)) {
       item.rotation.y = placement[2] % (Math.PI * 2);
-      setFurniturePosition(item, placement[0], placement[1]);
+      const x = legacyLayout ? placement[0] * .74 : placement[0];
+      const z = legacyLayout ? placement[1] * .62 : placement[1];
+      setFurniturePosition(item, x, z);
+      furnitureLayout[label] = [item.position.x, item.position.z, item.rotation.y];
     }
   }
+  if (legacyLayout && Object.keys(furnitureLayout).length) writeFurniture();
+  island.roomMount.add(room.contents);
 
   const outline = new THREE.BoxHelper(new THREE.Object3D(), "#f6cb87");
   outline.material.depthTest = false;
@@ -185,10 +202,12 @@ function launch() {
   function photoPose(view) {
     const portrait = camera.aspect < .85;
     if (view === "room") {
+      const target = roomTarget.clone();
+      if (portrait) target.x = .96;
       return {
-        target: roomTarget.clone(),
-        position: new THREE.Vector3(portrait ? 3.5 : 4.42, portrait ? 2.72 : 2.76, portrait ? 6.52 : 5.47),
-        fov: portrait ? 65 : 50,
+        target,
+        position: new THREE.Vector3(portrait ? 1.30 : 1.94, portrait ? 1.96 : 1.85, portrait ? 5.38 : 2.67),
+        fov: portrait ? 73 : 72,
       };
     }
     const size = Math.max(1, (1.39 / camera.aspect) ** .87);
@@ -201,8 +220,8 @@ function launch() {
 
   function applyPose(pose, view) {
     controls.enableDamping = false;
-    controls.minDistance = view === "island" ? 9 : 4.3;
-    controls.maxDistance = view === "island" ? 112 : 10.8;
+    controls.minDistance = view === "island" ? 9 : 3.1;
+    controls.maxDistance = view === "island" ? 112 : 8.0;
     controls.minPolarAngle = view === "island" ? .45 : .78;
     controls.maxPolarAngle = view === "island" ? 1.47 : 1.38;
     controls.minAzimuthAngle = view === "island" ? -Infinity : -.54;
@@ -274,6 +293,8 @@ function launch() {
       mode = flight.next;
       flight.changed = true;
       if (island.doorHinge) island.doorHinge.rotation.y = 0;
+      const mount = mode === "island" ? island.roomMount : room.cabin;
+      mount.add(room.contents);
       applyPose(mode === "island" && savedOrbit ? savedOrbit : photoPose(mode), mode);
       updateInterface();
       fade.classList.remove("covered");
@@ -336,20 +357,48 @@ function launch() {
       };
       furnitureExtents.set(item, extents);
     }
-    item.position.x = THREE.MathUtils.clamp(x, -5.07 - extents.minX, 5.16 - extents.maxX);
-    item.position.z = THREE.MathUtils.clamp(z, -4.08 - extents.minZ, 4.28 - extents.maxZ);
+    const minX = -COTTAGE.halfWidth + .10 - extents.minX;
+    const maxX = COTTAGE.halfWidth - .10 - extents.maxX;
+    const minZ = COTTAGE.back + .10 - extents.minZ;
+    const maxZ = COTTAGE.front - .10 - extents.maxZ;
+    x = THREE.MathUtils.clamp(x, minX, maxX);
+    z = THREE.MathUtils.clamp(z, minZ, maxZ);
+
+    const left = COTTAGE.chimneyX - .76 - extents.maxX;
+    const right = COTTAGE.chimneyX + .76 - extents.minX;
+    const behind = fireplaceZ - .33 - extents.maxZ;
+    const ahead = fireplaceZ + .49 - extents.minZ;
+    if (x > left && x < right && z > behind && z < ahead) {
+      const candidates = [[left, z], [right, z], [x, behind], [x, ahead]];
+      let nearest = Infinity;
+      for (const [nextX, nextZ] of candidates) {
+        if (nextX < minX || nextX > maxX || nextZ < minZ || nextZ > maxZ) continue;
+        const distance = (nextX - x) ** 2 + (nextZ - z) ** 2;
+        if (distance >= nearest) continue;
+        nearest = distance;
+        item.position.x = nextX;
+        item.position.z = nextZ;
+      }
+      if (nearest < Infinity) return;
+    }
+    item.position.x = x;
+    item.position.z = z;
   }
 
   function saveFurniture(item) {
-    furnitureLayout[labels.get(item)] = [item.position.x, item.position.z, item.rotation.y];
-    writeStorage("furniture", furnitureLayout);
+    furnitureLayout[item.userData.label] = [item.position.x, item.position.z, item.rotation.y];
+    writeFurniture();
+  }
+
+  function writeFurniture() {
+    writeStorage("furniture", { version: 2, items: furnitureLayout });
   }
 
   function selectFurniture(item) {
     selected = item;
     outline.visible = Boolean(item) && edit;
     if (item) outline.setFromObject(item);
-    byId("furniture-label").textContent = item ? labels.get(item) : "选择一件家具";
+    byId("furniture-label").textContent = item?.userData.label || "选择一件家具";
     rotateButton.disabled = !item;
   }
 
@@ -429,8 +478,8 @@ function launch() {
       if (target === island.garden) harvest();
       if (target === companions.island) { animate("greet"); chat.open(); }
     } else {
-      const target = hit([room.exit, companions.room]);
-      if (target === room.exit) switchScene("island");
+      const target = hit([insideDoor, companions.room]);
+      if (target === insideDoor) switchScene("island");
       if (target === companions.room) { animate("greet"); chat.open(); }
     }
   }
@@ -516,11 +565,11 @@ function launch() {
 
     const daylight = THREE.MathUtils.clamp(.65 + .35 * day - .57 * night, 0, 1);
     companions.update(currentTime, mode);
+    room.update(currentTime, night < .5);
+    fireplace.update(currentTime, daylight);
     if (mode === "island") {
       coast.update(reduceMotion.matches ? 0 : currentTime, day, night);
       island.update?.(currentTime, daylight);
-    } else {
-      room.update?.(currentTime, night < .5);
     }
     if (harvestStarted !== null && currentTime - harvestStarted >= 2.65 && !pickedMelon) {
       pickedMelon = island.melons[Math.floor(island.melons.length / 2)];

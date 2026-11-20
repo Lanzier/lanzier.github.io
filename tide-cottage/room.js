@@ -1,7 +1,16 @@
+import { COTTAGE } from './cottage-plan.js';
+
 export function createRoom(THREE, scene) {
+  const { halfWidth, back, front, ceiling } = COTTAGE;
+  const width = 2 * halfWidth;
+  const depth = front - back;
+  const centerZ = (front + back) / 2;
   const cabin = new THREE.Group();
   cabin.name = 'Cottage interior';
   scene.add(cabin);
+  const contents = new THREE.Group();
+  contents.name = 'Cottage furnishings';
+  cabin.add(contents);
 
   const furniture = [];
   let seed = 53;
@@ -44,7 +53,6 @@ export function createRoom(THREE, scene) {
 
   const wall = standard('#eadabc');
   const panel = standard('#d2b791');
-  const teal = standard('#3c7770');
   const trim = standard('#784e39', { map: woodGrain });
   const cedar = standard('#a57149', { map: woodGrain });
   const warmOak = standard('#c28d5f', { map: woodGrain });
@@ -87,68 +95,85 @@ export function createRoom(THREE, scene) {
   const cylinder = (parent, top, bottom, height, x, y, z, material, shadows = true) =>
     mesh(parent, new THREE.CylinderGeometry(top, bottom, height, 16), material, x, y, z, shadows);
 
-  const movable = (label, x, z, radius) => {
+  const movable = (label, x, z, scale) => {
     const group = new THREE.Group();
     group.name = label;
     group.position.set(x, 0, z);
-    group.userData = { label, radius };
-    cabin.add(group);
+    group.scale.setScalar(scale);
+    group.userData = { label };
+    contents.add(group);
     furniture.push(group);
     return group;
   };
 
-  // The south and east sides are open so the furniture stays visible from outside.
-  box(cabin, 10.6, 0.25, 8.65, 0, -0.15, 0.08, darkWood);
+  box(contents, width, 0.067, depth, 0, -0.054, centerZ, darkWood);
   const floorColors = ['#bf8a61', '#c39870', '#cda37a', '#be936b', '#cc986a', '#b58b64', '#cda779']
     .map((color) => new THREE.Color(color));
-  const planks = new THREE.InstancedMesh(boxGeometry, standard('#ffffff', { map: woodGrain }), 96);
+  const rowCount = Math.ceil(depth / 0.38);
+  const rowDepth = depth / rowCount;
+  const plankLength = 1.49;
+  const planks = new THREE.InstancedMesh(boxGeometry, standard('#ffffff', { map: woodGrain }),
+    rowCount * (Math.ceil(width / plankLength) + 2));
   const transform = new THREE.Object3D();
   let plankIndex = 0;
-  for (let row = 0; row < 16; row += 1) {
-    const offset = row % 3 * 0.68;
-    for (let x = -5.24; x < 5.23;) {
-      const nominalWidth = x === -5.24 && offset > 0 ? offset : 2.04;
-      const width = Math.min(nominalWidth, 5.24 - x);
-      transform.position.set(x + width / 2, -0.034, -3.973 + row * 0.535);
-      transform.scale.set(width - 0.013, 0.046, 0.523);
+  for (let row = 0; row < rowCount; row += 1) {
+    const offset = row % 3 * 0.49;
+    for (let x = -halfWidth; x < halfWidth - 0.001;) {
+      const nominalLength = x === -halfWidth && offset > 0 ? offset : plankLength;
+      const length = Math.min(nominalLength, halfWidth - x);
+      transform.position.set(x + length / 2, -0.011, back + (row + 0.5) * rowDepth);
+      transform.scale.set(length - 0.010, 0.032, rowDepth - 0.009);
       transform.updateMatrix();
       planks.setMatrixAt(plankIndex, transform.matrix);
       planks.setColorAt(plankIndex, floorColors[Math.floor(random() * floorColors.length)]);
       plankIndex += 1;
-      x += width;
+      x += length;
     }
   }
   planks.count = plankIndex;
   planks.receiveShadow = true;
-  cabin.add(planks);
-  box(cabin, 10.58, 0.11, 0.11, 0, -0.055, 4.34, trim);
-  box(cabin, 0.12, 0.105, 8.55, 5.22, -0.055, 0.03, trim);
+  contents.add(planks);
+  box(contents, width, 0.040, 0.060, 0, -0.014, front - 0.030, trim);
+  box(contents, 0.060, 0.040, depth, halfWidth - 0.030, -0.014, centerZ, trim);
 
-  box(cabin, 10.6, 3.35, 0.17, 0, 1.66, -4.25, wall, false);
-  box(cabin, 0.17, 3.35, 8.65, -5.23, 1.66, 0.08, wall, false);
-  box(cabin, 10.55, 0.73, 0.06, 0, 0.375, -4.14, panel, false);
-  box(cabin, 0.062, 0.73, 8.55, -5.12, 0.375, 0.08, panel, false);
-  for (const height of [0.095, 0.755, 3.19]) {
-    box(cabin, 10.56, 0.095, 0.105, 0, height, -4.09, trim);
-    box(cabin, 0.105, 0.095, 8.57, -5.075, height, 0.06, trim);
+  // Open the sea-facing side of this interior shell for the room camera.
+  const sideX = -halfWidth - 0.10;
+  const windowZ = 0.16;
+  const windowY = 1.515;
+  const windowWidth = 2.18;
+  const windowHeight = 1.49;
+  const windowBack = windowZ - windowWidth / 2;
+  const windowFront = windowZ + windowWidth / 2;
+  const sill = windowY - windowHeight / 2;
+  const lintel = windowY + windowHeight / 2;
+  box(cabin, width + 0.14, ceiling, 0.14, 0, ceiling / 2, back - 0.045, wall, false);
+  box(cabin, 0.14, ceiling, windowBack - back, sideX, ceiling / 2, (windowBack + back) / 2, wall, false);
+  box(cabin, 0.14, ceiling, front - windowFront, sideX, ceiling / 2, (front + windowFront) / 2, wall, false);
+  box(cabin, 0.14, sill, windowWidth, sideX, sill / 2, windowZ, wall, false);
+  box(cabin, 0.14, ceiling - lintel, windowWidth, sideX, (ceiling + lintel) / 2, windowZ, wall, false);
+  box(contents, width, 0.56, 0.055, 0, 0.28, back + 0.041, panel, false);
+  box(contents, 0.060, 0.56, depth, -halfWidth - 0.003, 0.28, centerZ, panel, false);
+  for (const height of [0.064, 0.585, ceiling - 0.085]) {
+    box(contents, width, 0.071, 0.085, 0, height, back + 0.062, trim);
+    box(contents, 0.085, 0.071, depth, -halfWidth + 0.021, height, centerZ, trim);
   }
-  for (let x = -5.05; x < 5.13; x += 0.31) {
-    box(cabin, 0.016, 0.64, 0.025, x, 0.42, -4.102, cedar, false);
+  for (let x = -halfWidth + 0.2; x < halfWidth - 0.1; x += 0.285) {
+    box(contents, 0.014, 0.47, 0.02, x, 0.32, back + 0.079, cedar, false);
   }
-  for (let z = -4.03; z < 4.13; z += 0.31) {
-    box(cabin, 0.025, 0.64, 0.016, -5.08, 0.42, z, cedar, false);
+  for (let z = back + 0.16; z < front - 0.12; z += 0.285) {
+    box(contents, 0.020, 0.47, 0.014, -halfWidth + 0.033, 0.32, z, cedar, false);
   }
-  box(cabin, 0.16, 3.34, 0.15, -5.05, 1.67, -4.06, trim);
-  box(cabin, 0.15, 3.34, 0.15, 5.13, 1.67, -4.06, trim);
-  box(cabin, 0.15, 3.34, 0.15, -5.05, 1.67, 4.24, trim);
+  box(contents, 0.13, ceiling, 0.13, -halfWidth + 0.064, ceiling / 2, back + 0.075, trim);
+  box(contents, 0.13, ceiling, 0.13, halfWidth - 0.064, ceiling / 2, back + 0.075, trim);
+  box(contents, 0.13, ceiling, 0.13, -halfWidth + 0.064, ceiling / 2, front - 0.075, trim);
 
-  box(cabin, 11.40, 0.12, 11.28, 0.34, 3.38, 1.30, standard('#e2c59f'), false);
-  for (let x = -4.74; x <= 4.8; x += 1.58) {
-    box(cabin, 0.146, 0.235, 11.26, x, 3.24, 1.30, darkWood);
+  box(contents, width, 0.10, depth, 0, ceiling + 0.05, centerZ, standard('#e2c59f'), false);
+  for (let x = -3.16; x <= 3.18; x += 1.05) {
+    box(contents, 0.105, 0.127, depth, x, ceiling - 0.047, centerZ, darkWood);
   }
-  for (const z of [-3.94, -1.01, 1.87, 4.10]) {
-    box(cabin, 10.64, 0.19, 0.18, 0, 3.11, z, trim);
-    box(cabin, 10.64, 0.055, 0.195, 0, 3.17, z, cedar);
+  for (const z of [back + 0.18, -0.21, front - 0.19]) {
+    box(contents, width, 0.14, 0.157, 0, ceiling - 0.103, z, trim);
+    box(contents, width, 0.043, 0.175, 0, ceiling - 0.075, z, cedar);
   }
 
   const windowView = texture(864, 460, (ctx, width, height) => {
@@ -231,48 +256,32 @@ export function createRoom(THREE, scene) {
     }
   });
   const windowGroup = new THREE.Group();
-  windowGroup.position.set(2.22, 2.12, -4.12);
-  cabin.add(windowGroup);
+  windowGroup.position.set(sideX, windowY, windowZ);
+  windowGroup.rotation.y = Math.PI / 2;
+  contents.add(windowGroup);
   const windowMaterial = new THREE.MeshBasicMaterial({ map: windowView, color: '#ffffff', toneMapped: false });
-  mesh(windowGroup, new THREE.PlaneGeometry(3.04, 1.61), windowMaterial, 0, 0, 0.057, false);
-  for (const x of [-1.56, 0, 1.56]) {
-    box(windowGroup, x === 0 ? 0.067 : 0.131, 1.77, 0.13, x, 0, 0.108, paleOak);
+  const windowViewPlane = mesh(cabin, new THREE.PlaneGeometry(windowWidth + 0.015, windowHeight + 0.015),
+    windowMaterial, sideX + 0.057, windowY, windowZ, false);
+  windowViewPlane.rotation.y = windowGroup.rotation.y;
+  for (const x of [-1.11, -0.37, 0.37, 1.11]) {
+    const outer = Math.abs(x) > 1;
+    box(windowGroup, outer ? 0.102 : 0.061, 1.60, 0.125, x, 0, 0.108, paleOak);
   }
-  for (const y of [-0.852, 0.184, 0.852]) {
-    const outer = Math.abs(y) > 0.8;
-    box(windowGroup, outer ? 3.26 : 3.05, outer ? 0.11 : 0.055, 0.16, 0, y, 0.12, paleOak);
+  for (const y of [-0.746, 0.15, 0.751]) {
+    const outer = Math.abs(y) > 0.7;
+    box(windowGroup, outer ? 2.31 : 2.18, outer ? 0.09 : 0.054, 0.125, 0, y, 0.108, paleOak);
   }
-  box(windowGroup, 3.35, 0.085, 0.35, 0, -0.909, 0.16, warmOak);
-  box(windowGroup, 3.77, 0.041, 0.041, 0, 0.983, 0.22, iron);
+  box(windowGroup, 2.37, 0.065, 0.267, 0, -0.81, 0.16, warmOak);
+  box(windowGroup, 2.65, 0.032, 0.032, 0, 0.876, 0.187, iron);
   for (const side of [-1, 1]) {
-    sphere(windowGroup, 0.049, 0.049, 0.049, side * 1.92, 0.983, 0.22, brass);
+    sphere(windowGroup, 0.038, 0.038, 0.038, side * 1.35, 0.876, 0.187, brass);
     for (let i = 0; i < 7; i += 1) {
-      const x = side * (1.50 + 0.046 * i);
-      const curtain = sphere(windowGroup, 0.041, 0.945, 0.045, x, 0.012, 0.23 + 0.018 * Math.sin(i), i % 2 ? cream : beige);
+      const x = side * (1.048 + 0.035 * i);
+      const curtain = sphere(windowGroup, 0.032, 0.81, 0.039, x, 0.018, 0.204 + 0.015 * Math.sin(i), i % 2 ? cream : beige);
       curtain.rotation.z = side * (i - 3) * 0.008;
     }
-    box(windowGroup, 0.36, 0.055, 0.053, side * 1.63, -0.24, 0.278, salmon);
+    box(windowGroup, 0.274, 0.047, 0.047, side * 1.153, -0.24, 0.244, salmon);
   }
-
-  const exit = new THREE.Group();
-  exit.name = '木门';
-  exit.position.set(-5.02, 0, 1.59);
-  exit.rotation.y = Math.PI / 2;
-  cabin.add(exit);
-  box(exit, 1.42, 2.54, 0.16, 0, 1.27, 0, trim);
-  box(exit, 1.19, 2.39, 0.09, 0, 1.21, 0.096, teal);
-  for (const x of [-0.636, 0.636]) box(exit, 0.12, 2.54, 0.17, x, 1.27, 0.118, warmOak);
-  box(exit, 1.4, 0.127, 0.18, 0, 2.49, 0.12, warmOak);
-  box(exit, 1.39, 0.065, 0.31, 0, 0.035, 0.11, warmOak);
-  const doorGroove = standard('#2f6159');
-  for (let x = -0.37; x <= 0.38; x += 0.185) {
-    box(exit, 0.013, 1.10, 0.019, x, 0.685, 0.148, doorGroove, false);
-  }
-  box(exit, 0.86, 0.429, 0.028, 0, 1.91, 0.159, darkWood);
-  box(exit, 0.75, 0.33, 0.031, 0, 1.91, 0.174, standard('#8ca9a1', { emissive: '#8bb8b5', emissiveIntensity: 0.19 }));
-  for (const x of [-0.132, 0.132]) box(exit, 0.025, 0.33, 0.038, x, 1.91, 0.187, trim);
-  sphere(exit, 0.056, 0.056, 0.055, 0.43, 1.12, 0.207, brass);
-  box(exit, 0.085, 0.18, 0.025, 0.43, 1.10, 0.158, brass);
 
   const rugMap = texture(792, 578, (ctx, width, height) => {
     ctx.fillStyle = '#c47c61';
@@ -304,15 +313,21 @@ export function createRoom(THREE, scene) {
       ctx.fillRect(random() * width, random() * height, 1 + random() * 7, 1);
     }
   });
-  box(cabin, 4.80, 0.032, 3.51, -0.13, 0.018, 0.69, standard('#ffffff', { map: rugMap }));
+  const rugX = -0.31;
+  const rugZ = 1.02;
+  const rugWidth = 3.53;
+  const rugDepth = 2.29;
+  box(contents, rugWidth, 0.028, rugDepth, rugX, 0.015, rugZ, standard('#ffffff', { map: rugMap }));
   for (const side of [-1, 1]) {
-    for (let i = 0; i < 30; i += 1) {
-      const thread = box(cabin, 0.013, 0.016, 0.12 + random() * 0.04, -2.42 + i * 0.156, 0.011, 0.69 + 1.78 * side, beige, false);
+    for (let i = 0; i < 24; i += 1) {
+      const x = rugX - rugWidth / 2 + (i + 0.5) * rugWidth / 24;
+      const z = rugZ + (rugDepth / 2 + 0.024) * side;
+      const thread = box(contents, 0.012, 0.014, 0.084 + random() * 0.03, x, 0.010, z, beige, false);
       thread.rotation.y = (random() - 0.5) * 0.43;
     }
   }
 
-  const table = movable('茶几', -0.30, 0.55, 1.12);
+  const table = movable('茶几', -0.35, 0.97, 0.86);
   table.rotation.y = -0.09;
   box(table, 1.91, 0.106, 1.07, 0, 0.45, 0, paleOak);
   box(table, 1.75, 0.093, 0.91, 0, 0.38, 0, cedar);
@@ -340,7 +355,7 @@ export function createRoom(THREE, scene) {
     sphere(table, 0.014, 0.004, 0.008, -0.36 + Math.cos(angle) * radius, 0.67, 0.023 + Math.sin(angle) * radius, melonSeed, false);
   }
 
-  const bed = movable('海蓝小床', 2.56, -2.47, 1.61);
+  const bed = movable('海蓝小床', 0, -1.22, 0.86);
   box(bed, 2.07, 0.264, 2.59, 0, 0.258, 0, warmOak);
   box(bed, 2.12, 0.155, 2.63, 0, 0.37, 0, paleOak);
   box(bed, 2.14, 1.01, 0.157, 0, 0.66, -1.25, cedar);
@@ -364,7 +379,7 @@ export function createRoom(THREE, scene) {
   box(bed, 1.46, 0.031, 0.032, 0.18, 0.749, 0.685, cream);
   box(bed, 1.46, 0.031, 0.032, 0.18, 0.749, 1.022, cream);
 
-  const shelf = movable('书架', -2.76, -3.60, 0.99);
+  const shelf = movable('书架', -2.55, -2.18, 0.86);
   box(shelf, 1.78, 2.32, 0.15, 0, 1.24, -0.214, trim);
   for (const x of [-0.901, 0.901]) {
     box(shelf, 0.104, 2.43, 0.50, x, 1.24, 0.014, cedar);
@@ -389,15 +404,15 @@ export function createRoom(THREE, scene) {
     }
   }
 
-  const chair = movable('藤边扶手椅', 3.84, 1.19, 0.94);
+  const chair = movable('藤边扶手椅', 2.98, 1.55, 0.82);
   chair.rotation.y = -1.06;
   for (const x of [-0.471, 0.471]) {
     for (const z of [-0.432, 0.432]) box(chair, 0.083, 0.49, 0.083, x, 0.246, z, warmOak);
   }
   box(chair, 1.08, 0.111, 1.03, 0, 0.438, 0, cedar);
   box(chair, 0.91, 0.165, 0.92, 0, 0.565, 0.031, beige);
-  const back = box(chair, 0.94, 0.63, 0.115, 0, 0.859, -0.457, cedar);
-  back.rotation.x = -0.105;
+  const chairBack = box(chair, 0.94, 0.63, 0.115, 0, 0.859, -0.457, cedar);
+  chairBack.rotation.x = -0.105;
   const cushion = sphere(chair, 0.452, 0.347, 0.114, 0, 0.829, -0.383, fabric);
   cushion.rotation.x = -0.07;
   for (const x of [-0.513, 0.513]) {
@@ -406,7 +421,7 @@ export function createRoom(THREE, scene) {
     box(chair, 0.072, 0.404, 0.078, x, 0.641, -0.32, warmOak);
   }
 
-  const fern = movable('陶盆绿植', -3.77, -1.77, 0.52);
+  const fern = movable('陶盆绿植', -3.14, -0.78, 0.88);
   cylinder(fern, 0.255, 0.177, 0.33, 0, 0.168, 0, clay);
   cylinder(fern, 0.267, 0.267, 0.057, 0, 0.328, 0, clay);
   cylinder(fern, 0.23, 0.23, 0.014, 0, 0.359, 0, soil);
@@ -422,8 +437,8 @@ export function createRoom(THREE, scene) {
   }
 
   const pendant = new THREE.Group();
-  pendant.position.set(-0.27, 3.11, -0.48);
-  cabin.add(pendant);
+  pendant.position.set(-0.27, ceiling - 0.127, -0.21);
+  contents.add(pendant);
   cylinder(pendant, 0.116, 0.116, 0.081, 0, 0.10, 0, iron);
   cylinder(pendant, 0.022, 0.022, 0.289, 0, -0.068, 0, iron);
   cylinder(pendant, 0.137, 0.382, 0.232, 0, -0.26, 0, standard('#dfaa6d', {
@@ -431,27 +446,27 @@ export function createRoom(THREE, scene) {
   }));
   cylinder(pendant, 0.383, 0.383, 0.026, 0, -0.385, 0, bulbMaterial);
   sphere(pendant, 0.085, 0.05, 0.085, 0, -0.401, 0, bulbMaterial);
-  const lamp = new THREE.PointLight('#ffc47c', 16.5, 8, 2);
+  const lamp = new THREE.PointLight('#ffc47c', 10.2, 7, 2);
   lamp.position.set(0, -0.47, 0);
   pendant.add(lamp);
   const windowFill = new THREE.PointLight('#accbd6', 5.2, 6.4, 1.65);
-  windowFill.position.set(2.22, 2.31, -3.76);
+  windowFill.position.set(sideX + 0.26, windowY + 0.19, windowZ);
   cabin.add(windowFill);
 
   const picture = (x, y, width, height, color) => {
-    box(cabin, width, height, 0.075, x, y, -4.099, trim);
-    box(cabin, width - 0.08, height - 0.08, 0.051, x, y, -4.045, cream);
-    box(cabin, width - 0.2, (height - 0.18) * 0.70, 0.035, x, y, -4.010, color);
-    const sun = sphere(cabin, 0.048, 0.048, 0.015, x + width * 0.16, y + height * 0.12, -3.98, beige, false);
+    box(contents, width, height, 0.075, x, y, back + 0.068, trim);
+    box(contents, width - 0.08, height - 0.08, 0.051, x, y, back + 0.122, cream);
+    box(contents, width - 0.2, (height - 0.18) * 0.70, 0.035, x, y, back + 0.157, color);
+    const sun = sphere(contents, 0.048, 0.048, 0.015, x + width * 0.16, y + height * 0.12, back + 0.187, beige, false);
     sun.rotation.z = 0.12;
-    const hill = sphere(cabin, (width - 0.2) * 0.48, 0.06, 0.015, x, y - height * 0.105, -3.98, ink, false);
+    const hill = sphere(contents, (width - 0.2) * 0.48, 0.06, 0.015, x, y - height * 0.105, back + 0.187, ink, false);
     hill.rotation.z = 0.07;
   };
-  picture(-0.67, 2.37, 0.63, 0.54, denim);
-  picture(0.01, 2.06, 0.43, 0.41, moss);
+  picture(-0.54, 1.78, 0.63, 0.54, denim);
+  picture(0.14, 1.51, 0.43, 0.41, moss);
 
   // Batch shared shapes inside each group so a furniture item still moves as a unit.
-  for (const parent of [cabin, windowGroup, exit, pendant, table, bed, shelf, chair]) {
+  for (const parent of [cabin, contents, windowGroup, pendant, table, bed, shelf, chair]) {
     const batches = new Map();
     for (const part of parent.children) {
       if (!part.isMesh || part.isInstancedMesh) continue;
@@ -475,12 +490,13 @@ export function createRoom(THREE, scene) {
   }
 
   return {
+    cabin,
+    contents,
     furniture,
-    exit,
     update(time, daylight = true) {
       windowMaterial.map = daylight ? windowView : nightView;
       windowFill.intensity = daylight ? 5.2 : 2.2;
-      lamp.intensity = (daylight ? 16.5 : 23.0) + Math.sin(time * 1.39) * 0.28;
+      lamp.intensity = (daylight ? 10.2 : 15.5) + Math.sin(time * 1.39) * 0.28;
       for (let i = 0; i < fernLeaves.length; i += 1) {
         fernLeaves[i].rotation.z = Math.sin(time * 0.91 + i * 1.6) * 0.052;
       }
