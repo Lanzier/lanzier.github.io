@@ -6,6 +6,6 @@ export const COTTAGE = {
   floorY: 1.135,
   centerZ: -1.42,
   chimneyX: 2.35,
-  chimneyZ: -2.00,
-  chimneyBaseY: 4.42,
+  chimneyZ: -3.685,
+  chimneyBaseY: 3.92,
 };
