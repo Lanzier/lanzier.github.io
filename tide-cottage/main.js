@@ -365,6 +365,12 @@ function launch() {
     const outside = mode === "island" && !transition;
     mark(doorMarker, doorAnchor, outside && camera.position.z > doorAnchor.z + 1);
     mark(gardenMarker, gardenAnchor, outside && (camera.position.z > 2 || camera.position.x < -4));
+    if (!outside && (doorMarker.dataset.targetHover === "true" || gardenMarker.dataset.targetHover === "true")) updateHotspotHover(null);
+  }
+
+  function updateHotspotHover(target) {
+    doorMarker.dataset.targetHover = String(target === island.door);
+    gardenMarker.dataset.targetHover = String(target === island.garden);
   }
 
   function animate(action) {
@@ -497,6 +503,13 @@ function launch() {
   });
 
   canvas.addEventListener("pointermove", event => {
+    if (!event.buttons && event.pointerType === "mouse" && ready && mode === "island" && !transition) {
+      pointRay(event);
+      const targets = [];
+      if (!doorMarker.hidden) targets.push(island.door);
+      if (!gardenMarker.hidden) targets.push(island.garden);
+      updateHotspotHover(hit(targets));
+    }
     if (!gesture || gesture.id !== event.pointerId) return;
     if (Math.hypot(gesture.x - event.clientX, gesture.y - event.clientY) > 6) gesture.moved = true;
     if (!gesture.item || !gesture.moved) return;
@@ -506,6 +519,7 @@ function launch() {
     gesture.item.updateMatrixWorld(true);
     outline.update();
   });
+  canvas.addEventListener("pointerleave", () => updateHotspotHover(null));
 
   function finishGesture(event) {
     if (!gesture || gesture.id !== event.pointerId) return;

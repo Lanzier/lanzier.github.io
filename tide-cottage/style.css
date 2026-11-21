@@ -58,6 +58,14 @@ svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width:
 .icon-control { width: 42px; }
 .light-control { padding: 0 14px; font-size: 14px; }
 .light-control svg { color: #ffe2ad; }
+.time-strip {
+  display: flex; align-items: center; gap: 8px; min-height: 42px; padding: 5px 10px;
+  border-radius: 50px; white-space: nowrap;
+}
+.time-strip button { padding: 3px 7px; border-radius: 12px; color: var(--ivory); background: #fff2cc19; font-size: 12px; }
+.time-strip button:disabled { opacity: .57; }
+.time-strip input { width: clamp(66px, 10vw, 125px); margin: 0; accent-color: #f2d69e; }
+.time-strip output { min-width: 38px; color: var(--ivory); font-size: 13px; font-variant-numeric: tabular-nums; }
 .weather-panel {
   position: absolute; z-index: 6; top: max(75px, calc(env(safe-area-inset-top) + 57px));
   right: max(16px, env(safe-area-inset-right)); width: min(315px, calc(100% - 32px));
@@ -89,6 +97,9 @@ button.glass:hover, .control:not(:disabled):hover { background: #304d46; }
   font-size: 13px; transition: background .18s, scale .18s;
 }
 .hotspot:hover { background: #3a5145; scale: 1.06; }
+@media (hover: hover) and (pointer: fine) {
+  .hotspot:not(:hover):not(:focus-visible):not([data-target-hover="true"]) { opacity: 0; }
+}
 .hotspot-icon { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; color: #fbdaad; background: #f1d39e22; }
 .hotspot-icon svg { width: 14px; height: 14px; }
 .hotspot::after { content: ""; position: absolute; top: 100%; left: 49%; width: 1px; height: 9px; background: #f9edd4a6; }
@@ -165,6 +176,9 @@ noscript { position: fixed; z-index: 9; top: 50%; width: 100%; text-align: cente
   .brand-mark { width: 38px; height: 38px; }
   .brand-mark svg { width: 21px; height: 21px; }
   .top-actions { gap: 6px; }
+  .time-strip { position: absolute; right: max(16px, env(safe-area-inset-right)); top: max(61px, calc(env(safe-area-inset-top) + 47px)); min-height: 32px; }
+  .time-strip input { width: 88px; }
+  .weather-panel { top: max(100px, calc(env(safe-area-inset-top) + 86px)); }
   .top-actions .control { min-height: 38px; }
   .top-actions .icon-control { width: 38px; }
   .light-control { padding: 0 10px; gap: 5px; }

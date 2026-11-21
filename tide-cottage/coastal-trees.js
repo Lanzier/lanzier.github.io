@@ -1,6 +1,8 @@
+import { weatherSurface } from './weather.js';
+
 const TAU = Math.PI * 2;
 
-export function createCoastalTrees(THREE, root, terrainHeight) {
+export function createCoastalTrees(THREE, root, terrainHeight, weather) {
   const positions = [];
   const colors = [];
   const indices = [];
@@ -103,7 +105,7 @@ export function createCoastalTrees(THREE, root, terrainHeight) {
   leavesGeometry.computeVertexNormals();
   const foliage = new THREE.InstancedMesh(
     leavesGeometry,
-    new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }),
+    weatherSurface(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }), weather, true),
     crowns.length,
   );
   const transform = new THREE.Object3D();

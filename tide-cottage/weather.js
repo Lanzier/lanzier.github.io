@@ -39,13 +39,14 @@ export function createWeatherControls(get) {
     const clock = [Math.floor(minute / 60), minute % 60].map(value => String(value).padStart(2, "0")).join(":");
     button.querySelector("span").textContent = labels[type];
     button.querySelector("use").setAttribute("href", minute < 360 || minute >= 1150 ? "#i-moon" : "#i-sun");
-    button.setAttribute("aria-label", `时间和天气，${labels[type]}`);
+    button.setAttribute("aria-label", `天气，${labels[type]}`);
     time.value = minute;
     strength.value = Math.round(intensity * 100);
     get("weather-clock").value = clock;
     get("weather-percent").value = `${strength.value}%`;
     for (const choice of choices) choice.setAttribute("aria-pressed", String(choice.dataset.weather === type));
-    status.textContent = Object.keys(override).length ? "手动设置 · 义乌时间" : syncState;
+    status.textContent = override.type ? "手动天气" : syncState;
+    get("time-reset").disabled = override.minute === undefined;
   }
 
   async function refresh() {
@@ -72,6 +73,10 @@ export function createWeatherControls(get) {
     update();
   });
   time.addEventListener("input", () => { override.minute = Number(time.value); update(); });
+  get("time-reset").addEventListener("click", () => {
+    delete override.minute;
+    update();
+  });
   strength.addEventListener("input", () => {
     override.type = current().type;
     override.intensity = Number(strength.value) / 100;
@@ -94,23 +99,25 @@ export function createWeatherControls(get) {
   return current;
 }
 
-export function weatherSurface(material, weather, strength = 1) {
+export function weatherSurface(material, weather, crown = false) {
   material.onBeforeCompile = shader => {
     shader.uniforms.weatherSnow = weather.snow;
     shader.uniforms.weatherWet = weather.wet;
-    shader.uniforms.weatherCoating = { value: strength };
+    shader.uniforms.weatherCrown = { value: Number(crown) };
     shader.vertexShader = shader.vertexShader
-      .replace("#include <common>", "#include <common>\nvarying vec3 weatherPosition;")
+      .replace("#include <common>", "#include <common>\nvarying vec3 weatherPosition;\nvarying float crownHeight;")
       .replace("#include <begin_vertex>", `#include <begin_vertex>
         vec4 weatherLocal = vec4(transformed, 1.0);
         #ifdef USE_INSTANCING
           weatherLocal = instanceMatrix * weatherLocal;
         #endif
-        weatherPosition = (modelMatrix * weatherLocal).xyz;`);
+        weatherPosition = (modelMatrix * weatherLocal).xyz;
+        crownHeight = position.y;`);
     shader.fragmentShader = shader.fragmentShader
       .replace("#include <common>", `#include <common>
-        uniform float weatherSnow, weatherWet, weatherCoating;
-        varying vec3 weatherPosition;`)
+        uniform float weatherSnow, weatherWet, weatherCrown;
+        varying vec3 weatherPosition;
+        varying float crownHeight;`)
       .replace("#include <color_fragment>", `#include <color_fragment>
         vec2 coatingPosition = weatherPosition.xz;
         float edge = sin(coatingPosition.x*2.1+sin(coatingPosition.y*3.0))*cos(coatingPosition.y*2.4)
@@ -118,7 +125,9 @@ export function weatherSurface(material, weather, strength = 1) {
         float cover = smoothstep(.01, .50, weatherSnow)
           * smoothstep(.53,.81,weatherSnow*1.2 + edge*.18);
         diffuseColor.rgb *= 1.0 - weatherWet*(.25 + edge*.06);
-        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(.86,.92,.96),cover*weatherCoating);`)
+        float crownCover = smoothstep(.16,.63,crownHeight + edge*.08 - (1.0-weatherSnow)*.28);
+        cover *= mix(1.0,crownCover*.92,weatherCrown);
+        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(.86,.92,.96),cover);`)
       .replace("#include <roughnessmap_fragment>", `#include <roughnessmap_fragment>
         roughnessFactor = mix(roughnessFactor, .20 + .15*edge, weatherWet*(1.0-cover));`);
   };

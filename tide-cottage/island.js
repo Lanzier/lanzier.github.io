@@ -409,7 +409,7 @@ export function createIsland(THREE, scene, weather) {
 
   const leafColors = ['#48734b', '#537c4c', '#65894e', '#719155', '#7b9c5d', '#5d814e', '#3a694f', '#91a860'];
   const leafItems = [];
-  createCoastalTrees(THREE, root, terrainHeight);
+  createCoastalTrees(THREE, root, terrainHeight, weather);
 
   const shrubBeds = [
     [-10.7, -1.9, .55], [-9.3, 3.2, .62], [-7.25, 3.1, .46], [-6.95, 5.18, .48],

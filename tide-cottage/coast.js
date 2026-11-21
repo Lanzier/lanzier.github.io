@@ -103,9 +103,27 @@ void main() {
   float coast = (1.0 + .077*cos(a*3.0+.8) + .062*sin(a*5.0-.5)
     + .038*cos(a*8.0+1.45) + .031*sin(a*13.0)) * (1.0-.12*pow(max(0.0,sin(a)),4.0));
   float depth = max(0.0,length(scaled)-coast);
-  float shoal = 1.0-smoothstep(.025,.76,depth + (noise(p*.49)-.5)*.06);
-  vec3 middle = mix(deep,blue,.34);
-  vec3 c = mix(mix(deep,middle,1.0-smoothstep(.18,1.35,depth)),blue,shoal);
+  float sandGrain = noise(p*.49);
+  float shoal = 1.0-smoothstep(.05,.66,depth + (sandGrain-.5)*.075);
+  vec3 middle = mix(deep,blue,.38);
+  vec3 c = mix(mix(deep,middle,1.0-smoothstep(.19,1.27,depth)),blue,shoal);
+  vec3 sand = mix(vec3(.21,.65,.65),vec3(.32,.81,.74),uDay);
+  sand = mix(sand,vec3(.034,.23,.26),uNight);
+  c = mix(c,sand,(1.0-smoothstep(.02,.28,depth))*.62);
+  if (depth < .60) {
+    vec2 grid = p*vec2(.73,.88);
+    vec2 cell = floor(grid);
+    float chance = noise(cell*1.63 + 2.7);
+    vec2 center = vec2(noise(cell+8.6),noise(cell+17.4))*.36+.32;
+    vec2 stone = fract(grid) - center;
+    float outline = max(abs(stone.x + stone.y*.35),abs(stone.y) * .80)
+      + abs(stone.x-stone.y)*.25 + (noise(p*6.0)-.5)*.085;
+    float rock = (1.0-smoothstep(.095,.17+chance*.055,outline))*smoothstep(.49,.65,chance);
+    float visibility = smoothstep(.012,.085,depth)*(1.0-smoothstep(.22,.60,depth));
+    float facet = step(0.0,stone.x + stone.y*.48);
+    vec3 reef = mix(vec3(.013,.072,.098),vec3(.045,.19,.20),facet);
+    c = mix(c,reef,rock*visibility*.66*(1.0-fresnel*.75));
+  }
   c = mix(c,c*vec3(.75,.85,.92),uCloud*.6);
   c *= .99 + waveLight*3.8;
   c = mix(c,reflection,fresnel*.48);
