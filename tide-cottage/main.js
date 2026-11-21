@@ -605,7 +605,8 @@ function launch() {
     if (controls.enabled && wheelDistance !== undefined) {
       zoomOffset.copy(camera.position).sub(controls.target);
       const distance = zoomOffset.length();
-      const blend = reduceMotion.matches ? 1 : 1 - Math.exp(-(now - (previousFrame ?? now)) / 95);
+      const elapsed = Math.min(40, now - (previousFrame ?? now));
+      const blend = reduceMotion.matches ? 1 : 1 - Math.exp(-elapsed / 95);
       const next = THREE.MathUtils.lerp(distance, wheelDistance, blend);
       const settled = Math.abs(next - wheelDistance) < .003;
       camera.position.copy(controls.target).add(zoomOffset.setLength(settled ? wheelDistance : next));

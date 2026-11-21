@@ -35,14 +35,18 @@ function enableChatResize(panel) {
 
   handle.addEventListener("pointerdown", event => {
     if (event.button !== 0 || drag) return;
+    event.preventDefault();
+    handle.focus({ preventScroll: true });
     handle.setPointerCapture(event.pointerId);
     drag = { x: event.clientX, y: event.clientY, width: panel.offsetWidth, height: panel.offsetHeight };
   });
-  handle.addEventListener("pointermove", event => {
+  function resizeFromPointer(event) {
     if (drag && handle.hasPointerCapture(event.pointerId)) {
       setSize(drag.width + drag.x - event.clientX, drag.height + drag.y - event.clientY);
     }
-  });
+  }
+  handle.addEventListener("pointermove", resizeFromPointer);
+  handle.addEventListener("pointerup", resizeFromPointer);
   handle.addEventListener("lostpointercapture", () => { drag = undefined; });
   handle.addEventListener("keydown", event => {
     const delta = { ArrowLeft: [16, 0], ArrowRight: [-16, 0], ArrowUp: [0, 16], ArrowDown: [0, -16] }[event.key];
