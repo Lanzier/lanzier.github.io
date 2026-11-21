@@ -130,17 +130,18 @@ export function createChat(elements, { harvest, animate, takePhoto, describeActi
     if (!text || (ownerChat && outstanding && !photo && !activity)) return;
     message("guest", text, !photo && !activity);
     input.value = "";
+    const description = activity ? describeActivity() : null;
     if (activity && Math.random() < .5) {
-      message("amo", describeActivity(), false);
+      message("amo", description, false);
       return;
     }
     if (photo || activity) {
       const firstPerson = photo === "view" || activity;
       try {
         const image = await takePhoto(firstPerson);
-        message("amo", firstPerson ? "这是我现在看到的。" : "这是我现在的样子。", false, image);
+        message("amo", description ?? (firstPerson ? "这是我现在看到的。" : "这是我现在的样子。"), false, image);
       } catch {
-        message("amo", activity ? describeActivity() : "刚才没拍成功，再试一次吧。", false);
+        message("amo", description ?? "刚才没拍成功，再试一次吧。", false);
       }
       return;
     }
