@@ -74,6 +74,7 @@ const oceanFragment = `
 ${atmosphere}
 uniform vec2 uShoreSize;
 uniform float uWaveDetail;
+uniform sampler2D uReefs;
 void main() {
   vec2 p = vWorld.xz;
   float distanceToEye = length(vWorld-cameraPosition);
@@ -111,19 +112,18 @@ void main() {
   vec3 sand = mix(vec3(.21,.65,.65),vec3(.32,.81,.74),uDay);
   sand = mix(sand,vec3(.034,.23,.26),uNight);
   c = mix(c,sand,(1.0-smoothstep(.02,.28,depth))*.62);
-  if (depth < .60) {
-    vec2 grid = p*vec2(.73,.88);
-    vec2 cell = floor(grid);
-    float chance = noise(cell*1.63 + 2.7);
-    vec2 center = vec2(noise(cell+8.6),noise(cell+17.4))*.36+.32;
-    vec2 stone = fract(grid) - center;
-    float outline = max(abs(stone.x + stone.y*.35),abs(stone.y) * .80)
-      + abs(stone.x-stone.y)*.25 + (noise(p*6.0)-.5)*.085;
-    float rock = (1.0-smoothstep(.095,.17+chance*.055,outline))*smoothstep(.49,.65,chance);
-    float visibility = smoothstep(.012,.085,depth)*(1.0-smoothstep(.22,.60,depth));
-    float facet = step(0.0,stone.x + stone.y*.48);
-    vec3 reef = mix(vec3(.013,.072,.098),vec3(.045,.19,.20),facet);
-    c = mix(c,reef,rock*visibility*.66*(1.0-fresnel*.75));
+  if (depth < .80) {
+    float shelfWidth = .29+.075*sin(a*4.0+.7)+.039*cos(a*7.0-1.2)+(noise(p*.37)-.5)*.08;
+    float seabed = depth/max(shelfWidth,.11);
+    float floorVisibility = (1.0-smoothstep(.19,1.30,seabed))*(1.0-fresnel*.62);
+    float ridges = sin(a*34.0 + sin(a*11.0)*2.3 + seabed*2.5)*.12 + (sandGrain-.5)*.30;
+    vec3 slope = mix(vec3(.062,.25,.23),vec3(.17,.48,.40),uDay)*(1.0-seabed*.30+ridges);
+    slope = mix(slope,vec3(.016,.095,.12),uNight);
+    c = mix(c,slope,floorVisibility*.69);
+    vec4 stone = texture2D(uReefs,p/vec2(56.0,44.0)+.5);
+    float visibility = 1.0-smoothstep(.10,.69,depth);
+    vec3 reef = mix(vec3(.009,.038,.054),vec3(.078,.23,.23),stone.r);
+    c = mix(c,reef,stone.a*visibility*.85*(1.0-fresnel*.68));
   }
   c = mix(c,c*vec3(.75,.85,.92),uCloud*.6);
   c = mix(c * vec3(.54,.64,.82),c,max(uWaveDetail,shoal));
@@ -141,6 +141,72 @@ void main() {
 }
 `;
 
+function makeReefTexture(THREE, shorePoint) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 768;
+  canvas.height = 604;
+  const context = canvas.getContext("2d");
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.scale(canvas.width / 56, -canvas.height / 44);
+  let seed = 184731;
+  const random = () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+
+  function rock(x, z, width) {
+    const corners = 5 + Math.floor(random() * 4);
+    const rotation = random() * Math.PI * 2;
+    const narrowness = .39 + random() * .65;
+    const outline = [];
+    for (let i = 0; i < corners; i++) {
+      const angle = (i + random() * .51) * Math.PI * 2 / corners;
+      const radius = width * (.67 + random() * .48);
+      const dx = Math.cos(angle) * radius;
+      const dz = Math.sin(angle) * radius * narrowness;
+      outline.push([x + dx * Math.cos(rotation) - dz * Math.sin(rotation),
+        z + dx * Math.sin(rotation) + dz * Math.cos(rotation)]);
+    }
+    context.beginPath();
+    context.moveTo(...outline[0]);
+    outline.slice(1).forEach(point => context.lineTo(...point));
+    context.closePath();
+    context.fillStyle = `rgba(27,27,27,${.61 + random() * .39})`;
+    context.fill();
+    context.beginPath();
+    context.moveTo(x - width * .16, z + width * .07);
+    outline.slice(0, Math.ceil(corners / 2)).forEach(point => context.lineTo(...point));
+    context.closePath();
+    context.fillStyle = "rgba(144,144,144,.46)";
+    context.fill();
+  }
+
+  function reefCenter(extraDepth) {
+    const angle = random() * Math.PI * 2;
+    const { x, z } = shorePoint(angle);
+    const reach = 1.045 + random() ** 1.65 * extraDepth;
+    return [x * reach, z * reach];
+  }
+
+  for (let i = 0; i < 23; i++) {
+    const [x, z] = reefCenter(.53);
+    const size = .27 + random() ** 1.9 * .89;
+    rock(x, z, size);
+    const count = 3 + Math.floor(random() * 6);
+    const spread = .75 + random() * 1.35;
+    for (let j = 0; j < count; j++) {
+      const angle = random() * Math.PI * 2;
+      const offset = .25 + random() * spread;
+      rock(x + Math.cos(angle) * offset, z + Math.sin(angle) * offset, .11 + random() ** 1.7 * size * .72);
+    }
+  }
+  for (let i = 0; i < 57; i++) {
+    const [x, z] = reefCenter(.67);
+    rock(x, z, .13 + random() ** 2.1 * .62);
+  }
+  return new THREE.CanvasTexture(canvas);
+}
+
 export function createCoast(THREE, scene, shorePoint, shoreSize) {
   const uniforms = {
     uTime: { value: 0 },
@@ -150,6 +216,7 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
     uSun: { value: new THREE.Vector3(-.60, .15, -.79).normalize() },
     uShoreSize: { value: new THREE.Vector2(...shoreSize) },
     uWaveDetail: { value: 1 },
+    uReefs: { value: makeReefTexture(THREE, shorePoint) },
   };
   const sky = new THREE.Mesh(
     new THREE.SphereGeometry(465, 28, 15),
