@@ -431,7 +431,7 @@ export function createIsland(THREE, scene, weather) {
     [-10.7, -1.9, .55], [-9.3, 3.2, .62], [-7.25, 3.1, .46], [-6.95, 5.18, .48],
     [-5.93, 5.91, .38], [-7.7, -.7, .43], [9.75, 2.04, .54], [10.55, -2.0, .55],
     [7.2, 3.48, .50], [5.3, 4.95, .44], [3.7, 3.12, .30], [6.27, 5.12, .39],
-    [-2.52, 5.75, .32], [4.79, -.08, .39], [-4.63, 2.79, .36], [-5.74, -.08, .50],
+    [-2.52, 5.75, .32], [5.13, -1.62, .39], [-4.63, 2.79, .36], [-5.74, -.08, .50],
     [2.47, 6.11, .43], [-3.62, -.5, .24], [4.90, -6.06, .48], [-6.25, -6.05, .39],
   ];
   for (const [x, z, scale] of shrubBeds) {
@@ -445,11 +445,12 @@ export function createIsland(THREE, scene, weather) {
 
   const garden = new THREE.Group();
   root.add(garden);
-  const gardenX = -4.95;
-  const gardenZ = 4.37;
+  const gardenX = 6.48;
+  const gardenZ = .30;
   const gardenY = terrainHeight(gardenX, gardenZ);
   garden.position.set(gardenX, gardenY, gardenZ);
   garden.rotation.y = -.15;
+  const inGarden = (x, z) => Math.abs(x - gardenX) < 1.95 && Math.abs(z - gardenZ) < 1.62;
   const soil = material('#735743');
   const darkSoil = material('#5b4835');
   box(garden, darkSoil, 0, .055, 0, 3.28, .13, 2.62);
@@ -536,7 +537,7 @@ export function createIsland(THREE, scene, weather) {
     const { x: sx, z: sz } = shorePoint(angle);
     const cx = sx * radius;
     const cz = sz * radius;
-    if ((Math.abs(cx) < 4.35 && cz < 2.76 && cz > -4.7) || (cx < -3.15 && cx > -6.7 && cz > 2.8 && cz < 5.9) || (cz > 2.48 && Math.abs(pathX(cz) - cx) < .72)) continue;
+    if ((Math.abs(cx) < 4.35 && cz < 2.76 && cz > -4.7) || inGarden(cx, cz) || (cz > 2.48 && Math.abs(pathX(cz) - cx) < .72)) continue;
     const tint = pick(['#f8e6a5', '#fbdb9f', '#ffe3ce', '#e3b4b9', '#eaa2a1', '#c8a6d0', '#f4e2c9']);
     for (let index = 0; index < 7; index += 1) {
       const x = cx + range(-.34, .34);
@@ -565,7 +566,7 @@ export function createIsland(THREE, scene, weather) {
     const z = range(-coastZ * 1.12, coastZ * 1.12);
     const r = islandRadius(x, z);
     if (r > .94 || (Math.abs(x) < 4.26 && z > -4.33 && z < 2.51)
-      || (x < -3.18 && x > -6.77 && z > 2.73 && z < 6.0)
+      || inGarden(x, z)
       || (z > 2.56 && Math.abs(pathX(z) - x) < .55)
       || (z > 3.03 && z < 4.38 && x > 4.21 && x < 6.44)) continue;
     const height = range(.084, .31) * (r > .87 ? .78 : 1);
@@ -661,6 +662,7 @@ export function createIsland(THREE, scene, weather) {
     garden,
     doorAnchor: new THREE.Vector3(-1.94, 2.58, 1.48),
     gardenAnchor: new THREE.Vector3(gardenX, gardenY + .77, gardenZ),
+    harvestSpot: new THREE.Vector3(gardenX - .63, gardenY, gardenZ + 1.85),
     melons,
     shorePoint,
     shoreSize: [coastX, coastZ],

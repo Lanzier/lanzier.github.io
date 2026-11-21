@@ -67,7 +67,7 @@ function launch() {
   room.contents.add(fireplace.group);
   const companions = createCompanions(THREE, island.roomMount, islandScene);
   companions.island.userData.groundHeight = island.terrainHeight;
-  companions.island.userData.harvestTarget = island.garden.position.clone();
+  companions.island.userData.harvestTarget = island.harvestSpot;
   const coast = createCoast(THREE, islandScene, island.shorePoint, island.shoreSize);
 
   const skyFill = new THREE.HemisphereLight("#d3e9dd", "#a18757", 2.05);
@@ -98,7 +98,7 @@ function launch() {
   const roomOrigin = island.roomMount.position;
   const roomTarget = new THREE.Vector3(.58, 1.01, -.84).add(roomOrigin);
   const doorAnchor = island.doorAnchor || new THREE.Vector3(-1.94, 2.65, 1.5);
-  const gardenAnchor = island.gardenAnchor || new THREE.Vector3(-4.85, 1.6, 4.3);
+  const gardenAnchor = island.gardenAnchor;
   const doorMarker = byId("door-marker");
   const gardenMarker = byId("garden-marker");
   const showIsland = byId("show-island");
@@ -364,7 +364,7 @@ function launch() {
   function updateHotspots() {
     const outside = mode === "island" && !transition;
     mark(doorMarker, doorAnchor, outside && camera.position.z > doorAnchor.z + 1);
-    mark(gardenMarker, gardenAnchor, outside && (camera.position.z > 2 || camera.position.x < -4));
+    mark(gardenMarker, gardenAnchor, outside && (camera.position.z > 2 || camera.position.x > 4));
     if (!outside && (doorMarker.dataset.targetHover === "true" || gardenMarker.dataset.targetHover === "true")) updateHotspotHover(null);
   }
 
@@ -531,7 +531,7 @@ function launch() {
     if (mode === "island") {
       const roots = [companions.island];
       if (island.door && camera.position.z > doorAnchor.z + 1) roots.push(island.door);
-      if (island.garden && (camera.position.z > 2 || camera.position.x < -4)) roots.push(island.garden);
+      if (!gardenMarker.hidden) roots.push(island.garden);
       const target = hit(roots);
       if (target === island.door) switchScene("room");
       if (target === island.garden) harvest();

@@ -220,8 +220,8 @@ export function createCompanions(THREE, roomScene, islandScene) {
       duration: durations[action],
       x: critter.walker.position.x,
       z: critter.walker.position.z,
-      destinationX: target ? target.x - anchor.position.x + 2.54 : isRoom ? -2.16 : -4.05,
-      destinationZ: target ? target.z - anchor.position.z + .02 : isRoom ? 1.11 : .19
+      destinationX: target ? target.x - anchor.position.x : isRoom ? -2.16 : -4.05,
+      destinationZ: target ? target.z - anchor.position.z : isRoom ? 1.11 : .19
     };
   }
 
