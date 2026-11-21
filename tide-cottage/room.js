@@ -1,4 +1,5 @@
 import { COTTAGE } from './cottage-plan.js';
+import { batchCottageParts, drawCoastPrint, drawQuilt, makeQuilt } from './cottage-craft.js';
 
 export function createRoom(THREE, scene) {
   const { halfWidth, back, front, ceiling } = COTTAGE;
@@ -59,13 +60,11 @@ export function createRoom(THREE, scene) {
   const cream = standard('#f7edda');
   const denim = standard('#537b88');
   const salmon = standard('#ca7761');
-  const moss = standard('#78865d');
   const fabric = standard('#b9b47b');
   const iron = standard('#353e39');
   const foliage = ['#54724e', '#709761', '#8bac74', '#385943'].map((color) => standard(color));
   const clay = standard('#b96d50');
   const soil = standard('#4d3727');
-  const ink = standard('#35515a');
   const bulbMaterial = standard('#fff2c5', { emissive: '#ffe0a1', emissiveIntensity: 1.15 });
 
   const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
@@ -88,8 +87,14 @@ export function createRoom(THREE, scene) {
     object.scale.set(w, h, d);
     return object;
   };
-  const cylinder = (parent, top, bottom, height, x, y, z, material, shadows = true) =>
-    mesh(parent, new THREE.CylinderGeometry(top, bottom, height, 16), material, x, y, z, shadows);
+  const roundProfiles = new Map();
+  const cylinder = (parent, top, bottom, height, x, y, z, material, shadows = true) => {
+    const taper = top / bottom;
+    if (!roundProfiles.has(taper)) roundProfiles.set(taper, new THREE.CylinderGeometry(taper, 1, 1, 16));
+    const object = mesh(parent, roundProfiles.get(taper), material, x, y, z, shadows);
+    object.scale.set(bottom, height, bottom);
+    return object;
+  };
 
   const movable = (label, x, z, scale) => {
     const group = new THREE.Group();
@@ -228,7 +233,7 @@ export function createRoom(THREE, scene) {
     }
   }
 
-  const table = movable('茶几', -0.35, 0.97, 0.86);
+  const table = movable('茶几', -0.35, 0.72, 0.86);
   table.rotation.y = -0.09;
   box(table, 1.91, 0.106, 1.07, 0, 0.45, 0, paleOak);
   box(table, 1.75, 0.093, 0.91, 0, 0.38, 0, cedar);
@@ -266,19 +271,14 @@ export function createRoom(THREE, scene) {
   }
   for (let x = -0.86; x < 0.90; x += 0.19) box(bed, 0.014, 0.38, 0.022, x, 0.916, -1.16, trim, false);
   box(bed, 1.99, 0.192, 2.43, 0, 0.52, 0.025, cream);
-  box(bed, 2.02, 0.101, 1.74, 0, 0.668, 0.354, denim);
-  box(bed, 2.035, 0.17, 0.04, 0, 0.60, 1.236, denim);
-  for (const x of [-1.016, 1.016]) box(bed, 0.043, 0.17, 1.68, x, 0.60, 0.37, denim);
-  const seams = standard('#668b94');
-  for (let z = -0.31; z < 1.21; z += 0.124) box(bed, 2.019, 0.007, 0.012, 0, 0.722, z, seams, false);
+  const quiltMap = texture(256, 256, drawQuilt);
+  quiltMap.anisotropy = 2;
+  mesh(bed, makeQuilt(THREE), standard('#ffffff', { map: quiltMap, roughness: .97 }), 0, 0, 0);
   for (const x of [-0.496, 0.485]) {
     const pillow = sphere(bed, 0.43, 0.116, 0.272, x, 0.689, -0.86, beige);
     pillow.rotation.y = x * 0.20;
   }
   box(bed, 1.98, 0.026, 0.192, 0, 0.727, -0.455, cream);
-  box(bed, 1.46, 0.027, 0.46, 0.18, 0.742, 0.852, fabric);
-  box(bed, 1.46, 0.031, 0.032, 0.18, 0.749, 0.685, cream);
-  box(bed, 1.46, 0.031, 0.032, 0.18, 0.749, 1.022, cream);
 
   const shelf = movable('书架', -2.55, -2.18, 0.86);
   box(shelf, 1.78, 2.32, 0.15, 0, 1.24, -0.214, trim);
@@ -359,40 +359,21 @@ export function createRoom(THREE, scene) {
   windowFill.target.position.set(-1.2, .6, -.28);
   contents.add(windowFill, windowFill.target);
 
-  const picture = (x, y, width, height, color) => {
+  const picture = (x, y, width, height, twilight) => {
     box(contents, width, height, 0.075, x, y, back + 0.068, trim);
     box(contents, width - 0.08, height - 0.08, 0.051, x, y, back + 0.122, cream);
-    box(contents, width - 0.2, (height - 0.18) * 0.70, 0.035, x, y, back + 0.157, color);
-    const sun = sphere(contents, 0.048, 0.048, 0.015, x + width * 0.16, y + height * 0.12, back + 0.187, beige, false);
-    sun.rotation.z = 0.12;
-    const hill = sphere(contents, (width - 0.2) * 0.48, 0.06, 0.015, x, y - height * 0.105, back + 0.187, ink, false);
-    hill.rotation.z = 0.07;
+    const art = texture(128, 96, (ctx, w, h) => drawCoastPrint(ctx, w, h, twilight));
+    mesh(contents, new THREE.PlaneGeometry(width - .15, height - .15),
+      standard('#ffffff', { map: art }), x, y, back + .15, false);
   };
-  picture(-0.54, 1.78, 0.63, 0.54, denim);
-  picture(0.14, 1.51, 0.43, 0.41, moss);
+  picture(-0.54, 1.78, 0.63, 0.54, false);
+  picture(0.14, 1.51, 0.43, 0.41, true);
 
-  // Batch shared shapes inside each group so a furniture item still moves as a unit.
-  for (const parent of [contents, windowGroup, pendant, table, bed, shelf, chair]) {
-    const batches = new Map();
-    for (const part of parent.children) {
-      if (!part.isMesh || part.isInstancedMesh) continue;
-      const key = [part.geometry.id, part.material.id, part.castShadow, part.receiveShadow].join('/');
-      if (!batches.has(key)) batches.set(key, []);
-      batches.get(key).push(part);
-    }
-    for (const parts of batches.values()) {
-      if (parts.length < 3) continue;
-      const sample = parts[0];
-      const group = new THREE.InstancedMesh(sample.geometry, sample.material, parts.length);
-      group.castShadow = sample.castShadow;
-      group.receiveShadow = sample.receiveShadow;
-      for (const [index, part] of parts.entries()) {
-        part.updateMatrix();
-        group.setMatrixAt(index, part.matrix);
-      }
-      parent.remove(...parts);
-      parent.add(group);
-    }
+  const finishes = new Set([panel, trim, cedar, warmOak, paleOak, darkWood, beige, cream, denim,
+    salmon, fabric, iron, clay, soil, melonGreen, melonPink, melonSeed, ...bookColors, ...foliage]);
+  const animated = new Set(fernLeaves);
+  for (const parent of [contents, windowGroup, pendant, table, bed, shelf, chair, fern]) {
+    batchCottageParts(THREE, parent, finishes, animated);
   }
 
   return {

@@ -1,35 +1,15 @@
 import { createCoastalTrees } from './coastal-trees.js';
-import { COTTAGE } from './cottage-plan.js';
+import { createOutdoorNavigation } from './outdoor-navigation.js';
+import { botanicalMesh } from './botanical-mesh.js';
+import { COTTAGE, DOORWAY } from './cottage-plan.js';
+import { batchCottageParts, makeLimewash, makeRidgeCap, makeRoofSlate } from './cottage-craft.js';
 import { weatherSurface } from './weather.js';
 
+import { coastX, coastZ, islandRadius, shorePoint, terrainHeight } from './topography.js';
+import { createTidalLandscape } from './tidal-landscape.js';
+import { createMeadowPath } from './meadow-path.js';
+
 const TAU = Math.PI * 2;
-const coastX = 14.55;
-const coastZ = 9.15;
-
-function coastline(angle) {
-  const shore = 1 + .077 * Math.cos(angle * 3 + .8) + .062 * Math.sin(angle * 5 - .5)
-    + .038 * Math.cos(angle * 8 + 1.45) + .031 * Math.sin(angle * 13);
-  // Widen the banks while keeping the front shoreline aligned with the dock.
-  return shore * (1 - .12 * Math.max(0, Math.sin(angle)) ** 4);
-}
-
-function shorePoint(angle) {
-  const radius = coastline(angle);
-  return { x: Math.cos(angle) * coastX * radius, z: Math.sin(angle) * coastZ * radius };
-}
-
-function islandRadius(x, z) {
-  const nx = x / coastX;
-  const nz = z / coastZ;
-  return Math.hypot(nx, nz) / coastline(Math.atan2(nz, nx));
-}
-
-function terrainHeight(x, z) {
-  const radius = islandRadius(x, z);
-  const ripples = Math.sin(x * .29 + z * .16) * .023 + Math.sin(x * .17 - z * .31) * .015;
-  const shoulder = .88 - .13 * radius + ripples;
-  return shoulder - .77 * Math.max(0, (radius - .79) / .21) ** 1.35;
-}
 
 export function createIsland(THREE, scene, weather) {
   let seed = 49871;
@@ -44,6 +24,7 @@ export function createIsland(THREE, scene, weather) {
   const color = (value) => new THREE.Color(value);
   const root = new THREE.Group();
   scene.add(root);
+  const navigation = createOutdoorNavigation(THREE);
 
   const cube = new THREE.BoxGeometry(1, 1, 1);
   const pebble = new THREE.IcosahedronGeometry(1, 0);
@@ -112,111 +93,72 @@ export function createIsland(THREE, scene, weather) {
     return object;
   }
 
-  const groundPositions = [];
-  const groundColors = [];
-  const groundNormals = [];
-  const greens = ['#73905a', '#789558', '#698850', '#68874d', '#6e8b51', '#849858', '#5f8050', '#79915c'];
-  const stone = ['#8a8a70', '#93937c', '#9a9d87', '#797e69', '#a4a086'];
-  const beach = color('#bba67a');
-  const shoreStone = color('#8b8b72');
-  const meadow = color('#779055');
-  const shade = new THREE.Color();
-  function groundTriangle(a, b, c, tint) {
-    const grass = color(tint);
-    for (const point of [a, b, c]) {
-      const [x, , z] = point;
-      const radius = islandRadius(x, z);
-      const fringe = radius + .018 * Math.sin(x * 1.2 + z * .62) + .011 * Math.cos(z * 2.1 - x * .74);
-      const sandBlend = THREE.MathUtils.smoothstep(fringe, .76, .975);
-      const stoneBlend = THREE.MathUtils.smoothstep(radius, 1.01, 1.075);
-      shade.copy(meadow).lerp(grass, .22).lerp(beach, sandBlend).lerp(shoreStone, stoneBlend);
-      shade.multiplyScalar(1 + .038 * Math.sin(x * .46 + z * .28) * Math.cos(z * .64));
-      groundPositions.push(...point);
-      groundColors.push(shade.r, shade.g, shade.b);
-      const step = .055;
-      const dx = terrainHeight(x - step, z) - terrainHeight(x + step, z);
-      const dz = terrainHeight(x, z - step) - terrainHeight(x, z + step);
-      const length = Math.hypot(dx, 2 * step, dz);
-      groundNormals.push(dx / length, 2 * step / length, dz / length);
-    }
-  }
-
-  const rings = [.1, .22, .34, .45, .55, .65, .73, .80, .87, .93, .985, 1.035, 1.065].map((radius, level) => (
-    Array.from({ length: 64 }, (_, index) => {
-      const angle = TAU * index / 64 + (level % 2 - .5) * .025;
-      const { x: sx, z: sz } = shorePoint(angle);
-      const x = sx * radius;
-      const z = sz * radius;
-      return [x, terrainHeight(x, z) + (level > 1 && level < 9 ? range(-.002, .002) : 0), z];
-    })
-  ));
-  for (let index = 0; index < 64; index += 1) {
-    const next = (index + 1) % 64;
-    groundTriangle([0, terrainHeight(0, 0), 0], rings[0][next], rings[0][index], pick(greens));
-    for (let level = 0; level < rings.length - 1; level += 1) {
-      const palette = level < 11 ? greens : stone;
-      const inner = rings[level];
-      const outer = rings[level + 1];
-      groundTriangle(inner[index], inner[next], outer[index], pick(palette));
-      groundTriangle(inner[next], outer[next], outer[index], pick(palette));
-    }
-  }
-  const groundGeometry = new THREE.BufferGeometry();
-  groundGeometry.setAttribute('position', new THREE.Float32BufferAttribute(groundPositions, 3));
-  groundGeometry.setAttribute('color', new THREE.Float32BufferAttribute(groundColors, 3));
-  groundGeometry.setAttribute('normal', new THREE.Float32BufferAttribute(groundNormals, 3));
-  mesh(root, groundGeometry, weatherSurface(material('#ffffff', { vertexColors: true }), weather), 0, 0, 0);
-
-  const rockItems = [];
-  for (let index = 0; index < 72; index += 1) {
-    const angle = TAU * index / 72 + range(-.036, .036);
-    const boulder = index % 6 === 0;
-    const radius = boulder ? range(.90, .98) : range(.92, 1.035);
-    const { x: sx, z: sz } = shorePoint(angle);
-    const x = sx * radius;
-    const z = sz * radius;
-    const size = boulder ? range(.92, 1.64) : range(.15, .52);
-    if (z > 6.7 && x > -.75 && x < 3.6) continue;
-    rockItems.push({ x, y: Math.max(-.08, terrainHeight(x, z) - .11), z, sx: size * range(.87, 1.57), sy: size * range(.40, .85), sz: size * range(.70, 1.25), rx: range(-.4, .4), ry: angle, tint: pick(stone) });
-  }
-  for (const [x, z, s] of [[6.6, 5.4, .93], [7.1, 5.92, .72], [7.4, 5.34, .80], [-7.72, 3.7, .57], [-7.3, 4.14, .46], [-6.94, -4.7, .61], [6.25, -4.4, .56], [2.04, 5.39, .24], [2.32, 5.35, .32], [2.3, 5.76, .21]]) {
-    rockItems.push({ x, y: terrainHeight(x, z) + .02, z, sx: s, sy: s * .7, sz: s * .75, ry: rand() * TAU, tint: pick(stone) });
-  }
-  batch(root, pebble, rockItems);
+  const tideTime = createTidalLandscape(THREE, root, weather, batch, navigation);
 
   function pathX(z) {
     const progress = THREE.MathUtils.clamp((z - 2.4) / 5.2, 0, 1);
     return -1.94 + 2.61 * progress + .26 * Math.sin(progress * Math.PI * 2);
   }
 
-  const path = [];
-  for (let index = 0; index < 20; index += 1) {
-    const z = 2.68 + index * .252;
-    const x = pathX(z);
-    const y = terrainHeight(x, z);
-    path.push({ x: x + range(-.06, .06), y: y + .027, z, sx: range(.53, .68), sy: range(.047, .072), sz: range(.17, .22), ry: range(-.22, .18), tint: pick(['#c2a179', '#b9976a', '#bca37b', '#ac9069', '#c4aa83']) });
-  }
-  batch(root, foliage, path);
+  createMeadowPath(THREE, root, pathX, weather, batch, navigation);
 
   const dock = new THREE.Group();
   root.add(dock);
+  // Grain runs along the planks. Using a shared map also leaves each board's sun-bleached tint visible.
+  const grainCanvas = document.createElement('canvas');
+  grainCanvas.width = 192;
+  grainCanvas.height = 40;
+  const grain = grainCanvas.getContext('2d');
+  grain.fillStyle = '#fff6e6';
+  grain.fillRect(0, 0, 192, 40);
+  for (let strand = 0; strand < 27; strand++) {
+    const y = strand * 1.57;
+    grain.strokeStyle = strand % 5 ? 'rgba(98,77,61,.15)' : 'rgba(104,76,52,.31)';
+    grain.lineWidth = strand % 4 ? .66 : 1;
+    grain.beginPath();
+    for (let x = 0; x <= 192; x += 4) {
+      const knot = Math.exp(-(((x - 59) / 18) ** 2 + ((y - 14) / 6) ** 2));
+      const height = y + Math.sin(x * .04 + y) * .63 + Math.sign(y - 14) * knot * 4;
+      if (x) grain.lineTo(x, height);
+      else grain.moveTo(x, height);
+    }
+    grain.stroke();
+  }
+  const pierGrain = new THREE.CanvasTexture(grainCanvas);
+  pierGrain.colorSpace = THREE.SRGBColorSpace;
+  pierGrain.anisotropy = 4;
   const dockBoards = [];
   for (let index = 0; index < 21; index += 1) {
     const z = 7.33 + index * .183;
     dockBoards.push({ x: .67 + range(-.04, .04), y: .53, z, sx: range(1.55, 1.69), sy: .075, sz: .174, ry: range(-.025, .025), tint: pick(['#a77c54', '#aa7955', '#9e714f', '#b5835d', '#be9067']) });
   }
-  batch(dock, cube, dockBoards);
+  batch(dock, cube, dockBoards, weatherSurface(material('#ffffff', { map: pierGrain }), weather));
+  const dockPiles = [], dockCaps = [], dockLashings = [], dockRails = [], dockRungs = [];
   for (const offset of [-.67, .67]) {
-    box(dock, timber, .67 + offset, .429, 9.15, .105, .125, 3.9);
+    dockRails.push({ x: .67 + offset, y: .429, z: 9.15, sx: .105, sy: .125, sz: 3.9 });
     for (const z of [7.65, 9.06, 10.94]) {
       const x = .67 + offset;
-      mesh(dock, cylinder, wood, x, .21, z, .083, 1.47, .083);
-      mesh(dock, cylinder, woodLight, x, .96, z, .095, .048, .095);
-      for (const y of [.72, .76, .80]) mesh(dock, cylinder, cream, x, y, z, .09, .024, .09);
+      navigation.barrier(x,z,x,z,.095);
+      dockPiles.push({ x, y: .21, z, sx: .083, sy: 1.47, sz: .083 });
+      dockCaps.push({ x, y: .96, z, sx: .095, sy: .048, sz: .095 });
+      for (const y of [.72, .76, .80]) dockLashings.push({ x, y, z, sx: .09, sy: .024, sz: .09 });
     }
   }
-  for (const x of [.37, .97]) box(dock, timber, x, .21, 11.17, .063, .83, .088);
-  for (const y of [-.08, .09, .26, .43]) box(dock, woodLight, .67, y, 11.18, .66, .045, .075);
+  for (const x of [.37, .97]) dockRails.push({ x, y: .21, z: 11.17, sx: .063, sy: .83, sz: .088 });
+  for (const y of [-.08, .09, .26, .43]) dockRungs.push({ x: .67, y, z: 11.18, sx: .66, sy: .045, sz: .075 });
+  batch(dock, cylinder, dockPiles, wood);
+  batch(dock, cylinder, dockCaps, woodLight);
+  batch(dock, cylinder, dockLashings, cream);
+  batch(dock, cube, dockRails, timber);
+  batch(dock, cube, dockRungs, woodLight);
+  const coil = [];
+  for (let i = 0; i <= 56; i++) {
+    const turn = i / 56;
+    const theta = turn * TAU * 2.8;
+    const radius = .05 + .18 * turn;
+    coil.push(new THREE.Vector3(.18 + radius * Math.cos(theta), .585, 9.63 + radius * .83 * Math.sin(theta)));
+  }
+  navigation.support(mesh(dock, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(coil), 60, .019, 5, false), material('#b09b75'), 0, 0, 0));
 
   const boat = new THREE.Group();
   boat.position.set(2.24, .066, 9.51);
@@ -232,21 +174,22 @@ export function createIsland(THREE, scene, weather) {
   const hull = mesh(boat, boatBase, woodLight, 0, .04, 0);
   hull.rotation.x = Math.PI / 2;
   const outline = boatShape.getPoints(12);
+  const gunwaleHeight = z => .292 + .084 * (Math.abs(z) / 1.25) ** 2 + .026 * z;
   const shipSide = [];
   for (let index = 1; index < outline.length; index += 1) {
     const a = outline[index - 1];
     const b = outline[index];
     const lowA = [a.x * .87, .03, a.y * .93];
-    const highA = [a.x, .25, a.y];
+    const highA = [a.x, gunwaleHeight(a.y), a.y];
     const lowB = [b.x * .87, .03, b.y * .93];
-    const highB = [b.x, .25, b.y];
+    const highB = [b.x, gunwaleHeight(b.y), b.y];
     shipSide.push(...lowA, ...lowB, ...highA, ...lowB, ...highB, ...highA);
   }
   const shell = new THREE.BufferGeometry();
   shell.setAttribute('position', new THREE.Float32BufferAttribute(shipSide, 3));
   shell.computeVertexNormals();
-  mesh(boat, shell, material('#9e7153', { side: THREE.DoubleSide }), 0, 0, 0);
-  const railCurve = new THREE.CatmullRomCurve3(outline.map((p) => new THREE.Vector3(p.x, .25, p.y)), true);
+  mesh(boat, shell, material('#567d78', { side: THREE.DoubleSide }), 0, 0, 0);
+  const railCurve = new THREE.CatmullRomCurve3(outline.slice(0, -1).map(p => new THREE.Vector3(p.x, gunwaleHeight(p.y), p.y)), true);
   mesh(boat, new THREE.TubeGeometry(railCurve, 50, .034, 5, true), timber, 0, 0, 0);
   for (const z of [-.46, .42]) box(boat, wood, 0, .19, z, .90, .051, .15);
   pole(boat, woodLight, [-.63, .26, -.95], [.50, .30, .85], .024);
@@ -264,10 +207,16 @@ export function createIsland(THREE, scene, weather) {
   const bottom = 1.04;
   const { roofEave: eave, roofRidge: ridge, roofSpan } = COTTAGE;
   const wallSpan = 7.78;
+  // Leave exactly the framed opening in the front wall. The exterior route joins
+  // the interior doorway crossing here, with the same character clearance.
+  navigation.block(-4.10, back-.19, 4.10, front-1.24);
+  navigation.block(-4.10, front-1.24, -2.495, front+.19);
+  navigation.block(-1.365, front-1.24, 4.10, front+.19);
   const mortar = material('#ac9176');
   const porchShade = material('#d9a675');
-  const stucco = material('#e4c7a6');
-  const rearStucco = material('#cdbb9f');
+  const limewash = makeLimewash(THREE);
+  const stucco = material('#e5cba9', { map: limewash });
+  const rearStucco = material('#cdbb9f', { map: limewash });
   const slate = weatherSurface(material('#3d5256'), weather);
   const floor = material('#ad7854');
   box(house, mortar, 0, .81, (front + back) / 2, 7.98, .52, 5.50);
@@ -284,6 +233,23 @@ export function createIsland(THREE, scene, weather) {
   batch(house, cube, foundation);
 
   box(house, rearStucco, 0, (bottom + eave) / 2, back, wallSpan, eave - bottom, .18);
+  // Rear trim lies flush with the plaster. Its painted faces are visible only from outside.
+  const trimFace = new THREE.PlaneGeometry(1, 1).rotateY(Math.PI);
+  const rearBoard = (x, y, width, height, tint, angle = 0) => {
+    const plank = mesh(house, trimFace, tint, x, y, back - .096, width, height, 1);
+    plank.rotation.z = angle;
+    plank.castShadow = false;
+  };
+  for (const y of [bottom + .14, eave - .13]) {
+    rearBoard(0, y, wallSpan, .15, timber);
+  }
+  for (const x of [-3.81, -1.26, 1.26, 3.81]) {
+    rearBoard(x, (bottom + eave + .01) / 2, .135, eave - bottom - .422, wood);
+  }
+  for (const side of [-1, 1]) {
+    const rise = eave - bottom - .46;
+    rearBoard(side * 3.26, (bottom + eave + .04) / 2, .092, Math.hypot(.86, rise), wood, side * Math.atan2(.86, rise));
+  }
   for (const side of [-1, 1]) {
     const x = side * 3.88;
     box(house, stucco, x, (bottom + eave) / 2, -3.15, .15, eave - bottom, 1.8);
@@ -312,7 +278,7 @@ export function createIsland(THREE, scene, weather) {
     const pane = box(house, windowGlass, x, 2.65, -1.26, .019, 1.49, 2.18);
     pane.castShadow = false;
   }
-  const frontSidePanel = material('#d4b695');
+  const frontSidePanel = material('#dec1a1', { map: limewash });
   box(house, frontSidePanel, -3.23, 2.36, front, 1.29, 2.59, .16);
   box(house, frontSidePanel, 3.47, 2.36, front, .85, 2.59, .16);
   box(house, frontSidePanel, .88, 1.29, front, 4.20, .48, .16);
@@ -335,12 +301,18 @@ export function createIsland(THREE, scene, weather) {
     porch.push({ x: .02, y: 1.015, z: 1.34 + index * .137, sx: 8.29, sy: .122, sz: .130, tint: pick(['#ad7b56', '#b88764', '#b0815c', '#a47450', '#c08d64']) });
   }
   batch(house, cube, porch);
+  navigation.barrier(-4.13,2.50,-2.845,2.50);
+  navigation.barrier(-1.035,2.50,4.165,2.50);
+  for (const side of [-4.13,4.165]) navigation.barrier(side,1.30,side,2.50);
   for (const [y, z, width] of [[.92, 2.59, 1.81], [.81, 2.78, 1.94]]) box(house, porchShade, -1.94, y, z, width, .105, .26);
   for (const x of [3.82, 2.46, .98, -3.97]) {
+    navigation.barrier(x,2.34,x,2.34,.085);
     box(house, timber, x, 1.40, 2.34, .113, .81, .113);
     box(house, woodLight, x, 1.822, 2.34, .16, .062, .16);
   }
   box(house, timber, 2.40, 1.61, 2.34, 3.03, .08, .087);
+  navigation.barrier(.885,2.34,3.915,2.34,.055);
+  navigation.block(2.345,1.55,3.515,2.00);
   box(house, wood, 2.40, 1.26, 2.34, 3.03, .074, .081);
   for (const x of [1.34, 1.72, 2.08, 2.42, 2.75, 3.1, 3.48]) box(house, wood, x, 1.44, 2.34, .061, .37, .063);
   for (const x of [2.5, 3.35]) box(house, timber, x, 1.23, 1.79, .10, .31, .31);
@@ -352,7 +324,11 @@ export function createIsland(THREE, scene, weather) {
   box(door, timber, -1.93, 3.57, front + .054, 1.19, .13, .18);
   box(door, wood, -1.93, 1.11, front + .07, 1.14, .075, .21);
   const doorHinge = new THREE.Group();
-  doorHinge.position.set(-2.49, bottom + .063, front + .102);
+  doorHinge.position.set(DOORWAY.hingeX, bottom + .063, DOORWAY.hingeZ);
+  doorHinge.scale.x = DOORWAY.leafWidth / 1.10;
+  // Only the gated passage may enter the arc swept by the leaf and its handle.
+  navigation.block(DOORWAY.hingeX - .31, DOORWAY.hingeZ - .06,
+    DOORWAY.hingeX + DOORWAY.leafWidth + .01, DOORWAY.hingeZ + DOORWAY.leafWidth + .02);
   house.add(door);
   door.add(doorHinge);
   const doorPaint = material('#62958c');
@@ -369,8 +345,13 @@ export function createIsland(THREE, scene, weather) {
 
   const pitch = Math.atan2(ridge - eave, roofSpan);
   const roofSlope = Math.hypot(roofSpan, ridge - eave);
-  const roofColors = ['#50666a', '#536a6d', '#486064', '#576c6e', '#4e6869', '#5f7775', '#435c61', '#617777', '#597876'];
+  const roofColors = ['#4b676b', '#526d70', '#4b696c', '#58736f', '#506b6c', '#4c666b'];
+  const patina = color('#849482');
+  const rainwashed = color('#384f5b');
+  const dryRoof = weatherSurface(material('#ffffff', { vertexColors: true }), weather);
   const tiles = [];
+  const rowCount = 9, columnCount = 19;
+  const stepZ = roofSlope / rowCount, tileWidth = 8.69 / columnCount;
   for (const side of [-1, 1]) {
     const angle = pitch * side;
     const roof = box(house, slate, 0, (ridge + eave) / 2, roofMiddle + side * roofSpan / 2, 8.83, .145, roofSlope + .06);
@@ -381,19 +362,35 @@ export function createIsland(THREE, scene, weather) {
       const roofVerge = box(house, wood, x, (ridge + eave) / 2 + .025, roofMiddle + side * roofSpan / 2, .17, .19, roofSlope + .20);
       roofVerge.rotation.x = angle;
     }
-    for (let row = 0; row < 10; row += 1) {
-      const distance = .11 + row * .334;
-      for (let column = 0; column < 25; column += 1) {
-        const x = (column - 12) * .349 + (row % 2 - .5) * .172;
-        tiles.push({ x, y: ridge - distance * Math.sin(pitch) + .105 + range(-.009, .010), z: roofMiddle + side * distance * Math.cos(pitch), sx: range(.327, .348), sy: range(.034, .049), sz: range(.362, .392), rx: angle, ry: range(-.015, .015), tint: pick(roofColors) });
+    for (let row = 0; row < rowCount; row++) {
+      const distance = (row + .49) * stepZ;
+      const offset = row % 2 * .5;
+      for (let column = 0; column < columnCount + offset; column++) {
+        const left = Math.max(0, column - offset), right = Math.min(columnCount, column + 1 - offset);
+        const x = ((right + left) / 2 - columnCount / 2) * tileWidth;
+        const patch = Math.sin(x * 1.07 + row * .61 + side) * .55
+          + Math.sin(x * 2.27 - row * .34 + side) * .26 + Math.cos(x * .52 - row * .83) * .19;
+        const tint = color(pick(roofColors)).lerp(rainwashed, .65 * Math.max(0, -patch))
+          .lerp(patina, .51 * Math.max(0, patch) ** 1.2);
+        tiles.push({
+          x, y: ridge - distance * Math.sin(pitch) + .093,
+          z: roofMiddle + side * distance * Math.cos(pitch),
+          sx: tileWidth * (right - left) - .009, sy: .046, sz: stepZ + .083,
+          rx: angle, ry: side < 0 ? Math.PI : 0, tint,
+        });
       }
     }
   }
+  batch(house, makeRoofSlate(THREE), tiles, dryRoof);
+  const caps = [];
   for (let index = 0; index < 20; index += 1) {
-    tiles.push({ x: (index - 9.5) * .439, y: ridge + .116, z: roofMiddle, sx: .43, sy: .096, sz: .21, tint: pick(roofColors) });
+    caps.push({ x: (index - 9.5) * .443, y: ridge + .063, z: roofMiddle,
+      sx: .437, sy: .080, sz: .286, tint: pick(['#52666b', '#627774', '#596f70']) });
   }
-  batch(house, cube, tiles, weatherSurface(material('#ffffff'), weather));
+  batch(house, makeRidgeCap(THREE), caps, weatherSurface(material('#ffffff'), weather));
 
+  // Other island details use the original sequence of planting and masonry variations.
+  seed = 2878140261;
   const brick = material('#99654c');
   const chimneyTopY = 5.785;
   box(house, brick, chimneyX, (chimneyTopY + chimneyBaseY) / 2, chimneyZ, .64, chimneyTopY - chimneyBaseY, .56);
@@ -406,8 +403,11 @@ export function createIsland(THREE, scene, weather) {
     }
   }
   batch(house, cube, masonry);
-  box(house, mortar, chimneyX, 5.80, chimneyZ, .77, .154, .67);
-  box(house, timber, chimneyX, 5.885, chimneyZ, .40, .026, .35);
+  box(house, black, chimneyX, 5.793, chimneyZ, .53, .024, .43);
+  for (const side of [-1, 1]) {
+    box(house, mortar, chimneyX, 5.82, chimneyZ + side * .276, .77, .14, .12);
+    box(house, mortar, chimneyX + side * .302, 5.82, chimneyZ, .165, .14, .436);
+  }
 
   const lampGlass = material('#ffda8f', { emissive: '#ffc373', emissiveIntensity: 2.1 });
   function lantern(parent, x, y, z, size) {
@@ -424,48 +424,29 @@ export function createIsland(THREE, scene, weather) {
   house.add(porchLamp, porchLamp.target);
   lantern(dock, .02, .90, 7.65, .19);
 
-  const leafColors = ['#48734b', '#537c4c', '#65894e', '#719155', '#7b9c5d', '#5d814e', '#3a694f', '#91a860'];
-  const leafItems = [];
-  createCoastalTrees(THREE, root, terrainHeight, weather);
+  const leafColors = ['#658959', '#63865b', '#648b64', '#7e9d66', '#769862', '#739056'];
+  createCoastalTrees(THREE, root, terrainHeight, weather, navigation);
 
   const shrubBeds = [
     [-10.7, -1.9, .55], [-9.3, 3.2, .62], [-7.25, 3.1, .46], [-6.95, 5.18, .48],
     [-5.93, 5.91, .38], [-7.7, -.7, .43], [9.75, 2.04, .54], [10.55, -2.0, .55],
-    [7.2, 3.48, .50], [5.3, 4.95, .44], [3.7, 3.12, .30], [6.27, 5.12, .39],
+    [7.2, 3.48, .50], [5.3, 4.95, .44], [3.40, 2.76, .30], [6.27, 5.12, .39],
     [-2.52, 5.75, .32], [6.90, -2.63, .39], [-4.63, 2.79, .36], [-5.74, -.08, .50],
     [2.47, 6.11, .43], [-3.62, -.5, .24], [4.90, -6.06, .48], [-6.25, -6.05, .39],
   ];
-  for (const [x, z, scale] of shrubBeds) {
-    for (let index = 0; index < 15; index += 1) {
-      const crown = index < 5;
-      const angle = index * 2.39996;
-      const radius = scale * (crown ? .45 : range(.64, 1.18));
-      const px = x + Math.cos(angle) * radius;
-      const pz = z + Math.sin(angle) * radius;
-      const lobe = scale * (crown ? range(.59, .85) : range(.29, .50));
-      leafItems.push({ x: px, y: terrainHeight(px, pz) + scale * (crown ? .56 : .29), z: pz,
-        sx: lobe, sy: lobe * .68, sz: lobe * .83, ry: angle,
-        tint: pick(crown ? leafColors.slice(2, 6) : leafColors.slice(0, 4)) });
-    }
-  }
-  const shrubGeometry = new THREE.IcosahedronGeometry(1, 2);
-  const shrubVertices = shrubGeometry.getAttribute('position');
-  const shrubColors = [];
-  for (let i = 0; i < shrubVertices.count; i++) {
-    const x = shrubVertices.getX(i), y = shrubVertices.getY(i), z = shrubVertices.getZ(i);
-    const contour = 1 + .08 * Math.sin(x * 7 + z * 4) * Math.cos(y * 5 - z * 6);
-    shrubVertices.setXYZ(i, x * contour, y * contour, z * contour);
-    const light = .84 + .15 * y + .043 * Math.cos(x * 8 + z * 7);
-    shrubColors.push(light, light, light * .955);
-  }
-  shrubGeometry.setAttribute('color', new THREE.Float32BufferAttribute(shrubColors, 3));
-  batch(root, shrubGeometry, leafItems, material('#ffffff', { vertexColors: true }));
+  const bushes = shrubBeds.map(([x, z, scale]) => ({
+    x, y: terrainHeight(x, z) - .015, z, sx: scale * 1.13, sy: scale, sz: scale,
+    ry: range(0, TAU), tint: pick(leafColors),
+  }));
+  navigation.blockInstances(batch(root, botanicalMesh(THREE, 'Shrub'), bushes,
+    weatherSurface(material('#ffffff', { vertexColors: true, roughness: .91 }), weather, true)));
 
   const garden = new THREE.Group();
   root.add(garden);
   const gardenX = 5.98;
   const gardenZ = -.38;
   const gardenY = terrainHeight(gardenX, gardenZ);
+  navigation.block(gardenX-1.72,gardenZ-1.405,gardenX+1.72,gardenZ+1.405);
   garden.position.set(gardenX, gardenY, gardenZ);
   const inGarden = (x, z) => Math.abs(x - gardenX) < 1.95 && Math.abs(z - gardenZ) < 1.62;
   const soil = material('#735743');
@@ -474,52 +455,26 @@ export function createIsland(THREE, scene, weather) {
   for (const x of [-1.67, 1.67]) box(garden, woodLight, x, .096, 0, .1, .17, 2.78);
   for (const z of [-1.35, 1.35]) box(garden, woodLight, 0, .092, z, 3.42, .15, .104);
   for (const x of [-1.1, 0, 1.1]) mesh(garden, foliage, soil, x, .117, 0, .46, .16, 1.29);
-  const vines = [];
-  const melonBase = new THREE.SphereGeometry(1, 30, 20);
-  const rind = document.createElement('canvas');
-  rind.width = 256;
-  rind.height = 128;
-  const rindContext = rind.getContext('2d');
-  const pixels = rindContext.createImageData(rind.width, rind.height);
-  for (let y = 0; y < rind.height; y++) {
-    for (let x = 0; x < rind.width; x++) {
-      const u = x / rind.width, v = y / rind.height;
-      const stripe = Math.sin(u * TAU * 8 + Math.sin(v * 18 + u * TAU * 3) * .53 + Math.sin(v * 35 - u * TAU * 7) * .24);
-      const band = THREE.MathUtils.smoothstep(stripe, -.18, .53);
-      const mottle = Math.sin(x * .37 + y * .51) * Math.sin(y * .31 - x * .25) * 10;
-      pixels.data.set([97 - 62 * band + mottle, 151 - 57 * band + mottle, 61 - 33 * band + mottle * .5, 255], (y * rind.width + x) * 4);
-    }
-  }
-  rindContext.putImageData(pixels, 0, 0);
-  const rindTexture = new THREE.CanvasTexture(rind);
-  rindTexture.colorSpace = THREE.SRGBColorSpace;
-  const melonMaterial = material('#ffffff', { map: rindTexture, roughness: .34 });
-  const vineLeaf = new THREE.BufferGeometry();
-  const leafOutline = [[0,-.97],[-.52,-.68],[-.67,-.26],[-1,.02],[-.71,.26],[-.81,.54],[-.38,.50],[0,.95],[.39,.5],[.84,.52],[.69,.24],[1,.01],[.68,-.25],[.49,-.65]];
-  const blade = [], bladeColors = [];
-  leafOutline.forEach(([x, z], i) => {
-    const [nx, nz] = leafOutline[(i + 1) % leafOutline.length];
-    blade.push(0, .49, -.05, x, .05, z, nx, .05, nz);
-    bladeColors.push(.95, 1, .85, .55, .77, .51, .69, .85, .61);
-  });
-  vineLeaf.setAttribute('position', new THREE.Float32BufferAttribute(blade, 3));
-  vineLeaf.setAttribute('color', new THREE.Float32BufferAttribute(bladeColors, 3));
-  vineLeaf.computeVertexNormals();
+  const runners = [];
+  const melonBase = botanicalMesh(THREE, 'Melon');
+  const melonMaterial = material('#ffffff', { vertexColors: true, roughness: .48 });
   const melons = [];
   for (const row of [-1.10, 0, 1.10]) {
     for (let column = 0; column < 3; column += 1) {
-      const x = row + range(-.15, .13);
-      const z = -.80 + column * .80 + range(-.20, .15);
-      const size = range(.22, .34);
-      const melon = mesh(garden, melonBase, melonMaterial, x, .12 + size * .88, z, size * 1.19, size * .88, size);
-      melon.rotation.set(.15, range(0, TAU), range(-.37, .37));
+      const x = row + range(-.10, .12);
+      const z = -.80 + column * .80 + range(-.10, .10);
+      const size = range(.23, .33);
+      const melon = mesh(garden, melonBase, melonMaterial, x, .15 + size * .88, z, size * 1.18, size * .86, size);
+      melon.rotation.set(range(-.18, .18), range(0, TAU), range(-.29, .29));
       melons.push(melon);
-      for (let leaf = 0; leaf < 12; leaf += 1) {
-        vines.push({ x: x + range(-.45, .45), y: range(.18, .27), z: z + range(-.37, .37), sx: range(.087, .21), sy: range(.022, .046), sz: range(.070, .16), ry: range(0, TAU), rz: range(-.23, .23), tint: pick(['#57834c', '#5f8f50', '#77a15a', '#80a65c']) });
+      for (const side of [-1, 1]) {
+        runners.push({ x: row + side * .255, y: .220, z: -.80 + .80 * column,
+          sx: .96, sy: .96, sz: .85, ry: side < 0 ? Math.PI : 0 });
       }
     }
   }
-  batch(garden, vineLeaf, vines, material('#ffffff', { vertexColors: true, side: THREE.DoubleSide }));
+  batch(garden, botanicalMesh(THREE, 'Runner'), runners,
+    material('#ffffff', { vertexColors: true, roughness: .83 }), false);
   const signCanvas = document.createElement('canvas');
   signCanvas.width = 192;
   signCanvas.height = 100;
@@ -540,9 +495,11 @@ export function createIsland(THREE, scene, weather) {
   mesh(garden, new THREE.PlaneGeometry(.63, .34), material('#ffffff', { map: signTexture, side: THREE.DoubleSide }), 1.00, .68, -.94).rotation.x = -.13;
 
   const fenceWood = material('#edddc5');
+  const pickets = [], picketTops = [];
   function fence(from, to) {
     const [ax, az] = from;
     const [bx, bz] = to;
+    navigation.barrier(ax,az,bx,bz,.082);
     const count = Math.ceil(Math.hypot(bx - ax, bz - az) * 4.1);
     for (const y of [.31, .57]) brace(root, fenceWood, [ax, terrainHeight(ax, az) + y, az], [bx, terrainHeight(bx, bz) + y, bz], .085);
     for (let index = 0; index <= count; index += 1) {
@@ -552,18 +509,14 @@ export function createIsland(THREE, scene, weather) {
       const thick = index % count === 0;
       const width = thick ? .133 : .078;
       const height = thick ? .81 : .68;
-      box(root, fenceWood, x, y + height * .47, z, width, height, width * .85);
-      mesh(root, new THREE.ConeGeometry(width * .70, width * .69, 4), fenceWood, x, y + height * .98, z).rotation.y = Math.PI / 4;
+      pickets.push({ x, y: y + height * .47, z, sx: width, sy: height, sz: width * .85 });
+      picketTops.push({ x, y: y + height * .98, z, sx: width * .70, sy: width * .69, sz: width * .70, ry: Math.PI / 4 });
     }
   }
   fence([4.08, 4.70], [6.56, 4.70]);
   fence([6.56, 4.70], [6.56, 2.65]);
-
-  const dirtPatch = (x, z, width, depth) => {
-    const patch = mesh(root, foliage, darkSoil, x, terrainHeight(x, z) - .03, z, width, .14, depth);
-    patch.castShadow = false;
-  };
-  dirtPatch(5.37, 3.70, 1.15, .68);
+  batch(root, cube, pickets, fenceWood);
+  batch(root, new THREE.ConeGeometry(1, 1, 4), picketTops, fenceWood);
 
   const blossoms = [];
   const petalStems = [];
@@ -590,9 +543,17 @@ export function createIsland(THREE, scene, weather) {
       }
     }
   }
-  batch(root, foliage, blossoms, material('#ffffff'), false);
-  batch(root, foliage, centres, material('#ffffff'), false);
-  batch(root, cylinder, petalStems, material('#ffffff'), false);
+  // A cupped petal reads as a flower up close and only needs six faces per instance.
+  const petalShape = new THREE.BufferGeometry();
+  petalShape.setAttribute('position', new THREE.Float32BufferAttribute([
+    0, -.32, -1, -.76, .24, -.34, -.90, .66, .51, 0, .86, 1,
+    .90, .66, .51, .76, .24, -.34, 0, -.12, .03,
+  ], 3));
+  petalShape.setIndex([6, 0, 1, 6, 1, 2, 6, 2, 3, 6, 3, 4, 6, 4, 5, 6, 5, 0]);
+  petalShape.computeVertexNormals();
+  batch(root, petalShape, blossoms, material('#ffffff', { side: THREE.DoubleSide }), false);
+  batch(root, pebble, centres, material('#ffffff'), false);
+  batch(root, new THREE.CylinderGeometry(.70, 1, 1, 4, 1, true), petalStems, material('#ffffff'), false);
 
   const grassPositions = [];
   const grassColors = [];
@@ -606,10 +567,12 @@ export function createIsland(THREE, scene, weather) {
       || inGarden(x, z)
       || (z > 2.56 && Math.abs(pathX(z) - x) < .55)
       || (z > 3.03 && z < 4.38 && x > 4.21 && x < 6.44)) continue;
-    const height = range(.084, .31) * (r > .87 ? .78 : 1);
+    const meadowPatch = Math.sin(x * 1.48 + Math.cos(z * .89)) * Math.cos(z * 1.14 - x * .34);
+    if (meadowPatch < -.48) continue;
+    const height = range(.105, .31) * (.87 + meadowPatch * .28) * (r > .87 ? .72 : 1);
     const y = terrainHeight(x, z) - .047;
     const tint = pick(grassPalette);
-    const base = tint.clone().multiplyScalar(.67);
+    const base = tint.clone().multiplyScalar(.81);
     for (let blade = 0; blade < 3; blade += 1) {
       const angle = range(0, TAU);
       const w = range(.019, .034);
@@ -639,6 +602,7 @@ export function createIsland(THREE, scene, weather) {
   mesh(root, grassGeometry, grassMaterial, 0, 0, 0).castShadow = false;
 
   const clothes = [];
+  navigation.barrier(3.86,1.17,5.31,.60,.13);
   pole(root, timber, [5.31, terrainHeight(5.31, .6), .6], [5.31, 2.48, .6], .049, .041);
   const rope = new THREE.CatmullRomCurve3([
     new THREE.Vector3(3.86, 2.46, 1.17), new THREE.Vector3(4.57, 2.35, .89), new THREE.Vector3(5.31, 2.45, .6),
@@ -659,6 +623,7 @@ export function createIsland(THREE, scene, weather) {
 
   const pottedLeaves = material('#678653');
   for (const [x, z, size] of [[-2.93, 2.07, .21], [-3.28, 2.21, .12], [-.87, 1.95, .17], [3.72, 2.00, .14]]) {
+    navigation.barrier(x,z,x,z,size*1.19);
     mesh(house, new THREE.CylinderGeometry(1, .70, 1.30, 9), coral, x, 1.09 + size * .65, z, size, size, size);
     mesh(house, cylinder, soil, x, 1.09 + size * 1.31, z, size * .90, .018, size * .90);
     for (let leaf = 0; leaf < 8; leaf += 1) {
@@ -667,6 +632,10 @@ export function createIsland(THREE, scene, weather) {
       sprig.rotation.set(Math.sin(angle) * .62, angle, Math.cos(angle) * .61);
     }
   }
+
+  const shellPaint = new Set([wood, timber, woodLight, black, teal, mortar, coral, soil, pottedLeaves,
+    porchShade, floor, stucco, rearStucco, frontSidePanel, doorPaint]);
+  for (const group of [house, door, doorHinge]) batchCottageParts(THREE, group, shellPaint);
 
   const smoke = Array.from({ length: 12 }, (_, index) => {
     const puff = new THREE.Mesh(foliage, new THREE.MeshBasicMaterial({ color: '#f7e1ce', transparent: true, depthWrite: false }));
@@ -677,6 +646,7 @@ export function createIsland(THREE, scene, weather) {
 
   function update(time, daylight = 1) {
     wind.value = time;
+    tideTime.value = time;
     boat.position.y = .077 + Math.sin(time * 1.45) * .053;
     boat.rotation.x = Math.sin(time * 1.23) * .034;
     boat.rotation.z = Math.cos(time * 1.13) * .046;
@@ -701,10 +671,12 @@ export function createIsland(THREE, scene, weather) {
     garden,
     doorAnchor: new THREE.Vector3(-1.94, 2.58, 1.48),
     gardenAnchor: new THREE.Vector3(gardenX, gardenY + .77, gardenZ),
-    harvestSpot: new THREE.Vector3(gardenX - .32, gardenY, gardenZ + 2.60),
+    harvestSpot: new THREE.Vector3(gardenX, navigation.heightAt(gardenX,gardenZ+2.06), gardenZ + 2.06),
     melons,
-    shorePoint,
-    shoreSize: [coastX, coastZ],
+    outdoorRoute: navigation.route,
+    outdoorCanWalk: navigation.canWalk,
+    outdoorCanStand: navigation.canStand,
+    outdoorHeight: navigation.heightAt,
     terrainHeight,
     update,
   };

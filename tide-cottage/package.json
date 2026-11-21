@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild main.js --bundle --minify --target=es2020 --legal-comments=none --outfile=scene.bundle.js"
+    "build": "esbuild main.js --bundle --minify --target=es2020 --legal-comments=none --outfile=scene.bundle.js",
+    "test": "python tests/navigation.py"
   },
   "dependencies": {
     "three": "0.180.0"

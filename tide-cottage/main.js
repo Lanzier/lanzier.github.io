@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createCoast } from "./coast.js";
-import { COTTAGE } from "./cottage-plan.js";
+import { COTTAGE, DOORWAY, CAT_REST, advanceDoor } from "./cottage-plan.js";
 import { createFireplace } from "./fireplace.js";
 import { createIsland } from "./island.js";
 import { createRoom } from "./room.js";
@@ -27,12 +27,13 @@ try {
 function launch() {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
   renderer.setClearColor("#142c31");
-  const maxPixelRatio = matchMedia("(pointer: coarse)").matches ? 1.5 : 1.65;
-  renderer.setPixelRatio(Math.min(devicePixelRatio, maxPixelRatio));
+  const touchScreen = matchMedia("(pointer: coarse)").matches;
+  const maxPixelRatio = touchScreen ? 1.5 : 1.65;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.28;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = false;
 
   const camera = new THREE.PerspectiveCamera(42, 1, .18, 1400);
   const controls = new OrbitControls(camera, canvas);
@@ -70,7 +71,7 @@ function launch() {
   companions.island.userData.groundHeight = island.terrainHeight;
   const activities = createActivities(THREE, islandScene, island, room, fireplace.group);
   let actor = activities.update(0);
-  const coast = createCoast(THREE, islandScene, island.shorePoint, island.shoreSize);
+  const coast = createCoast(THREE, islandScene);
 
   const skyFill = new THREE.HemisphereLight("#d3e9dd", "#a18757", 2.05);
   const sunlight = new THREE.DirectionalLight("#ffce87", 3.3);
@@ -115,9 +116,9 @@ function launch() {
   let edit = false;
   let selected = null;
   let gesture = null;
-  let pickedMelon = null;
   let lastHarvest = null;
-  let melonRegrowth = 0;
+  const regrowingMelons = new Map();
+  const fruitPosition = new THREE.Vector3();
   let toastTimer;
   let ready = false;
   let currentTime = 0;
@@ -127,10 +128,12 @@ function launch() {
   const legacyLayout = savedFurniture.version !== 2;
   const savedPositions = legacyLayout ? savedFurniture : savedFurniture.items;
   const furnitureLayout = {};
+  let correctedLayout = legacyLayout;
   const extentsBox = new THREE.Box3();
-  const cameraObstacle = new THREE.Box3();
   const lastRoomPosition = new THREE.Vector3();
-  const roomObstacles = [...room.furniture, fireplace.group];
+  const roomObstacles = [...room.furniture, fireplace.group].map(item => ({
+    item, box: new THREE.Box3(), x: NaN, z: NaN, angle: NaN,
+  }));
   const furnitureExtents = new WeakMap();
   for (const item of room.furniture) {
     const label = item.userData.label;
@@ -140,11 +143,15 @@ function launch() {
       item.rotation.y = placement[2] % (Math.PI * 2);
       const x = legacyLayout ? placement[0] * .74 : placement[0];
       const z = legacyLayout ? placement[1] * .62 : placement[1];
-      if (!setFurniturePosition(item, x, z)) item.rotation.y = originalRotation;
+      if (!setFurniturePosition(item, x, z)) {
+        item.rotation.y = originalRotation;
+        activities.refreshLayout();
+      }
       furnitureLayout[label] = [item.position.x, item.position.z, item.rotation.y];
+      correctedLayout ||= furnitureLayout[label].some((value,index) => Math.abs(value-placement[index]) > .001);
     }
   }
-  if (legacyLayout && Object.keys(furnitureLayout).length) writeFurniture();
+  if (correctedLayout && Object.keys(furnitureLayout).length) writeFurniture();
 
   const outline = new THREE.BoxHelper(new THREE.Object3D(), "#f6cb87");
   outline.material.depthTest = false;
@@ -228,7 +235,7 @@ function launch() {
     location.lastChild.textContent = mode === "island" ? " 海岛" : " 小屋";
     const hint = byId("scene-hint");
     hint.textContent = edit ? "拖动家具 · R 键旋转" :
-      matchMedia("(pointer: coarse)").matches ? "滑动环顾 · 双指缩放" : "拖动环顾 · 滚轮缩放";
+      touchScreen ? "轻点探索 · 滑动环顾 · 双指缩放" : "拖动环顾 · 滚轮缩放";
     controls.enabled = ready && !transition && !edit;
   }
 
@@ -243,11 +250,12 @@ function launch() {
         fov: portrait ? 92 : 74,
       };
     }
-    const size = Math.max(1, (1.39 / camera.aspect) ** .87);
+    const size = Math.max(1, ((portrait ? 1.26 : 1.39) / camera.aspect) ** .87);
     return {
       target: islandTarget.clone(),
-      position: new THREE.Vector3(-8.6, 6.9, 27.8).multiplyScalar(size).add(islandTarget),
-      fov: 56,
+      position: (portrait ? new THREE.Vector3(-6.6, 10.6, 25.5) : new THREE.Vector3(-8.6, 6.9, 27.8))
+        .multiplyScalar(size * (portrait ? .87 : 1)).add(islandTarget),
+      fov: portrait ? 64 : 56,
     };
   }
 
@@ -272,6 +280,35 @@ function launch() {
 
   let viewportWidth = 0;
   let viewportHeight = 0;
+  let resolutionScale = 1;
+  let resolutionSample = 0, sampleFrames = 0, fastWindows = 0;
+  function sizeDrawingBuffer() {
+    const pixelBudget = touchScreen ? 1350000 : 4000000;
+    const pixelRatio = Math.min(devicePixelRatio, maxPixelRatio, Math.sqrt(pixelBudget / (viewportWidth * viewportHeight)));
+    renderer.setDrawingBufferSize(viewportWidth, viewportHeight, pixelRatio * resolutionScale);
+  }
+  function sampleMobileFrame(now) {
+    if (!touchScreen) return;
+    if (!resolutionSample || now - resolutionSample > 2400) {
+      resolutionSample = now;
+      sampleFrames = 0;
+      return;
+    }
+    sampleFrames++;
+    const elapsed = now - resolutionSample;
+    if (elapsed < 1800) return;
+    const average = elapsed / sampleFrames;
+    fastWindows = average < 23 ? fastWindows + 1 : 0;
+    const scale = average > 40 ? Math.max(.75, resolutionScale - .125)
+      : fastWindows >= 4 ? Math.min(1, resolutionScale + .125) : resolutionScale;
+    if (scale !== resolutionScale) {
+      resolutionScale = scale;
+      fastWindows = 0;
+      sizeDrawingBuffer();
+    }
+    resolutionSample = now;
+    sampleFrames = 0;
+  }
   function resize() {
     const previous = camera.aspect;
     const { width, height } = experience.getBoundingClientRect();
@@ -279,7 +316,7 @@ function launch() {
     const widthChanged = width !== viewportWidth;
     viewportWidth = width;
     viewportHeight = height;
-    renderer.setSize(width, height, false);
+    sizeDrawingBuffer();
     camera.aspect = width / height;
     if (!ready || (!transition && (widthChanged || (previous < .85) !== (camera.aspect < .85)))) {
       applyPose(photoPose(mode), mode);
@@ -314,7 +351,6 @@ function launch() {
     const inward = flight.next === "room";
     const flyTime = flight.quick ? 0 : inward ? 780 : 110;
     const changeTime = flyTime + (flight.quick ? 10 : 220);
-    const finishTime = changeTime + (flight.quick ? 12 : 265);
     const fade = byId("scene-fade");
 
     if (inward && !flight.changed && !flight.quick) {
@@ -324,20 +360,17 @@ function launch() {
       camera.position.lerpVectors(flight.position, doorApproach, progress);
       flightLook.lerpVectors(flight.target, doorFocus, progress);
       camera.lookAt(flightLook);
-      if (island.doorHinge) {
-        island.doorHinge.rotation.y = -1.04 * ease(THREE.MathUtils.clamp((progress - .40) / .60, 0, 1));
-      }
     }
-    if (elapsed >= flyTime && elapsed < changeTime) fade.classList.add("covered");
-    if (elapsed >= changeTime && !flight.changed) {
+    if (elapsed >= flyTime && !flight.changed) fade.classList.add("covered");
+    if (elapsed >= changeTime && !flight.changed && island.doorHinge.rotation.y <= -DOORWAY.passAngle) {
       mode = flight.next;
       flight.changed = true;
-      if (island.doorHinge) island.doorHinge.rotation.y = 0;
+      flight.changedAt = now;
       applyPose(mode === "island" && savedOrbit ? savedOrbit : photoPose(mode), mode);
       updateInterface();
       fade.classList.remove("covered");
     }
-    if (elapsed >= finishTime) {
+    if (flight.changed && now - flight.changedAt >= (flight.quick ? 12 : 265)) {
       transition = null;
       updateInterface();
       flight.onArrival?.();
@@ -351,10 +384,13 @@ function launch() {
   function mark(button, anchor, isVisible) {
     projected.copy(anchor).project(camera);
     const inBounds = Math.abs(projected.x) < .94 && Math.abs(projected.y) < .82 && projected.z >= -1 && projected.z < 1;
-    button.hidden = !isVisible || !inBounds;
-    if (!button.hidden) {
-      button.style.left = `clamp(44px, ${(projected.x * .5 + .5) * 100}%, calc(100% - 44px))`;
-      button.style.top = `${(.5 - projected.y * .5) * 100}%`;
+    const hidden = !isVisible || !inBounds;
+    if (hidden !== button.hidden) button.hidden = hidden;
+    if (!hidden) {
+      const x = `clamp(44px, ${((projected.x * .5 + .5) * 100).toFixed(2)}%, calc(100% - 44px))`;
+      const y = `${((.5 - projected.y * .5) * 100).toFixed(2)}%`;
+      if (button.style.left !== x) button.style.left = x;
+      if (button.style.top !== y) button.style.top = y;
     }
   }
 
@@ -369,6 +405,18 @@ function launch() {
     doorMarker.dataset.targetHover = String(target === island.door);
     gardenMarker.dataset.targetHover = String(target === island.garden);
   }
+
+  // Touch browsers can retarget the click following pointerup to a newly revealed label.
+  // Only activate that label on a fresh press (or a keyboard/assistive click).
+  let revealedOnThisPress = false;
+  document.addEventListener("pointerdown", () => { revealedOnThisPress = false; }, true);
+  byId("hotspots").addEventListener("click", event => {
+    if (revealedOnThisPress && event.detail) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    revealedOnThisPress = false;
+  }, true);
 
   function animate(action) {
     if (action === "greet") activities.greet();
@@ -408,16 +456,24 @@ function launch() {
     const overlaps = (minX, maxX, minZ, maxZ) =>
       footprint.minX < maxX + .025 && footprint.maxX > minX - .025 &&
       footprint.minZ < maxZ + .025 && footprint.maxZ > minZ - .025;
-    // Keep the fireplace, the companion's walking lane, and the cat's resting spot clear.
+    // Reserve the permanent fixtures and the doorway. The navigation check below
+    // determines which lanes each actual furniture layout needs.
     if (overlaps(COTTAGE.chimneyX - .76, COTTAGE.chimneyX + .76, fireplaceZ - .33, fireplaceZ + .49) ||
-        overlaps(.86, 2.00, .30, 1.80) || overlaps(-2.62, -1.68, 1.49, 2.31)) return false;
+        overlaps(CAT_REST.room.x-CAT_REST.radius, CAT_REST.room.x+CAT_REST.radius,
+          CAT_REST.room.z-CAT_REST.radius, CAT_REST.room.z+CAT_REST.radius) ||
+        overlaps(DOORWAY.centerX-.55, DOORWAY.centerX+.55, DOORWAY.interiorWaitZ-COTTAGE.centerZ-.55, COTTAGE.front)) return false;
     for (const other of room.furniture) {
       if (other === item) continue;
       extentsBox.setFromObject(other);
       if (overlaps(extentsBox.min.x, extentsBox.max.x, extentsBox.min.z - COTTAGE.centerZ, extentsBox.max.z - COTTAGE.centerZ)) return false;
     }
-    item.position.x = x;
-    item.position.z = z;
+    const oldX = item.position.x, oldZ = item.position.z;
+    item.position.set(x,item.position.y,z);
+    if (!activities.acceptsLayout(item)) {
+      item.position.set(oldX,item.position.y,oldZ);
+      activities.refreshLayout();
+      return false;
+    }
     return true;
   }
 
@@ -453,6 +509,7 @@ function launch() {
     selected.rotation.y = (previousRotation + Math.PI * .25) % (Math.PI * 2);
     if (!setFurniturePosition(selected, selected.position.x, selected.position.z)) {
       selected.rotation.y = previousRotation;
+      activities.refreshLayout();
       return;
     }
     selected.updateMatrixWorld(true);
@@ -479,6 +536,7 @@ function launch() {
 
   canvas.addEventListener("pointerdown", event => {
     wheelDistance = undefined;
+    if (event.pointerType === "touch") updateHotspotHover(null);
     if (!event.isPrimary && event.pointerType === "touch" && gesture) gesture.moved = true;
     if (!event.isPrimary || event.button !== 0 || !ready || transition) return;
     gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false, item: null };
@@ -509,7 +567,9 @@ function launch() {
     gesture.item.updateMatrixWorld(true);
     outline.update();
   });
-  canvas.addEventListener("pointerleave", () => updateHotspotHover(null));
+  canvas.addEventListener("pointerleave", event => {
+    if (event.pointerType === "mouse") updateHotspotHover(null);
+  });
 
   function finishGesture(event) {
     if (!gesture || gesture.id !== event.pointerId) return;
@@ -522,7 +582,27 @@ function launch() {
       const roots = [companions.island];
       if (island.door && camera.position.z > doorAnchor.z + 1) roots.push(island.door);
       if (!gardenMarker.hidden) roots.push(island.garden);
-      const target = hit(roots);
+      let target = hit(roots);
+      if (!target && event.pointerType === "touch") {
+        // Keep tiny distant doors and plants tappable at the same point as their world marker.
+        let closest = 22 * 22;
+        for (const [object, anchor, marker] of [[island.door, doorAnchor, doorMarker], [island.garden, gardenAnchor, gardenMarker]]) {
+          if (marker.hidden) continue;
+          projected.copy(anchor).project(camera);
+          const dx = (projected.x - ndc.x) * viewportWidth * .5;
+          const dy = (projected.y - ndc.y) * viewportHeight * .5;
+          const distance = dx * dx + dy * dy;
+          if (distance < closest) {
+            closest = distance;
+            target = object;
+          }
+        }
+      }
+      if (event.pointerType === "touch" && (target === island.door || target === island.garden)) {
+        revealedOnThisPress = true;
+        updateHotspotHover(target);
+        return;
+      }
       if (target === island.door) switchScene("room");
       if (target === island.garden) harvest();
       if (target === companions.island) { animate("greet"); chat.open(); }
@@ -565,7 +645,10 @@ function launch() {
   });
 
   doorMarker.addEventListener("click", () => switchScene("room"));
-  gardenMarker.addEventListener("click", harvest);
+  gardenMarker.addEventListener("click", () => {
+    harvest();
+    if (touchScreen) updateHotspotHover(null);
+  });
   showRoom.addEventListener("click", () => switchScene("room"));
   showIsland.addEventListener("click", () => switchScene("island"));
   editRoom.addEventListener("click", () => setEditing(!edit));
@@ -590,7 +673,7 @@ function launch() {
     }
   });
 
-  let startTime, previousFrame;
+  let startTime, previousFrame, nextShadow = 0;
   function frame(now) {
     startTime ??= now;
     currentTime = (now - startTime) / 1000;
@@ -626,10 +709,9 @@ function launch() {
     rim.intensity = (.72 - .57 * night) * (1 - cloud * .34);
 
     const daylight = THREE.MathUtils.clamp(.65 + .35 * day - .57 * night, 0, 1);
-    actor = activities.update(currentTime);
-    if (!transition) {
-      island.doorHinge.rotation.y = THREE.MathUtils.lerp(island.doorHinge.rotation.y, actor.doorOpen ? -1.30 : 0, lightBlend);
-    }
+    const hinge = island.doorHinge;
+    actor = activities.update(currentTime, hinge.rotation.y);
+    hinge.rotation.y = advanceDoor(hinge.rotation.y, actor.doorOpen || Boolean(transition), reduceMotion.matches ? Infinity : delta);
     companions.update(currentTime, mode, camera, actor);
     room.update(currentTime, night < .5);
     fireplace.update(currentTime, daylight);
@@ -640,24 +722,45 @@ function launch() {
       position.x = THREE.MathUtils.clamp(position.x, -COTTAGE.halfWidth + .19, COTTAGE.halfWidth - .19);
       position.y = THREE.MathUtils.clamp(position.y, COTTAGE.floorY + 1.48, COTTAGE.floorY + COTTAGE.ceiling - .27);
       position.z = THREE.MathUtils.clamp(position.z, COTTAGE.centerZ + COTTAGE.back + .19, COTTAGE.centerZ + COTTAGE.front - .19);
-      const blocked = roomObstacles.some(object =>
-        cameraObstacle.setFromObject(object).expandByScalar(.14).containsPoint(position)
-      );
+      const blocked = roomObstacles.some(obstacle => {
+        const { item } = obstacle;
+        if (obstacle.x !== item.position.x || obstacle.z !== item.position.z || obstacle.angle !== item.rotation.y) {
+          obstacle.box.setFromObject(item).expandByScalar(.14);
+          obstacle.x = item.position.x;
+          obstacle.z = item.position.z;
+          obstacle.angle = item.rotation.y;
+        }
+        return obstacle.box.containsPoint(position);
+      });
       if (blocked) position.copy(lastRoomPosition);
       else lastRoomPosition.copy(position);
       camera.lookAt(controls.target);
     }
     if (actor.activity === "harvest" && !actor.moving && actor.arrivedAt !== lastHarvest && currentTime - actor.arrivedAt > 2) {
       lastHarvest = actor.arrivedAt;
-      pickedMelon = island.melons[Math.floor(island.melons.length / 2)];
-      if (pickedMelon) pickedMelon.visible = false;
-      melonRegrowth = currentTime + 28;
+      let closest, bestDistance = Infinity;
+      for (const melon of island.melons) {
+        if (!melon.visible) continue;
+        const distance = melon.getWorldPosition(fruitPosition).distanceToSquared(actor.position);
+        if (distance < bestDistance) { bestDistance = distance; closest = melon; }
+      }
+      if (closest) {
+        closest.visible = false;
+        regrowingMelons.set(closest,currentTime + 28);
+      }
     }
-    if (pickedMelon && currentTime >= melonRegrowth) {
-      pickedMelon.visible = true;
-      pickedMelon = null;
+    for (const [melon, readyAt] of regrowingMelons) {
+      if (currentTime >= readyAt) {
+        melon.visible = true;
+        regrowingMelons.delete(melon);
+      }
+    }
+    if (now >= nextShadow || !ready) {
+      renderer.shadowMap.needsUpdate = true;
+      nextShadow = now + (touchScreen ? 100 : 65);
     }
     renderer.render(islandScene, camera);
+    sampleMobileFrame(now);
     updateHotspots();
     if (!ready) {
       ready = true;
@@ -675,6 +778,7 @@ function launch() {
   });
   canvas.addEventListener("webglcontextrestored", () => {
     loading.hidden = true;
+    nextShadow = 0;
     viewportWidth = 0;
     resize();
     rafId = requestAnimationFrame(frame);

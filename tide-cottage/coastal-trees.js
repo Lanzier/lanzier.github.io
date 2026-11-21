@@ -1,8 +1,9 @@
 import { weatherSurface } from './weather.js';
+import { botanicalMesh } from './botanical-mesh.js';
 
 const TAU = Math.PI * 2;
 
-export function createCoastalTrees(THREE, root, terrainHeight, weather) {
+export function createCoastalTrees(THREE, root, terrainHeight, weather, navigation) {
   const positions = [];
   const colors = [];
   const indices = [];
@@ -14,6 +15,12 @@ export function createCoastalTrees(THREE, root, terrainHeight, weather) {
   function stem(points, width, tipWidth) {
     const sides = tones.length;
     const first = positions.length / 3;
+    if (navigation) {
+      for (let i = 1; i < points.length; i++) {
+        const [x,y,z] = points[i-1], [tx,ty,tz] = points[i];
+        if (Math.min(y,ty) <= terrainHeight(x,z)+1.48) navigation.barrier(x,z,tx,tz,width*1.10);
+      }
+    }
     points.forEach(([x, y, z], ring) => {
       const progress = ring / (points.length - 1);
       const radius = THREE.MathUtils.lerp(width, tipWidth, progress);
@@ -83,26 +90,7 @@ export function createCoastalTrees(THREE, root, terrainHeight, weather) {
   wood.castShadow = wood.receiveShadow = true;
   root.add(wood);
 
-  const leavesGeometry = new THREE.IcosahedronGeometry(1, 1);
-  const vertices = leavesGeometry.getAttribute('position');
-  const facets = [];
-  for (let vertex = 0; vertex < vertices.count; vertex += 1) {
-    const x = vertices.getX(vertex);
-    const y = vertices.getY(vertex);
-    const z = vertices.getZ(vertex);
-    const radius = 1 + .12 * Math.sin(x * 3.9 + y * 3.1 - z * 3.7) * Math.cos(z * 7.1 + y * 3.9)
-      + .048 * Math.sin((x + z) * 8.6 - y * 4.6);
-    vertices.setXYZ(vertex, x * radius, y * radius, z * radius);
-  }
-  for (let vertex = 0; vertex < vertices.count; vertex += 3) {
-    const x = (vertices.getX(vertex) + vertices.getX(vertex + 1) + vertices.getX(vertex + 2)) / 3;
-    const y = (vertices.getY(vertex) + vertices.getY(vertex + 1) + vertices.getY(vertex + 2)) / 3;
-    const z = (vertices.getZ(vertex) + vertices.getZ(vertex + 1) + vertices.getZ(vertex + 2)) / 3;
-    const shade = .89 + .11 * y + .092 * Math.sin(x * 16.3 + y * 5.7 - z * 9.5);
-    for (let corner = 0; corner < 3; corner += 1) facets.push(shade, shade, shade * .96);
-  }
-  leavesGeometry.setAttribute('color', new THREE.Float32BufferAttribute(facets, 3));
-  leavesGeometry.computeVertexNormals();
+  const leavesGeometry = botanicalMesh(THREE, 'Crown');
   const foliage = new THREE.InstancedMesh(
     leavesGeometry,
     weatherSurface(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }), weather, true),
@@ -120,4 +108,5 @@ export function createCoastalTrees(THREE, root, terrainHeight, weather) {
   });
   foliage.castShadow = foliage.receiveShadow = true;
   root.add(foliage);
+  navigation?.blockInstances(foliage);
 }

@@ -1,4 +1,5 @@
 import { createDshPet } from './dsh-pet.js';
+import { CAT_REST } from './cottage-plan.js';
 
 export function createCompanions(THREE, roomScene, islandScene) {
   const sphere = new THREE.SphereGeometry(1, 24, 16);
@@ -58,17 +59,20 @@ export function createCompanions(THREE, roomScene, islandScene) {
     plane.rotation.x = -Math.PI / 2;
     plane.position.y = .012;
     plane.scale.set(width, depth, 1);
+    plane.raycast = () => {};
     parent.add(plane);
+    return plane;
   }
 
   function addCritter(parent) {
     const walker = new THREE.Group();
     walker.name = 'Ww';
     parent.add(walker);
-    addShadow(walker, .93, .64);
-    const sprite = pet.sprite();
+    const shadow = addShadow(walker, .93, .64);
+    const heading = new THREE.Vector3(0, 0, -1);
+    const sprite = pet.sprite(heading);
     walker.add(sprite);
-    return { walker, sprite, mirrored: false, heading: new THREE.Vector3(0, 0, -1) };
+    return { walker, sprite, shadow, heading };
   }
 
   function addCat(parent, x, z) {
@@ -116,7 +120,8 @@ export function createCompanions(THREE, roomScene, islandScene) {
     anchor.position.set(isRoom ? 1.43 : 1.3, isRoom ? 0 : .75, isRoom ? 1.24 : 3.78);
     scene.add(anchor);
     const critter = addCritter(anchor);
-    const cat = addCat(anchor, isRoom ? -3.58 : .82, isRoom ? .66 : .13);
+    const rest = isRoom ? CAT_REST.room : CAT_REST.island;
+    const cat = addCat(anchor, rest.x - anchor.position.x, rest.z - anchor.position.z);
     return { anchor, critter, cat, isRoom };
   }
 
@@ -134,12 +139,10 @@ export function createCompanions(THREE, roomScene, islandScene) {
         anchor.worldToLocal(local.copy(actor.position));
         critter.walker.position.copy(local);
         critter.heading.copy(actor.heading);
-        const cameraAxes = camera.matrixWorld.elements;
-        const facing = actor.heading.x * cameraAxes[0] + actor.heading.z * cameraAxes[2];
-        if (Math.abs(facing) > .01) critter.mirrored = facing > 0;
         const sleeping = !actor.moving && actor.activity === 'sleep';
-        critter.sprite.material.rotation = sleeping ? -.97 : 0;
-        pet.display(critter.sprite, actor.clip, actor.clipTime, time, critter.mirrored);
+        critter.sprite.userData.bedYaw = sleeping ? (actor.bedYaw ?? 0) : undefined;
+        critter.shadow.visible = !sleeping;
+        pet.display(critter.sprite, actor.clip, actor.clipTime, time);
       } else {
         critter.sprite.visible = false;
       }

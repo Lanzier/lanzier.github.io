@@ -1,3 +1,6 @@
+import { landscapeData } from './topography.js';
+import { deepWater, waterLight } from './water-optics.js';
+
 const atmosphere = `
 float noise(vec2 p) {
   vec2 i = floor(p), f = fract(p);
@@ -129,9 +132,9 @@ vec3 lunarSurface(vec2 point) {
 
 const oceanFragment = `
 ${atmosphere}
-uniform vec2 uShoreSize;
+${deepWater}
+varying float vDepth;
 uniform float uWaveDetail;
-uniform sampler2D uReefs;
 void main() {
   vec2 p = vWorld.xz;
   float distanceToEye = length(vWorld-cameraPosition);
@@ -144,53 +147,31 @@ void main() {
     sin(dot(p,vec2(1.31,3.77))-uTime*1.51)*.028
   );
   waves += (vec2(noise(p*3.2+uTime*.30),noise(p*3.5-uTime*.23))-.5)*fine*.018;
-  float detail = uWaveDetail * (1.0-smoothstep(62.0,148.0,distanceToEye));
+  float footprint = max(length(dFdx(p)),length(dFdy(p)));
+  float nearWater = 1.0-smoothstep(24.0,68.0,distanceToEye);
+  float detail = uWaveDetail * (1.0-smoothstep(49.0,132.0,distanceToEye))
+    * (1.0-smoothstep(.32,1.5,footprint));
   vec3 N = normalize(vec3(waves.x*detail,1.0,waves.y*detail));
-  float fresnel = pow(1.0-clamp(dot(eye,N),0.0,1.0),3.0);
+  float fresnel = pow(1.0-clamp(mix(eye.y,dot(eye,N),.32+.68*nearWater),0.0,1.0),3.0);
   float undulation = sin(p.y*2.6 + p.x*.11 + uTime*1.47 + noise(p*.52)*2.5);
   float micro = sin(p.y*12.5 + sin(p.x*3.4 + uTime*.37) + uTime*1.3);
   float waveLight = undulation*.024 + micro*.002*fine + (noise(p*vec2(.31,1.75)+uTime*.26)-.5)*.014;
 
-  vec3 deep = mix(vec3(.015,.105,.25),vec3(.018,.16,.34),uDay);
-  vec3 blue = mix(vec3(.12,.52,.68),vec3(.20,.68,.83),uDay);
+  vec3 deep = deepWaterColor();
+  vec3 blue = mix(vec3(.035,.185,.245),vec3(.045,.25,.32),uDay);
   vec3 reflection = mix(vec3(.35,.52,.49),vec3(.36,.63,.71),uDay);
-  deep = mix(deep,vec3(.006,.019,.049),uNight);
   blue = mix(blue,vec3(.020,.105,.145),uNight);
   reflection = mix(reflection,vec3(.025,.058,.105),uNight);
-  vec2 scaled = p/uShoreSize;
-  float a = atan(scaled.y,scaled.x);
-  float coast = (1.0 + .077*cos(a*3.0+.8) + .062*sin(a*5.0-.5)
-    + .038*cos(a*8.0+1.45) + .031*sin(a*13.0)) * (1.0-.12*pow(max(0.0,sin(a)),4.0));
-  float depth = max(0.0,length(scaled)-coast);
-  float sandGrain = noise(p*.49);
-  float shoal = 1.0-smoothstep(.05,.66,depth + (sandGrain-.5)*.075);
-  float clarity = 1.0-smoothstep(.065,.55,depth);
-  vec3 middle = mix(deep,blue,.38);
-  vec3 c = mix(mix(deep,middle,1.0-smoothstep(.19,1.27,depth)),blue,shoal);
-  vec3 sand = mix(vec3(.21,.65,.65),vec3(.32,.81,.74),uDay);
-  sand = mix(sand,vec3(.034,.23,.26),uNight);
-  c = mix(c,sand,(1.0-smoothstep(.02,.28,depth))*.62);
-  if (depth < .80) {
-    float shelfWidth = .46+.10*sin(a*4.0+.7)+.052*cos(a*7.0-1.2)+(noise(p*.37)-.5)*.10;
-    float seabed = depth/max(shelfWidth,.22);
-    float floorVisibility = (1.0-smoothstep(.39,1.36,seabed))*(1.0-fresnel*.34);
-    float grain = mix(sandGrain,noise(p*2.45),clarity*.53);
-    float gully = sin(a*23.0 + sin(a*9.0)*2.6 + seabed*3.8)*.16
-      + sin(a*39.0-seabed*2.2)*.066;
-    float slopeShade = 1.0 + (gully+(grain-.5)*.56)*(1.0-smoothstep(.20,1.1,seabed));
-    vec3 rimSand = mix(vec3(.40,.47,.31),vec3(.57,.66,.43),uDay);
-    vec3 submergedRock = mix(vec3(.062,.27,.25),vec3(.10,.36,.31),uDay);
-    vec3 slope = mix(rimSand,submergedRock,smoothstep(.035,.88,seabed+gully*.65))*slopeShade;
-    slope = mix(slope,vec3(.018,.113,.13)*slopeShade,uNight*.86);
-    c = mix(c,slope,floorVisibility*.96);
-    vec4 stone = texture2D(uReefs,p/vec2(56.0,44.0)+.5);
-    float visibility = 1.0-smoothstep(.10,.69,depth);
-    vec3 reef = mix(vec3(.009,.038,.054),vec3(.078,.23,.23),stone.r);
-    c = mix(c,reef,stone.a*visibility*.82*(1.0-fresnel*.46));
-  }
+  float depth = vDepth;
+  float shoal = 1.0-smoothstep(.04,3.1,depth);
+  float clarity = exp(-.27*depth / max(.72, eye.y));
+  vec3 shelf = mix(vec3(.079,.27,.28),vec3(.105,.37,.36),uDay);
+  shelf = mix(shelf,vec3(.011,.085,.103),uNight);
+  vec3 c = mix(deep,blue,exp(-.40*depth));
+  c = mix(c,shelf,shoal*.80);
   c = mix(c,c*vec3(.75,.85,.92),uCloud*.6);
   c = mix(c * vec3(.54,.64,.82),c,max(uWaveDetail,shoal));
-  c *= .99 + waveLight*3.8*detail*(1.0-clarity*.36);
+  c *= .99 + waveLight*mix(.93,3.8,nearWater)*detail*(1.0-clarity*.36);
   c = mix(c,reflection,fresnel*.48*(1.0-clarity*.68));
   float glare = pow(max(dot(reflect(-uSun,N),eye),0.0),23.0);
   float spark = pow(max(dot(reflect(-uSun,N),eye),0.0),111.0);
@@ -204,101 +185,35 @@ void main() {
   float lunarAlignment = max(dot(reflect(-uMoon,N),eye),0.0);
   float moonGlints = moonLane * (.085*pow(lunarAlignment,25.0) + pow(lunarAlignment,106.0)*(.28+strips*.48)*detail);
   c += vec3(.39,.52,.76)*moonGlints*uNight*smoothstep(-.02,.04,uMoon.y)*reflectionStrength;
-  float foamAA = max(fwidth(depth)*1.1,.0045);
   float foamLine = 0.0;
-  for (int i=0;i<3;i++) {
-    float line = float(i);
-    float ripple = .030 + line*.024 + sin(a*13.0)*.008 + sin(uTime*1.3+line*1.6)*.004;
-    float band = 1.0-smoothstep(.003,.005+foamAA,abs(depth-ripple));
-    float breakup = .39 + noise(vec2(a*19.0,line+uTime*.19))*.55;
-    foamLine += band*breakup*(.50-line*.14)*min(1.0,.007/foamAA);
+  if (depth < .62 && uWaveDetail > .001) {
+    float foamWidth = max(fwidth(depth),.011);
+    for (int i=0; i<2; i++) {
+      float line = float(i);
+      float front = .11 + line*.18 + .032*sin(dot(p,vec2(.73,.49))+uTime*.64+line);
+      float band = 1.0-smoothstep(.008,.019+foamWidth,abs(depth-front));
+      float streak = noise(p*.44+vec2(line*15.0,uTime*.18));
+      foamLine += band * smoothstep(.34,.70,streak) * (.53-.23*line)*min(1.0,.022/foamWidth);
+    }
+    c = mix(c,mix(vec3(.67,.87,.81),vec3(.14,.27,.31),uNight),foamLine*uWaveDetail);
   }
-  c = mix(c,mix(vec3(.60,.87,.83),vec3(.14,.27,.31),uNight),foamLine*uWaveDetail);
   float twilight = twilightStrength();
   float horizonMist = max(smoothstep(mix(100.0,190.0,twilight),680.0,distanceToEye),1.0-smoothstep(.003,mix(.10,.041,twilight),eye.y));
   c = mix(c,horizonColor()+horizonGlow(-eye),horizonMist);
-  gl_FragColor = vec4(c,1.0);
+  float opacity = 1.0 - clarity*(1.0-fresnel*.68)*.94;
+  opacity = mix(opacity,1.0,max(horizonMist,foamLine*uWaveDetail));
+  gl_FragColor = vec4(c,opacity);
   #include <colorspace_fragment>
 }
 `;
 
-function makeReefTexture(THREE, shorePoint) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 768;
-  canvas.height = 604;
-  const context = canvas.getContext("2d");
-  context.translate(canvas.width / 2, canvas.height / 2);
-  context.scale(canvas.width / 56, -canvas.height / 44);
-  let seed = 184731;
-  const random = () => {
-    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
-    return seed / 4294967296;
-  };
-
-  function rock(x, z, width) {
-    const corners = 5 + Math.floor(random() * 4);
-    const rotation = random() * Math.PI * 2;
-    const narrowness = .39 + random() * .65;
-    const outline = [];
-    for (let i = 0; i < corners; i++) {
-      const angle = (i + random() * .51) * Math.PI * 2 / corners;
-      const radius = width * (.67 + random() * .48);
-      const dx = Math.cos(angle) * radius;
-      const dz = Math.sin(angle) * radius * narrowness;
-      outline.push([x + dx * Math.cos(rotation) - dz * Math.sin(rotation),
-        z + dx * Math.sin(rotation) + dz * Math.cos(rotation)]);
-    }
-    context.beginPath();
-    context.moveTo(...outline[0]);
-    outline.slice(1).forEach(point => context.lineTo(...point));
-    context.closePath();
-    context.fillStyle = `rgba(27,27,27,${.61 + random() * .39})`;
-    context.fill();
-    context.beginPath();
-    context.moveTo(x - width * .16, z + width * .07);
-    outline.slice(0, Math.ceil(corners / 2)).forEach(point => context.lineTo(...point));
-    context.closePath();
-    context.fillStyle = "rgba(144,144,144,.46)";
-    context.fill();
-  }
-
-  function reefCenter(extraDepth) {
-    const angle = random() * Math.PI * 2;
-    const { x, z } = shorePoint(angle);
-    const reach = 1.045 + random() ** 1.65 * extraDepth;
-    return [x * reach, z * reach];
-  }
-
-  for (let i = 0; i < 23; i++) {
-    const [x, z] = reefCenter(.53);
-    const size = .27 + random() ** 1.9 * .89;
-    rock(x, z, size);
-    const count = 3 + Math.floor(random() * 6);
-    const spread = .75 + random() * 1.35;
-    for (let j = 0; j < count; j++) {
-      const angle = random() * Math.PI * 2;
-      const offset = .25 + random() * spread;
-      rock(x + Math.cos(angle) * offset, z + Math.sin(angle) * offset, .11 + random() ** 1.7 * size * .72);
-    }
-  }
-  for (let i = 0; i < 57; i++) {
-    const [x, z] = reefCenter(.67);
-    rock(x, z, .13 + random() ** 2.1 * .62);
-  }
-  return new THREE.CanvasTexture(canvas);
-}
-
-export function createCoast(THREE, scene, shorePoint, shoreSize) {
+export function createCoast(THREE, scene) {
   const uniforms = {
     uTime: { value: 0 },
-    uDay: { value: 0 },
-    uNight: { value: 0 },
-    uCloud: { value: 0 },
+    ...waterLight,
     uSun: { value: new THREE.Vector3(-.60, .15, -.79).normalize() },
     uMoon: { value: new THREE.Vector3(.12, .2, -.94).normalize() },
-    uShoreSize: { value: new THREE.Vector2(...shoreSize) },
     uWaveDetail: { value: 1 },
-    uReefs: { value: makeReefTexture(THREE, shorePoint) },
   };
   const sky = new THREE.Mesh(
     new THREE.SphereGeometry(465, 28, 15),
@@ -308,10 +223,29 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
   sky.frustumCulled = false;
   scene.add(sky);
 
-  const ocean = new THREE.Mesh(
-    new THREE.PlaneGeometry(6400, 6400).rotateX(-Math.PI / 2),
-    new THREE.ShaderMaterial({ uniforms, vertexShader: worldVertex, fragmentShader: oceanFragment }),
-  );
+  const abyss = new THREE.Mesh(new THREE.PlaneGeometry(6400,6400).rotateX(-Math.PI / 2), new THREE.ShaderMaterial({
+    uniforms, vertexShader: worldVertex,
+    fragmentShader: `uniform float uDay, uNight, uCloud; ${deepWater}
+      void main() { gl_FragColor = vec4(deepWaterColor(),1.0);
+      #include <colorspace_fragment>
+      }`,
+  }));
+  abyss.position.y = -14.2;
+  abyss.renderOrder = -1;
+  scene.add(abyss);
+
+  const water = landscapeData('water', 96);
+  const surface = new THREE.BufferGeometry();
+  surface.setAttribute('position', new THREE.Float32BufferAttribute(water.position, 3));
+  surface.setAttribute('waterDepth', new THREE.Float32BufferAttribute(water.depth, 1));
+  surface.setIndex(water.indices);
+  const waterVertex = worldVertex.replace('void main() {',
+    'attribute float waterDepth; varying float vDepth; void main() { vDepth = waterDepth;');
+  const ocean = new THREE.Mesh(surface, new THREE.ShaderMaterial({
+    uniforms, vertexShader: waterVertex, fragmentShader: oceanFragment, transparent: true, depthWrite: false,
+  }));
+  // Draw water after the opaque seafloor and before smoke, snow, rain and Ww's sprite.
+  ocean.renderOrder = -1;
   scene.add(ocean);
 
   const birds = Array.from({ length: 4 }, (_, index) => {

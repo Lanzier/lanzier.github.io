@@ -114,6 +114,10 @@ button.glass:hover, .control:not(:disabled):hover { background: #304d46; }
 @media (hover: hover) and (pointer: fine) {
   .hotspot:not(:hover):not(:focus-visible):not([data-target-hover="true"]) { opacity: 0; }
 }
+@media (hover: none), (pointer: coarse) {
+  .hotspot { min-height: 40px; }
+  .hotspot:not(:focus-visible):not([data-target-hover="true"]) { opacity: 0; pointer-events: none; }
+}
 .hotspot-icon { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; color: #fbdaad; background: #f1d39e22; }
 .hotspot-icon svg { width: 14px; height: 14px; }
 .hotspot::after { content: ""; position: absolute; top: 100%; left: 49%; width: 1px; height: 9px; background: #f9edd4a6; }
