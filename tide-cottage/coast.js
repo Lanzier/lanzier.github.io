@@ -329,8 +329,8 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
       uniforms.uCloud.value = cloud;
       const detail = 1 - THREE.MathUtils.smoothstep(cameraDistance, 44, 83);
       uniforms.uWaveDetail.value = detail;
-      moveCelestialBody(uniforms.uSun.value, minute, 360, .183, .26);
-      moveCelestialBody(uniforms.uMoon.value, minute, 1080, .195, .19);
+      moveCelestialBody(uniforms.uSun.value, minute, 360, .145, .19);
+      moveCelestialBody(uniforms.uMoon.value, minute, 1080, .163, .19);
       birds.forEach(({ flock, left, right }, i) => {
         const angle = time * .16 + i * .2;
         flock.position.set(Math.sin(angle) * 18 - 1.8, 7.3 + Math.sin(angle * 2 + i) * .58 + i*.34, -13 + Math.cos(angle) * 8);
