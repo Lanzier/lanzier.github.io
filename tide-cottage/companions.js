@@ -68,7 +68,7 @@ export function createCompanions(THREE, roomScene, islandScene) {
     addShadow(walker, .93, .64);
     const sprite = pet.sprite();
     walker.add(sprite);
-    return { walker, sprite, action: null, mirrored: false, heading: new THREE.Vector3(0, 0, -1) };
+    return { walker, sprite, action: null, clip: 'idle', mirrored: false, heading: new THREE.Vector3(0, 0, -1) };
   }
 
   function addCat(parent, x, z) {
@@ -192,7 +192,10 @@ export function createCompanions(THREE, roomScene, islandScene) {
       critter.walker.position.y = groundHeight(anchor.position.x + pose.x, anchor.position.z + pose.z) - anchor.position.y;
       cat.anchor.position.y = groundHeight(anchor.position.x + cat.x, anchor.position.z + cat.z) - anchor.position.y;
     }
-    if (active) pet.display(critter.sprite, pose.clip, pose.elapsed, time, critter.mirrored);
+    if (active) {
+      critter.clip = pose.clip;
+      pet.display(critter.sprite, pose.clip, pose.elapsed, time, critter.mirrored);
+    }
 
     cat.body.scale.y = 1 + .039 * Math.sin(time * 2.25 + 1);
     cat.tail.rotation.y = .31 * Math.sin(time * 1.52);

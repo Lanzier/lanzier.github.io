@@ -20,7 +20,11 @@ function photoRequest(text) {
   return null;
 }
 
-export function createChat(elements, { harvest, animate, takePhoto, getView, getLight }) {
+function asksAboutActivity(text) {
+  return /^(?:Ww[\s，,：:]*)?(?:你)?(?:现在|此刻|这会儿)?在(?:干嘛|干啥|干什么|做什么|做啥|忙什么|忙啥)(?:呢|呀|啊|嘛)?[？?。！!]*$/i.test(text);
+}
+
+export function createChat(elements, { harvest, animate, takePhoto, describeActivity, getView, getLight }) {
   const { panel, launch, close, messages, form, input } = elements;
   const ownerChat = window.tideOwnerChat;
   const saved = ownerChat ? [] : readStorage("chat", []);
@@ -122,16 +126,21 @@ export function createChat(elements, { harvest, animate, takePhoto, getView, get
   async function send(value) {
     const text = value.trim().slice(0, 180);
     const photo = photoRequest(text);
-    if (!text || (ownerChat && outstanding && !photo)) return;
-    message("guest", text, !photo);
+    const activity = !photo && asksAboutActivity(text);
+    if (!text || (ownerChat && outstanding && !photo && !activity)) return;
+    message("guest", text, !photo && !activity);
     input.value = "";
-    if (photo) {
-      const firstPerson = photo === "view";
+    if (activity && Math.random() < .5) {
+      message("amo", describeActivity(), false);
+      return;
+    }
+    if (photo || activity) {
+      const firstPerson = photo === "view" || activity;
       try {
         const image = await takePhoto(firstPerson);
         message("amo", firstPerson ? "这是我现在看到的。" : "这是我现在的样子。", false, image);
       } catch {
-        message("amo", "刚才没拍成功，再试一次吧。", false);
+        message("amo", activity ? describeActivity() : "刚才没拍成功，再试一次吧。", false);
       }
       return;
     }

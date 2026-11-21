@@ -152,7 +152,16 @@ function launch() {
     messages: byId("messages"),
     form: byId("chat-form"),
     input: byId("chat-input"),
-  }, { harvest, animate, takePhoto, getView: () => mode, getLight: () => light });
+  }, { harvest, animate, takePhoto, describeActivity, getView: () => mode, getLight: () => light });
+
+  function describeActivity() {
+    const { clip, action } = companions.photoSubject(mode);
+    if (clip === "eat") return "我正在吃西瓜，要不要来一块？";
+    if (clip === "wave") return "刚在跟你挥手呢。";
+    if (action?.name === "harvest") return "我在菜园这边摘西瓜呢。";
+    if (clip === "walk") return mode === "room" ? "我在屋里走走。" : "我在岛上散步呢。";
+    return mode === "room" ? "我在屋里歇一会儿。" : "我在海岛上吹风呢。";
+  }
 
   function takePhoto(firstPerson) {
     const { walker, sprite, heading } = companions.photoSubject(mode);
