@@ -116,7 +116,9 @@ button.glass:hover, .control:not(:disabled):hover { background: #304d46; }
 .messages { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 9px; padding: 13px 2px; scrollbar-width: thin; scrollbar-color: #ffffff38 transparent; }
 .message { align-self: flex-start; flex: none; max-width: 88%; margin: 0; padding: 9px 12px; border-radius: 3px 13px 13px; background: #f8edcb13; color: #fcf6e8; font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
 .message.self { align-self: flex-end; background: #dce0ba; color: #233c33; border-radius: 13px 3px 13px 13px; }
-.suggestions { display: flex; gap: 7px; margin: 0 0 9px; }
+.message-photo { display: block; margin-top: 6px; }
+.message-photo img { display: block; max-width: 100%; max-height: 42vh; border-radius: 7px; }
+.suggestions { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 9px; }
 .suggestions button { padding: 5px 10px; border: 1px solid #f4edd028; color: #e6ddc8; background: transparent; border-radius: 20px; font-size: 12px; }
 .suggestions button:hover { background: #f4edd018; }
 .chat-form { display: flex; flex: none; gap: 5px; border: 1px solid #f4edd02e; border-radius: 14px; padding: 4px; background: #0f211c73; }

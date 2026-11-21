@@ -152,7 +152,42 @@ function launch() {
     messages: byId("messages"),
     form: byId("chat-form"),
     input: byId("chat-input"),
-  }, { harvest, animate, getView: () => mode, getLight: () => light });
+  }, { harvest, animate, takePhoto, getView: () => mode, getLight: () => light });
+
+  function takePhoto(firstPerson) {
+    const { walker, sprite, heading } = companions.photoSubject(mode);
+    const feet = walker.getWorldPosition(new THREE.Vector3());
+    const photoCamera = new THREE.PerspectiveCamera(firstPerson ? 66 : 53, camera.aspect, .035, camera.far);
+    const target = feet.clone();
+    if (firstPerson) {
+      photoCamera.position.copy(feet).add(new THREE.Vector3(0, .88, 0));
+      target.copy(photoCamera.position).addScaledVector(heading, 4);
+      target.y -= .32;
+    } else {
+      target.y += .53;
+      photoCamera.position.copy(feet).add(new THREE.Vector3(-1.65, 1.46, 2.35));
+      if (mode === "room") {
+        const { back, front } = COTTAGE;
+        photoCamera.position.z = THREE.MathUtils.clamp(photoCamera.position.z, roomOrigin.z + back + .22, roomOrigin.z + front - .22);
+      }
+    }
+    photoCamera.lookAt(target);
+    const spriteVisible = sprite.visible;
+    const outlineVisible = outline.visible;
+
+    return new Promise((resolve, reject) => {
+      try {
+        if (firstPerson) sprite.visible = false;
+        outline.visible = false;
+        renderer.render(islandScene, photoCamera);
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Photo encoding failed")), "image/jpeg", .9);
+      } finally {
+        sprite.visible = spriteVisible;
+        outline.visible = outlineVisible;
+        renderer.render(islandScene, camera);
+      }
+    });
+  }
 
   function notify(text) {
     const toast = byId("toast");

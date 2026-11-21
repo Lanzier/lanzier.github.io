@@ -14,7 +14,13 @@ export function writeStorage(key, value) {
   }
 }
 
-export function createChat(elements, { harvest, animate, getView, getLight }) {
+function photoRequest(text) {
+  if (/第一人称|从你(?:的)?视角|你(?:现在|此刻)?(?:看见|看到)了?什么|拍.{0,8}你眼前/.test(text)) return "view";
+  if (/自拍|(?:拍|截).{0,16}(?:照|图)|(?:照片|截图).{0,12}(?:在干嘛|在干什么|在做什么)/.test(text)) return "portrait";
+  return null;
+}
+
+export function createChat(elements, { harvest, animate, takePhoto, getView, getLight }) {
   const { panel, launch, close, messages, form, input } = elements;
   const ownerChat = window.tideOwnerChat;
   const saved = ownerChat ? [] : readStorage("chat", []);
@@ -30,12 +36,29 @@ export function createChat(elements, { harvest, animate, getView, getLight }) {
     "我给你留了靠窗的位置。你想看海，还是陪我去菜园逛逛？",
   ];
 
-  function message(role, text, persist = true) {
+  function message(role, text, persist = true, photo) {
     const bubble = document.createElement("p");
     bubble.className = role === "guest" ? "message self" : "message";
     bubble.textContent = text;
+    if (photo) {
+      const link = document.createElement("a");
+      const image = document.createElement("img");
+      link.className = "message-photo";
+      link.href = URL.createObjectURL(photo);
+      link.download = "Ww-海岛照片.jpg";
+      image.src = link.href;
+      image.alt = text;
+      link.append(image);
+      bubble.append(link);
+      image.addEventListener("load", () => { messages.scrollTop = messages.scrollHeight; }, { once: true });
+    }
     messages.append(bubble);
-    while (messages.childElementCount > 40) messages.firstElementChild.remove();
+    while (messages.childElementCount > 40) {
+      const oldest = messages.firstElementChild;
+      const link = oldest.querySelector(".message-photo");
+      if (link) URL.revokeObjectURL(link.href);
+      oldest.remove();
+    }
     messages.scrollTop = messages.scrollHeight;
     if (persist && !ownerChat) {
       history = [...history, { role, text }].slice(-40);
@@ -98,9 +121,20 @@ export function createChat(elements, { harvest, animate, getView, getLight }) {
 
   async function send(value) {
     const text = value.trim().slice(0, 180);
-    if (!text || (ownerChat && outstanding)) return;
-    message("guest", text);
+    const photo = photoRequest(text);
+    if (!text || (ownerChat && outstanding && !photo)) return;
+    message("guest", text, !photo);
     input.value = "";
+    if (photo) {
+      const firstPerson = photo === "view";
+      try {
+        const image = await takePhoto(firstPerson);
+        message("amo", firstPerson ? "这是我现在看到的。" : "这是我现在的样子。", false, image);
+      } catch {
+        message("amo", "刚才没拍成功，再试一次吧。", false);
+      }
+      return;
+    }
     if (ownerChat) {
       outstanding++;
       try {

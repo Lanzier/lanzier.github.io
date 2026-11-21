@@ -68,7 +68,7 @@ export function createCompanions(THREE, roomScene, islandScene) {
     addShadow(walker, .93, .64);
     const sprite = pet.sprite();
     walker.add(sprite);
-    return { walker, sprite, action: null, mirrored: false };
+    return { walker, sprite, action: null, mirrored: false, heading: new THREE.Vector3(0, 0, -1) };
   }
 
   function addCat(parent, x, z) {
@@ -178,8 +178,12 @@ export function createCompanions(THREE, roomScene, islandScene) {
     }
 
     const cameraAxes = camera?.matrixWorld.elements;
-    const direction = (pose.x - critter.walker.position.x) * (cameraAxes?.[0] ?? 1)
-      + (pose.z - critter.walker.position.z) * (cameraAxes?.[2] ?? 0);
+    const dx = pose.x - critter.walker.position.x;
+    const dz = pose.z - critter.walker.position.z;
+    if (active && pose.clip === 'walk' && Math.hypot(dx, dz) > .0001) {
+      critter.heading.set(dx, 0, dz).normalize();
+    }
+    const direction = dx * (cameraAxes?.[0] ?? 1) + dz * (cameraAxes?.[2] ?? 0);
     if (active && pose.clip === 'walk' && Math.abs(direction) > .0001) critter.mirrored = direction > 0;
 
     const groundHeight = anchor.userData.groundHeight;
@@ -218,5 +222,9 @@ export function createCompanions(THREE, roomScene, islandScene) {
     };
   }
 
-  return { room: room.anchor, island: island.anchor, update, trigger };
+  function photoSubject(sceneMode) {
+    return (sceneMode === 'room' ? room : island).critter;
+  }
+
+  return { room: room.anchor, island: island.anchor, update, trigger, photoSubject };
 }
