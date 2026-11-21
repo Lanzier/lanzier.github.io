@@ -249,8 +249,8 @@ function launch() {
     const size = Math.max(1, (1.39 / camera.aspect) ** .87);
     return {
       target: islandTarget.clone(),
-      position: new THREE.Vector3(-9.04, 9, 29.6).multiplyScalar(size).add(islandTarget),
-      fov: 48,
+      position: new THREE.Vector3(-8.6, 6.9, 27.8).multiplyScalar(size).add(islandTarget),
+      fov: 56,
     };
   }
 
@@ -623,8 +623,8 @@ function launch() {
     previousFrame = now;
     const { minute, type, intensity } = currentWeather();
     const smooth = THREE.MathUtils.smoothstep;
-    const daylightHours = smooth(minute, 380, 500) * (1 - smooth(minute, 960, 1100));
-    const darkness = 1 - smooth(minute, 320, 390) * (1 - smooth(minute, 1070, 1190));
+    const daylightHours = smooth(minute, 370, 490) * (1 - smooth(minute, 945, 1075));
+    const darkness = 1 - smooth(minute, 315, 398) * (1 - smooth(minute, 1058, 1145));
     day = THREE.MathUtils.lerp(day, daylightHours, lightBlend);
     night = THREE.MathUtils.lerp(night, darkness, lightBlend);
     const period = darkness > .6 ? "night" : daylightHours > .55 ? "day" : "dusk";
@@ -639,7 +639,7 @@ function launch() {
     companions.update(currentTime, mode, camera);
     room.update(currentTime, night < .5);
     fireplace.update(currentTime, daylight);
-    coast.update(reduceMotion.matches ? 0 : currentTime, day, night, cloud, camera.position.distanceTo(controls.target));
+    coast.update(reduceMotion.matches ? 0 : currentTime, minute, day, night, cloud, camera.position.distanceTo(controls.target));
     island.update(currentTime, daylight);
     companions.room.visible = mode === "room";
     companions.island.visible = mode === "island";

@@ -19,6 +19,7 @@ uniform float uNight;
 uniform float uDay;
 uniform float uCloud;
 uniform vec3 uSun;
+uniform vec3 uMoon;
 varying vec3 vWorld;
 vec3 horizonColor() {
   vec3 horizon = mix(vec3(.64,.51,.42),vec3(.45,.68,.77),uDay);
@@ -38,20 +39,25 @@ void main() {
 
 const skyFragment = `
 ${atmosphere}
+${moonSurfaceSource()}
 void main() {
   vec3 d = normalize(vWorld-cameraPosition);
   float h = max(d.y, 0.0);
   float proximity = max(0.0,dot(d,uSun));
+  float moonProximity = max(0.0,dot(d,uMoon));
   vec3 horizon = horizonColor();
   vec3 zenith = mix(vec3(.135,.32,.55),vec3(.19,.49,.73),uDay);
   zenith = mix(zenith,vec3(.004,.012,.032),uNight);
   zenith = mix(zenith,mix(vec3(.31,.40,.49),vec3(.012,.024,.052),uNight),uCloud*.63);
   vec3 c = mix(horizon,zenith,1.0-exp(-5.2*h));
   float aboveHorizon = smoothstep(.006,.084,h);
-  c += vec3(.33,.146,.053)*pow(proximity,12.0)*(1.0-uNight)*(1.0-uDay*.68)*aboveHorizon;
-  float sunHalo = pow(proximity,55.0);
-  c += vec3(.41,.22,.09)*sunHalo*(1.0-uNight)*aboveHorizon;
-  c += vec3(.14,.23,.39)*sunHalo*.64*uNight*aboveHorizon;
+  float dawn = 1.0-smoothstep(.025,.23,uSun.y);
+  float sunlight = smoothstep(-.13,.02,uSun.y)*(1.0-uCloud*.75);
+  float moonlight = smoothstep(-.04,.045,uMoon.y)*uNight*(1.0-uCloud*.82);
+  float solarGlow = exp(-34.0*(1.0-proximity));
+  vec3 solarTint = mix(vec3(.94,.91,.73),vec3(1.0,.42,.15),dawn);
+  c += solarTint*solarGlow*sunlight*(.22+dawn*.44)*smoothstep(0.0,.047,d.y);
+  c += vec3(.14,.23,.39)*pow(moonProximity,76.0)*moonlight*.57*aboveHorizon;
 
   vec2 cloudUV = d.xz/(h+.19)*1.72 + vec2(3.7,uTime*.012);
   float f = clouds(cloudUV);
@@ -62,6 +68,18 @@ void main() {
   cloud = mix(cloud,vec3(.88,.91,.88),uDay);
   cloud = mix(cloud,vec3(.027,.043,.077),uNight);
   c = mix(c,cloud,coverage*.78);
+  float skyMask = smoothstep(-.003,.009,d.y);
+  float solarCore = exp(-1750.0*(1.0-proximity));
+  float solarBloom = exp(-220.0*(1.0-proximity));
+  c += (vec3(1.0,.97,.87)*solarCore*.78+solarTint*solarBloom*.31)
+    * sunlight*skyMask*(1.0-coverage*.74);
+
+  if (moonProximity > .9988 && moonlight > .001) {
+    vec3 side = normalize(cross(vec3(0.0,1.0,0.0),uMoon));
+    vec2 point = vec2(dot(d,side),dot(d,cross(uMoon,side)))/.023;
+    float disc = 1.0-smoothstep(.92,1.035,length(point));
+    c = mix(c,lunarSurface(point),disc*moonlight*skyMask*(1.0-coverage*.77));
+  }
 
   if (uNight > 0.01) {
     vec2 field = d.xz/(h+.27)*147.0;
@@ -74,22 +92,10 @@ void main() {
 }
 `;
 
-const celestialVertex = `
-varying vec2 discUV;
-void main() {
-  discUV = uv;
-  gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0);
-}
-`;
-
-const celestialFragment = `
-${atmosphere}
-varying vec2 discUV;
-void main() {
-  vec2 point = (discUV-.5)*3.7;
+function moonSurfaceSource() {
+  return `
+vec3 lunarSurface(vec2 point) {
   float radius = length(point);
-  float edge = max(fwidth(radius),.022);
-  float disc = 1.0-smoothstep(1.0-edge,1.0+edge,radius);
   float surface = sqrt(max(0.0,1.0-radius*radius));
   float maria = smoothstep(.36,.68,clouds(point*3.0+vec2(6.3,1.9)));
   float craters = 0.0;
@@ -104,17 +110,10 @@ void main() {
   }
   float grain = (noise(point*32.0)-.5)*.078;
   float lunarShade = clamp(.78 + surface*.20 - maria*.30 + craters + grain,.33,1.0);
-  vec3 lunar = vec3(.72,.83,1.0)*lunarShade;
-  float mottling = clouds(point*8.4 + uTime*.01);
-  vec3 solar = mix(vec3(.98,.54,.20),vec3(1.0,.94,.64),.60+surface*.38+(mottling-.5)*.06);
-  float corona = exp(-pow(max(0.0,radius-1.0)*3.65,1.5)) * (1.0-disc) * (1.0-smoothstep(1.40,1.82,radius));
-  float halo = corona*(.24*(1.0-uNight)+.09*uNight);
-  vec3 color = mix(solar,lunar,uNight);
-  color = mix(mix(vec3(1.0,.68,.37),vec3(.48,.66,.95),uNight),color,disc);
-  gl_FragColor = vec4(color,(disc+halo)*pow(1.0-uCloud,2.0));
-  #include <colorspace_fragment>
+  return vec3(.72,.83,1.0)*lunarShade;
 }
 `;
+}
 
 const oceanFragment = `
 ${atmosphere}
@@ -183,15 +182,16 @@ void main() {
   c = mix(c,reflection,fresnel*.48*(1.0-clarity*.68));
   float glare = pow(max(dot(reflect(-uSun,N),eye),0.0),23.0);
   float spark = pow(max(dot(reflect(-uSun,N),eye),0.0),111.0);
-  vec3 shine = mix(vec3(1.0,.59,.30),vec3(.43,.58,.85),uNight);
+  vec3 shine = mix(vec3(1.0,.49,.24),vec3(.96,.91,.74),smoothstep(.015,.26,uSun.y));
   float reflectionStrength = (1.0-uCloud*.88)*mix(.10,1.0,uWaveDetail)*(1.0-clarity*.63);
-  c += shine*(.32*glare+.84*spark*detail)*(1.0-uNight)*(1.0-uDay*.70)*reflectionStrength;
-  vec2 moonDirection = normalize(uSun.xz);
+  c += shine*(.32*glare+.84*spark*detail)*smoothstep(-.025,.055,uSun.y)*(1.0-uDay*.56)*reflectionStrength;
+  vec2 moonDirection = normalize(uMoon.xz);
   vec2 towardViewer = normalize(eye.xz + vec2(.00001,0.0));
   float moonLane = pow(max(dot(-moonDirection,towardViewer),0.0),68.0);
   float strips = smoothstep(.39,.77,noise(vec2(dot(p,moonDirection)*1.45,dot(p,vec2(-moonDirection.y,moonDirection.x))*.24)+uTime*.41));
-  float moonGlints = moonLane * (.085*glare + spark*(.28+strips*.48)*detail);
-  c += vec3(.39,.52,.76)*moonGlints*uNight*reflectionStrength;
+  float lunarAlignment = max(dot(reflect(-uMoon,N),eye),0.0);
+  float moonGlints = moonLane * (.085*pow(lunarAlignment,25.0) + pow(lunarAlignment,106.0)*(.28+strips*.48)*detail);
+  c += vec3(.39,.52,.76)*moonGlints*uNight*smoothstep(-.02,.04,uMoon.y)*reflectionStrength;
   float foamAA = max(fwidth(depth)*1.1,.0045);
   float foamLine = 0.0;
   for (int i=0;i<3;i++) {
@@ -282,6 +282,7 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
     uNight: { value: 0 },
     uCloud: { value: 0 },
     uSun: { value: new THREE.Vector3(-.60, .15, -.79).normalize() },
+    uMoon: { value: new THREE.Vector3(.12, .2, -.94).normalize() },
     uShoreSize: { value: new THREE.Vector2(...shoreSize) },
     uWaveDetail: { value: 1 },
     uReefs: { value: makeReefTexture(THREE, shorePoint) },
@@ -293,13 +294,6 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
   sky.renderOrder = -2;
   sky.frustumCulled = false;
   scene.add(sky);
-  const celestialDisc = new THREE.Mesh(
-    new THREE.PlaneGeometry(15.91, 15.91),
-    new THREE.ShaderMaterial({ uniforms, vertexShader: celestialVertex, fragmentShader: celestialFragment,
-      transparent: true, depthWrite: false, toneMapped: false }),
-  );
-  celestialDisc.renderOrder = -1;
-  scene.add(celestialDisc);
 
   const ocean = new THREE.Mesh(
     new THREE.PlaneGeometry(6400, 6400).rotateX(-Math.PI / 2),
@@ -323,21 +317,20 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
     return { flock, left, right };
   });
 
-  const sunTarget = new THREE.Vector3();
+  function moveCelestialBody(direction, minute, rise, height, offset) {
+    const phase = (minute - rise) * Math.PI / 720;
+    direction.set(offset - .78 * Math.cos(phase), height * Math.sin(phase), -.87).normalize();
+  }
   return {
-    update(time, day, night, cloud, cameraDistance) {
+    update(time, minute, day, night, cloud, cameraDistance) {
       uniforms.uTime.value = time;
       uniforms.uDay.value = day;
       uniforms.uNight.value = night;
       uniforms.uCloud.value = cloud;
       const detail = 1 - THREE.MathUtils.smoothstep(cameraDistance, 44, 83);
       uniforms.uWaveDetail.value = detail;
-      sunTarget.set(.21 + day*.075 - night*.08, .054 + day*.037 + night*.041, -.94);
-      uniforms.uSun.value.copy(sunTarget).normalize();
-      celestialDisc.position.copy(sunTarget).multiplyScalar(210);
-      celestialDisc.lookAt(0, 0, 0);
-      celestialDisc.scale.setScalar(1 + night*.18);
-      celestialDisc.visible = cloud < .91;
+      moveCelestialBody(uniforms.uSun.value, minute, 360, .183, .26);
+      moveCelestialBody(uniforms.uMoon.value, minute, 1080, .195, .19);
       birds.forEach(({ flock, left, right }, i) => {
         const angle = time * .16 + i * .2;
         flock.position.set(Math.sin(angle) * 18 - 1.8, 7.3 + Math.sin(angle * 2 + i) * .58 + i*.34, -13 + Math.cos(angle) * 8);
