@@ -14,9 +14,18 @@ export function writeStorage(key, value) {
   }
 }
 
-function photoRequest(text) {
+function contextPhoto(text) {
+  if (!/看看|看一下|看一眼|看一看|拍|截图/.test(text)) return null;
+  if (/你.{0,10}(?:在哪[里儿]?|在什么地方|那边|周围|附近|眼前|身边)/.test(text)) return "view";
+  if (/你.{0,10}(?:干嘛|干吗|干啥|干什么|做什么|做啥|忙什么|忙啥)/.test(text)) return "portrait";
+  return null;
+}
+
+function photoRequest(text, contextual) {
   if (/第一人称|从你(?:的)?视角|你(?:现在|此刻)?(?:看见|看到)了?什么|拍.{0,8}你眼前/.test(text)) return "view";
-  if (/自拍|(?:拍|截).{0,16}(?:照|图)|(?:照片|截图).{0,12}(?:在干嘛|在干什么|在做什么)/.test(text)) return "portrait";
+  if (/自拍|第三人称|把你(?:自己)?拍进去/.test(text)) return "portrait";
+  if (contextual) return contextual;
+  if (/(?:拍|截).{0,16}(?:照|图)|(?:照片|截图).{0,12}(?:在干嘛|在干什么|在做什么)/.test(text)) return "portrait";
   return null;
 }
 
@@ -158,12 +167,13 @@ export function createChat(elements, { harvest, animate, takePhoto, describeActi
 
   async function send(value) {
     const text = value.trim().slice(0, 180);
-    const photo = photoRequest(text);
+    const contextual = contextPhoto(text);
+    const photo = photoRequest(text, contextual);
     const activity = !photo && asksAboutActivity(text);
     if (!text || (ownerChat && outstanding && !photo && !activity)) return;
     message("guest", text, !photo && !activity);
     input.value = "";
-    const description = activity ? describeActivity() : null;
+    const description = activity || contextual ? describeActivity() : null;
     if (activity && Math.random() < .5) {
       message("amo", description, false);
       return;
