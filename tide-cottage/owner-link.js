@@ -38,12 +38,24 @@ if (location.origin === localOrigin && window.tideOwnerChat) {
   });
 }
 
-const privateNonce = new URLSearchParams(location.hash.slice(1)).get("ww");
-if (location.href.startsWith(publicPage) && privateNonce) {
+const publicCottage = location.origin === publicOrigin && location.pathname === new URL(publicPage).pathname;
+const pairingKey = "tide-cottage:owner-pair";
+let privateNonce;
+if (publicCottage && window.opener) {
+  privateNonce = new URLSearchParams(location.hash.slice(1)).get("ww");
+  try {
+    if (privateNonce) sessionStorage.setItem(pairingKey, privateNonce);
+    else privateNonce = sessionStorage.getItem(pairingKey);
+  } catch {
+    // Pairing still works without storage until the page is refreshed.
+  }
+}
+if (publicCottage && privateNonce) {
   history.replaceState(null, "", location.pathname + location.search);
   const parentTab = window.opener;
   const pending = new Map();
-  let connected = false;
+  let ready;
+  const connected = new Promise(resolve => { ready = resolve; });
   const post = payload => parentTab?.postMessage(
     { channel, nonce: privateNonce, ...payload }, localOrigin,
   );
@@ -52,7 +64,7 @@ if (location.href.startsWith(publicPage) && privateNonce) {
     const { data } = event;
     if (event.origin !== localOrigin || event.source !== parentTab ||
         data?.channel !== channel || data.nonce !== privateNonce) return;
-    if (data.type === "ready") connected = true;
+    if (data.type === "ready") ready(true);
     if (data.type !== "result" || !pending.has(data.id)) return;
     const { resolve, reject, timer } = pending.get(data.id);
     clearTimeout(timer);
@@ -62,7 +74,10 @@ if (location.href.startsWith(publicPage) && privateNonce) {
   });
 
   window.tideOwnerChat = async text => {
-    if (!connected || parentTab?.closed) {
+    if (parentTab?.closed || !await Promise.race([
+      connected,
+      new Promise(resolve => setTimeout(resolve, 2500, false)),
+    ])) {
       throw new Error("私人聊天未连接。请从本机入口重新打开，并保留连接标签页。");
     }
     return new Promise((resolve, reject) => {
