@@ -1,5 +1,6 @@
 import { createCoastalTrees } from './coastal-trees.js';
 import { COTTAGE } from './cottage-plan.js';
+import { weatherSurface } from './weather.js';
 
 const TAU = Math.PI * 2;
 const coastX = 14.55;
@@ -30,7 +31,7 @@ function terrainHeight(x, z) {
   return shoulder - .77 * Math.max(0, (radius - .79) / .21) ** 1.35;
 }
 
-export function createIsland(THREE, scene) {
+export function createIsland(THREE, scene, weather) {
   let seed = 49871;
   function rand() {
     seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
@@ -148,7 +149,7 @@ export function createIsland(THREE, scene) {
   groundGeometry.setAttribute('position', new THREE.Float32BufferAttribute(groundPositions, 3));
   groundGeometry.setAttribute('color', new THREE.Float32BufferAttribute(groundColors, 3));
   groundGeometry.computeVertexNormals();
-  mesh(root, groundGeometry, material('#ffffff', { vertexColors: true }), 0, 0, 0);
+  mesh(root, groundGeometry, weatherSurface(material('#ffffff', { vertexColors: true }), weather), 0, 0, 0);
 
   const rockItems = [];
   for (let index = 0; index < 72; index += 1) {
@@ -245,14 +246,13 @@ export function createIsland(THREE, scene) {
   const front = 1.21;
   const back = -4.05;
   const bottom = 1.04;
-  const eave = 3.67;
-  const ridge = 5.17;
+  const { roofEave: eave, roofRidge: ridge, roofSpan } = COTTAGE;
   const wallSpan = 7.78;
   const mortar = material('#ac9176');
   const porchShade = material('#d9a675');
   const stucco = material('#e4c7a6');
   const innerGold = material('#dfb789', { emissive: '#cc7b35', emissiveIntensity: .20 });
-  const slate = material('#3d5256');
+  const slate = weatherSurface(material('#3d5256'), weather);
   const floor = material('#ad7854');
   box(house, mortar, 0, .89, (front + back) / 2, 7.98, .36, 5.50);
   box(house, floor, 0, floorY - .065, roofMiddle, wallSpan, .13, 5.24);
@@ -351,7 +351,6 @@ export function createIsland(THREE, scene) {
   const latch = box(doorHinge, gold, .938, 1.08, .091, .082, .122, .026);
   latch.rotation.z = .045;
 
-  const roofSpan = 3.17;
   const pitch = Math.atan2(ridge - eave, roofSpan);
   const roofSlope = Math.hypot(roofSpan, ridge - eave);
   const roofColors = ['#50666a', '#536a6d', '#486064', '#576c6e', '#4e6869', '#5f7775', '#435c61', '#617777', '#597876'];
@@ -377,7 +376,7 @@ export function createIsland(THREE, scene) {
   for (let index = 0; index < 20; index += 1) {
     tiles.push({ x: (index - 9.5) * .439, y: ridge + .116, z: roofMiddle, sx: .43, sy: .096, sz: .21, tint: pick(roofColors) });
   }
-  batch(house, cube, tiles);
+  batch(house, cube, tiles, weatherSurface(material('#ffffff'), weather));
 
   const brick = material('#99654c');
   const chimneyTopY = 5.785;

@@ -7,6 +7,7 @@ import { createIsland } from "./island.js";
 import { createRoom } from "./room.js";
 import { createCompanions } from "./companions.js";
 import { createChat, createSurf, readStorage, writeStorage } from "./interaction.js";
+import { createWeatherControls, createWeatherEffects } from "./weather.js";
 
 const byId = id => document.getElementById(id);
 const loading = byId("loading");
@@ -52,7 +53,11 @@ function launch() {
   }, { capture: true, passive: false });
 
   const islandScene = new THREE.Scene();
-  const island = createIsland(THREE, islandScene);
+  const currentWeather = createWeatherControls(byId);
+  const weather = createWeatherEffects(THREE, islandScene, {
+    eave: COTTAGE.roofEave, center: COTTAGE.centerZ, halfWidth: COTTAGE.roofHalfWidth, span: COTTAGE.roofSpan,
+  });
+  const island = createIsland(THREE, islandScene, weather);
   const room = createRoom(THREE, island.roomMount);
   const fireplace = createFireplace(THREE, {
     flueHeight: COTTAGE.chimneyBaseY - COTTAGE.floorY + .08,
@@ -82,12 +87,9 @@ function launch() {
   rim.position.set(-13, 8, -11);
   islandScene.add(skyFill, sunlight, rim);
 
-  const modes = ["dusk", "night", "day"];
-  const lightLabels = { dusk: "日落", night: "夜晚", day: "白天" };
-  let light = readStorage("light", "dusk");
-  if (!modes.includes(light)) light = "dusk";
-  let day = Number(light === "day");
-  let night = Number(light === "night");
+  let light;
+  let day = 0;
+  let night = 0;
   const duskTint = new THREE.Color("#ffcf91");
   const dayTint = new THREE.Color("#fff0d4");
   const nightTint = new THREE.Color("#91b9fe");
@@ -215,14 +217,6 @@ function launch() {
     toast.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { toast.hidden = true; }, 2950);
-  }
-
-  function updateLightButton() {
-    const button = byId("light-toggle");
-    button.querySelector("span").textContent = lightLabels[light];
-    button.querySelector("use").setAttribute("href", light === "night" ? "#i-moon" : "#i-sun");
-    button.setAttribute("aria-label", `切换昼夜，当前${lightLabels[light]}`);
-    experience.dataset.light = light;
   }
 
   function updateInterface() {
@@ -578,11 +572,6 @@ function launch() {
   byId("reset-camera").addEventListener("click", () => {
     if (ready && !transition) applyPose(photoPose(mode), mode);
   });
-  byId("light-toggle").addEventListener("click", () => {
-    light = modes[(modes.indexOf(light) + 1) % modes.length];
-    writeStorage("light", light);
-    updateLightButton();
-  });
   byId("sound-toggle").addEventListener("click", async event => {
     const button = event.currentTarget;
     button.disabled = true;
@@ -615,20 +604,28 @@ function launch() {
       wheelDistance = undefined;
     }
     if (!transition) controls.update();
-    const lightBlend = reduceMotion.matches ? 1 : 1 - Math.exp(-(now - (previousFrame ?? now)) / 175);
+    const delta = Math.min(.25, (now - (previousFrame ?? now)) / 1000);
+    const lightBlend = reduceMotion.matches || !light ? 1 : 1 - Math.exp(-delta * 5.7);
     previousFrame = now;
-    day = THREE.MathUtils.lerp(day, Number(light === "day"), lightBlend);
-    night = THREE.MathUtils.lerp(night, Number(light === "night"), lightBlend);
+    const { minute, type, intensity } = currentWeather();
+    const smooth = THREE.MathUtils.smoothstep;
+    const daylightHours = smooth(minute, 380, 500) * (1 - smooth(minute, 960, 1100));
+    const darkness = 1 - smooth(minute, 320, 390) * (1 - smooth(minute, 1070, 1190));
+    day = THREE.MathUtils.lerp(day, daylightHours, lightBlend);
+    night = THREE.MathUtils.lerp(night, darkness, lightBlend);
+    const period = darkness > .6 ? "night" : daylightHours > .55 ? "day" : "dusk";
+    if (period !== light) experience.dataset.light = light = period;
+    const cloud = weather.update(currentTime, delta, type, intensity);
     sunlight.color.copy(duskTint).lerp(dayTint, day).lerp(nightTint, night);
-    sunlight.intensity = 2.7 + .21 * day - 1.94 * night;
-    skyFill.intensity = 1.79 + .19 * day - 1.23 * night;
-    rim.intensity = .72 - .40 * night;
+    sunlight.intensity = (2.7 + .21 * day - 1.94 * night) * (1 - cloud * .49);
+    skyFill.intensity = (1.79 + .19 * day - 1.23 * night) * (1 - cloud * .14);
+    rim.intensity = (.72 - .40 * night) * (1 - cloud * .34);
 
     const daylight = THREE.MathUtils.clamp(.65 + .35 * day - .57 * night, 0, 1);
     companions.update(currentTime, mode, camera);
     room.update(currentTime, night < .5);
     fireplace.update(currentTime, daylight);
-    coast.update(reduceMotion.matches ? 0 : currentTime, day, night);
+    coast.update(reduceMotion.matches ? 0 : currentTime, day, night, cloud);
     island.update(currentTime, daylight);
     companions.room.visible = mode === "room";
     companions.island.visible = mode === "island";
@@ -686,7 +683,6 @@ function launch() {
   window.visualViewport?.addEventListener("resize", resize);
   window.addEventListener("resize", resize);
   window.addEventListener("pageshow", resize);
-  updateLightButton();
   updateInterface();
   resize();
   rafId = requestAnimationFrame(frame);

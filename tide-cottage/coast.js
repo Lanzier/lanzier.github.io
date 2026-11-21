@@ -17,6 +17,7 @@ float clouds(vec2 p) {
 uniform float uTime;
 uniform float uNight;
 uniform float uDay;
+uniform float uCloud;
 uniform vec3 uSun;
 varying vec3 vWorld;
 `;
@@ -41,6 +42,7 @@ void main() {
   horizon = mix(horizon,vec3(.09,.17,.25),uNight);
   zenith = mix(zenith,vec3(.022,.046,.105),uNight);
   vec3 c = mix(horizon,zenith,1.0-exp(-5.2*h));
+  c = mix(c, mix(vec3(.35,.44,.50),vec3(.048,.084,.14),uNight), uCloud*.63);
   c += vec3(.33,.146,.053)*pow(proximity,12.0)*(1.0-uNight)*(1.0-uDay*.68);
   float sunHalo = pow(proximity,55.0);
   float sunDisc = smoothstep(.99955,.99978,proximity);
@@ -50,13 +52,13 @@ void main() {
   vec2 cloudUV = d.xz/(h+.19)*1.72 + vec2(3.7,uTime*.012);
   float f = clouds(cloudUV);
   float strand = clouds(cloudUV*1.7+vec2(13.2,8.5));
-  float coverage = smoothstep(.42,.65,f+strand*.12)*smoothstep(.012,.085,h);
+  float coverage = smoothstep(.53-uCloud*.27,.72-uCloud*.17,f+strand*.12)*smoothstep(.012,.085,h);
   vec3 cloud = mix(vec3(.40,.32,.36),vec3(.94,.54,.38),pow(proximity,6.0));
   cloud += vec3(.19,.15,.10)*smoothstep(.40,.70,strand);
   cloud = mix(cloud,vec3(.88,.91,.88),uDay);
   cloud = mix(cloud,vec3(.12,.17,.28),uNight);
   c = mix(c,cloud,coverage*.78);
-  c = mix(c,vec3(1.0,.88,.59),sunDisc*(1.0-uNight)*.88);
+  c = mix(c,vec3(1.0,.88,.59),sunDisc*(1.0-uNight)*.88*(1.0-uCloud));
 
   if (uNight > 0.01) {
     vec2 field = d.xz/(h+.27)*147.0;
@@ -90,20 +92,27 @@ void main() {
   float micro = sin(p.y*12.5 + sin(p.x*3.4 + uTime*.37) + uTime*1.3);
   float waveLight = undulation*.024 + micro*.008*fine + (noise(p*vec2(.31,1.75)+uTime*.26)-.5)*.044;
 
-  vec3 deep = mix(vec3(.023,.22,.249),vec3(.025,.32,.42),uDay);
-  vec3 blue = mix(vec3(.06,.52,.50),vec3(.09,.61,.59),uDay);
+  vec3 deep = mix(vec3(.015,.105,.25),vec3(.018,.16,.34),uDay);
+  vec3 blue = mix(vec3(.12,.52,.68),vec3(.20,.68,.83),uDay);
   vec3 reflection = mix(vec3(.35,.52,.49),vec3(.36,.63,.71),uDay);
   deep = mix(deep,vec3(.014,.050,.105),uNight);
   blue = mix(blue,vec3(.027,.175,.215),uNight);
   reflection = mix(reflection,vec3(.081,.15,.238),uNight);
-  float shoal = exp(-1.80*abs(length(p/(uShoreSize*1.20))-.87));
-  vec3 c = mix(deep,blue,shoal*.70);
+  vec2 scaled = p/uShoreSize;
+  float a = atan(scaled.y,scaled.x);
+  float coast = (1.0 + .077*cos(a*3.0+.8) + .062*sin(a*5.0-.5)
+    + .038*cos(a*8.0+1.45) + .031*sin(a*13.0)) * (1.0-.12*pow(max(0.0,sin(a)),4.0));
+  float depth = max(0.0,length(scaled)-coast);
+  float shoal = 1.0-smoothstep(.025,.76,depth + (noise(p*.49)-.5)*.06);
+  vec3 middle = mix(deep,blue,.34);
+  vec3 c = mix(mix(deep,middle,1.0-smoothstep(.18,1.35,depth)),blue,shoal);
+  c = mix(c,c*vec3(.75,.85,.92),uCloud*.6);
   c *= .99 + waveLight*3.8;
   c = mix(c,reflection,fresnel*.48);
   float glare = pow(max(dot(reflect(-uSun,N),eye),0.0),23.0);
   float spark = pow(max(dot(reflect(-uSun,N),eye),0.0),111.0);
   vec3 shine = mix(vec3(1.0,.59,.30),vec3(.43,.58,.85),uNight);
-  c += shine*(.32*glare+.84*spark)*(1.0-uDay*.70);
+  c += shine*(.32*glare+.84*spark)*(1.0-uDay*.70)*(1.0-uCloud*.88);
   vec3 farColor = mix(vec3(.61,.66,.59),vec3(.43,.68,.74),uDay);
   farColor = mix(farColor,vec3(.083,.158,.238),uNight);
   c = mix(c,farColor,smoothstep(42.0,410.0,distanceToEye));
@@ -117,6 +126,7 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
     uTime: { value: 0 },
     uDay: { value: 0 },
     uNight: { value: 0 },
+    uCloud: { value: 0 },
     uSun: { value: new THREE.Vector3(-.60, .15, -.79).normalize() },
     uShoreSize: { value: new THREE.Vector2(...shoreSize) },
   };
@@ -196,10 +206,11 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
 
   const sunTarget = new THREE.Vector3();
   return {
-    update(time, day, night) {
+    update(time, day, night, cloud) {
       uniforms.uTime.value = time;
       uniforms.uDay.value = day;
       uniforms.uNight.value = night;
+      uniforms.uCloud.value = cloud;
       sunTarget.set(-.61 + day*.15 + night*.11, .082 + day*.58 + night*.070, -.79);
       uniforms.uSun.value.copy(sunTarget).normalize();
       foam.forEach((ring, i) => ring.scale.setScalar(1 + .012 * Math.sin(time * 1.3 - i * .7)));

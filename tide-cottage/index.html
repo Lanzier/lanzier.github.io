@@ -7,7 +7,7 @@
   <meta name="description" content="在一座海上小岛散步，进小屋坐坐，和岛上的小伙伴Ww聊聊天。">
   <title>潮汐小屋 · Tide Cottage</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
   <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -41,8 +41,8 @@
         </div>
       </div>
       <div class="top-actions">
-        <button id="light-toggle" class="glass control light-control" type="button" aria-label="切换昼夜" title="切换昼夜">
-          <svg><use href="#i-sun"/></svg><span>日落</span>
+        <button id="light-toggle" class="glass control light-control" type="button" aria-label="时间和天气" aria-expanded="false" aria-controls="weather-panel">
+          <svg><use href="#i-sun"/></svg><span>天气</span>
         </button>
         <button id="sound-toggle" class="glass control icon-control" type="button" aria-label="开启海浪声" aria-pressed="false" title="开启海浪声">
           <svg><use href="#i-mute"/></svg>
@@ -52,6 +52,19 @@
         </button>
       </div>
     </header>
+    <section id="weather-panel" class="weather-panel glass" aria-label="时间和天气" hidden>
+      <div class="weather-heading"><p id="weather-status" role="status">正在同步义乌天气…</p><button id="weather-reset" type="button">恢复现实同步</button></div>
+      <label class="weather-label" for="weather-time">时间 <output id="weather-clock" for="weather-time"></output></label>
+      <input id="weather-time" type="range" min="0" max="1439" step="1">
+      <div class="weather-choices" role="group" aria-label="天气">
+        <button type="button" data-weather="clear">晴天</button>
+        <button type="button" data-weather="cloudy">多云</button>
+        <button type="button" data-weather="rain">下雨</button>
+        <button type="button" data-weather="snow">下雪</button>
+      </div>
+      <label class="weather-label" for="weather-strength">强度 <output id="weather-percent" for="weather-strength"></output></label>
+      <input id="weather-strength" type="range" min="0" max="100" step="1">
+    </section>
 
     <div id="loading" class="loading" role="status"><span class="loader"></span><span>正在抵达小岛</span></div>
     <div class="hotspots" id="hotspots">
@@ -107,6 +120,6 @@
     <div id="toast" class="toast glass" role="status" hidden></div>
   </main>
   <noscript>打开 JavaScript 后即可游览潮汐小屋。</noscript>
-  <script src="scene.bundle.js?v=21" defer></script>
+  <script src="scene.bundle.js?v=22" defer></script>
 </body>
 </html>

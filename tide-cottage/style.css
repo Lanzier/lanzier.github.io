@@ -58,6 +58,21 @@ svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width:
 .icon-control { width: 42px; }
 .light-control { padding: 0 14px; font-size: 14px; }
 .light-control svg { color: #ffe2ad; }
+.weather-panel {
+  position: absolute; z-index: 6; top: max(75px, calc(env(safe-area-inset-top) + 57px));
+  right: max(16px, env(safe-area-inset-right)); width: min(315px, calc(100% - 32px));
+  border-radius: 18px; padding: 14px; background: rgba(24, 42, 38, .96);
+  display: flex; flex-direction: column; gap: 9px; box-shadow: 0 12px 40px #0b252363;
+}
+.weather-heading, .weather-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.weather-heading p { margin: 0; color: var(--pale); font-size: 12px; }
+.weather-heading button, .weather-choices button { padding: 6px 8px; border-radius: 12px; color: var(--ivory); background: #fff2cc15; font-size: 12px; }
+.weather-heading button { flex-shrink: 0; }
+.weather-label { font-size: 13px; }
+.weather-panel output { color: #ffe2ad; font-variant-numeric: tabular-nums; }
+.weather-panel input { width: 100%; margin: 0; accent-color: #f2d69e; }
+.weather-choices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.weather-choices button[aria-pressed="true"] { background: #f2d69e; color: #253e34; }
 button.glass:hover, .control:not(:disabled):hover { background: #304d46; }
 
 .loading {
