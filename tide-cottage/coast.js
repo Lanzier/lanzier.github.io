@@ -74,6 +74,48 @@ void main() {
 }
 `;
 
+const celestialVertex = `
+varying vec2 discUV;
+void main() {
+  discUV = uv;
+  gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0);
+}
+`;
+
+const celestialFragment = `
+${atmosphere}
+varying vec2 discUV;
+void main() {
+  vec2 point = (discUV-.5)*3.7;
+  float radius = length(point);
+  float edge = max(fwidth(radius),.022);
+  float disc = 1.0-smoothstep(1.0-edge,1.0+edge,radius);
+  float surface = sqrt(max(0.0,1.0-radius*radius));
+  float maria = smoothstep(.36,.68,clouds(point*3.0+vec2(6.3,1.9)));
+  float craters = 0.0;
+  for (int i=0;i<22;i++) {
+    float n = float(i)+1.0;
+    vec2 center = vec2(noise(vec2(n*3.37,8.1)),noise(vec2(n*1.51,19.3)))*1.87-.91;
+    float size = .032 + .13*noise(vec2(n*3.09,6.1));
+    float d = length(point-center)/size;
+    float floorShade = 1.0-smoothstep(.27,.82,d);
+    float rim = smoothstep(.70,.91,d)*(1.0-smoothstep(.97,1.17,d));
+    craters += rim*.046-floorShade*.049;
+  }
+  float grain = (noise(point*32.0)-.5)*.078;
+  float lunarShade = clamp(.78 + surface*.20 - maria*.30 + craters + grain,.33,1.0);
+  vec3 lunar = vec3(.72,.83,1.0)*lunarShade;
+  float mottling = clouds(point*8.4 + uTime*.01);
+  vec3 solar = mix(vec3(.98,.54,.20),vec3(1.0,.94,.64),.60+surface*.38+(mottling-.5)*.06);
+  float corona = exp(-pow(max(0.0,radius-1.0)*3.65,1.5)) * (1.0-disc) * (1.0-smoothstep(1.40,1.82,radius));
+  float halo = corona*(.24*(1.0-uNight)+.09*uNight);
+  vec3 color = mix(solar,lunar,uNight);
+  color = mix(mix(vec3(1.0,.68,.37),vec3(.48,.66,.95),uNight),color,disc);
+  gl_FragColor = vec4(color,(disc+halo)*pow(1.0-uCloud,2.0));
+  #include <colorspace_fragment>
+}
+`;
+
 const oceanFragment = `
 ${atmosphere}
 uniform vec2 uShoreSize;
@@ -142,7 +184,24 @@ void main() {
   float glare = pow(max(dot(reflect(-uSun,N),eye),0.0),23.0);
   float spark = pow(max(dot(reflect(-uSun,N),eye),0.0),111.0);
   vec3 shine = mix(vec3(1.0,.59,.30),vec3(.43,.58,.85),uNight);
-  c += shine*(.32*glare+.84*spark*detail)*(1.0-uDay*.70)*(1.0-uCloud*.88)*mix(.13,1.0,uWaveDetail)*(1.0-clarity*.63);
+  float reflectionStrength = (1.0-uCloud*.88)*mix(.10,1.0,uWaveDetail)*(1.0-clarity*.63);
+  c += shine*(.32*glare+.84*spark*detail)*(1.0-uNight)*(1.0-uDay*.70)*reflectionStrength;
+  vec2 moonDirection = normalize(uSun.xz);
+  vec2 towardViewer = normalize(eye.xz + vec2(.00001,0.0));
+  float moonLane = pow(max(dot(-moonDirection,towardViewer),0.0),68.0);
+  float strips = smoothstep(.39,.77,noise(vec2(dot(p,moonDirection)*1.45,dot(p,vec2(-moonDirection.y,moonDirection.x))*.24)+uTime*.41));
+  float moonGlints = moonLane * (.085*glare + spark*(.28+strips*.48)*detail);
+  c += vec3(.39,.52,.76)*moonGlints*uNight*reflectionStrength;
+  float foamAA = max(fwidth(depth)*1.1,.0045);
+  float foamLine = 0.0;
+  for (int i=0;i<3;i++) {
+    float line = float(i);
+    float ripple = .030 + line*.024 + sin(a*13.0)*.008 + sin(uTime*1.3+line*1.6)*.004;
+    float band = 1.0-smoothstep(.003,.005+foamAA,abs(depth-ripple));
+    float breakup = .39 + noise(vec2(a*19.0,line+uTime*.19))*.55;
+    foamLine += band*breakup*(.50-line*.14)*min(1.0,.007/foamAA);
+  }
+  c = mix(c,mix(vec3(.60,.87,.83),vec3(.14,.27,.31),uNight),foamLine*uWaveDetail);
   float horizonMist = max(smoothstep(100.0,680.0,distanceToEye),1.0-smoothstep(.011,.10,eye.y));
   c = mix(c,horizonColor(),horizonMist);
   gl_FragColor = vec4(c,1.0);
@@ -235,63 +294,18 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
   sky.frustumCulled = false;
   scene.add(sky);
   const celestialDisc = new THREE.Mesh(
-    new THREE.CircleGeometry(4.3, 40),
-    new THREE.MeshBasicMaterial({ color: "#fff1b9", transparent: true, depthWrite: false, toneMapped: false }),
+    new THREE.PlaneGeometry(15.91, 15.91),
+    new THREE.ShaderMaterial({ uniforms, vertexShader: celestialVertex, fragmentShader: celestialFragment,
+      transparent: true, depthWrite: false, toneMapped: false }),
   );
   celestialDisc.renderOrder = -1;
   scene.add(celestialDisc);
-  const daylightDisc = new THREE.Color("#fff1b9");
-  const moonlightDisc = new THREE.Color("#e1edff");
 
   const ocean = new THREE.Mesh(
     new THREE.PlaneGeometry(6400, 6400).rotateX(-Math.PI / 2),
     new THREE.ShaderMaterial({ uniforms, vertexShader: worldVertex, fragmentShader: oceanFragment }),
   );
   scene.add(ocean);
-
-  const foam = [];
-  if (shorePoint) {
-    for (const [offset, width, opacity] of [[.10, .20, .67], [.48, .12, .30], [.83, .13, .17]]) {
-      const geometry = new THREE.BufferGeometry();
-      const segments = 150;
-      const vertices = [], uv = [], indices = [];
-      for (let i = 0; i <= segments; i++) {
-        const angle = 2 * Math.PI * i / segments;
-        const point = shorePoint(angle);
-        for (const edge of [0, 1]) {
-          const distance = offset + edge * width + Math.sin(angle * 13) * .13;
-          vertices.push(point.x + Math.cos(angle) * distance, .025, point.z + Math.sin(angle) * distance);
-          uv.push(i / segments, edge);
-        }
-        if (i < segments) {
-          const k = i * 2;
-          indices.push(k, k + 1, k + 2, k + 1, k + 3, k + 2);
-        }
-      }
-      geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
-      geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
-      geometry.setIndex(indices);
-      const material = new THREE.ShaderMaterial({
-        uniforms: { ...uniforms, uOpacity: { value: opacity }, uOffset: { value: offset } },
-        vertexShader: `varying vec2 vUV;
-          void main(){vUV=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
-        fragmentShader: `varying vec2 vUV;
-          uniform float uTime,uNight,uOpacity,uOffset,uWaveDetail;
-          void main(){
-            float crest=pow(max(sin(vUV.y*3.14159),0.0),1.65);
-            float breakup=sin(vUV.x*144.0+uOffset*16.0-uTime*.76)*.29+
-              sin(vUV.x*260.0+uTime*.65)*.17+.60;
-            gl_FragColor=vec4(mix(vec3(.78,.94,.87),vec3(.21,.47,.52),uNight),crest*breakup*uOpacity*uWaveDetail);
-            #include <colorspace_fragment>
-          }`,
-        transparent: true, depthWrite: false, side: THREE.DoubleSide,
-      });
-      const ring = new THREE.Mesh(geometry, material);
-      ring.renderOrder = 1;
-      scene.add(ring);
-      foam.push(ring);
-    }
-  }
 
   const birds = Array.from({ length: 4 }, (_, index) => {
     const wing = new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute([
@@ -323,13 +337,7 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
       celestialDisc.position.copy(sunTarget).multiplyScalar(210);
       celestialDisc.lookAt(0, 0, 0);
       celestialDisc.scale.setScalar(1 + night*.18);
-      celestialDisc.material.color.copy(daylightDisc).lerp(moonlightDisc,night);
-      celestialDisc.material.opacity = (1 - cloud) ** 2;
-      celestialDisc.visible = celestialDisc.material.opacity > .04;
-      foam.forEach((ring, i) => {
-        ring.visible = detail > .001;
-        ring.scale.setScalar(1 + .012 * detail * Math.sin(time * 1.3 - i * .7));
-      });
+      celestialDisc.visible = cloud < .91;
       birds.forEach(({ flock, left, right }, i) => {
         const angle = time * .16 + i * .2;
         flock.position.set(Math.sin(angle) * 18 - 1.8, 7.3 + Math.sin(angle * 2 + i) * .58 + i*.34, -13 + Math.cos(angle) * 8);

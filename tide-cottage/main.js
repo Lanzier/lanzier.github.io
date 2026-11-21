@@ -33,7 +33,7 @@ function launch() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-  const camera = new THREE.PerspectiveCamera(42, 1, .075, 1400);
+  const camera = new THREE.PerspectiveCamera(42, 1, .18, 1400);
   const controls = new OrbitControls(camera, canvas);
   controls.enableDamping = !reduceMotion.matches;
   controls.dampingFactor = .08;
@@ -179,7 +179,7 @@ function launch() {
   function takePhoto(firstPerson) {
     const { walker, sprite, heading } = companions.photoSubject(mode);
     const feet = walker.getWorldPosition(new THREE.Vector3());
-    const photoCamera = new THREE.PerspectiveCamera(firstPerson ? 66 : 53, camera.aspect, .035, camera.far);
+    const photoCamera = new THREE.PerspectiveCamera(firstPerson ? 66 : 53, camera.aspect, .085, camera.far);
     const target = feet.clone();
     if (firstPerson) {
       photoCamera.position.copy(feet).add(new THREE.Vector3(0, .88, 0));
