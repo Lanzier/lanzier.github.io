@@ -73,6 +73,7 @@ void main() {
 const oceanFragment = `
 ${atmosphere}
 uniform vec2 uShoreSize;
+uniform float uWaveDetail;
 void main() {
   vec2 p = vWorld.xz;
   float distanceToEye = length(vWorld-cameraPosition);
@@ -85,7 +86,8 @@ void main() {
     sin(dot(p,vec2(1.31,3.77))-uTime*1.51)*.028
   );
   waves += (vec2(noise(p*3.2+uTime*.30),noise(p*3.5-uTime*.23))-.5)*fine*.018;
-  vec3 N = normalize(vec3(waves.x,1.0,waves.y));
+  float detail = uWaveDetail * (1.0-smoothstep(62.0,148.0,distanceToEye));
+  vec3 N = normalize(vec3(waves.x*detail,1.0,waves.y*detail));
   float fresnel = pow(1.0-clamp(dot(eye,N),0.0,1.0),3.0);
   float undulation = sin(p.y*2.6 + p.x*.11 + uTime*1.47 + noise(p*.52)*2.5);
   float micro = sin(p.y*12.5 + sin(p.x*3.4 + uTime*.37) + uTime*1.3);
@@ -124,15 +126,16 @@ void main() {
     c = mix(c,reef,rock*visibility*.66*(1.0-fresnel*.75));
   }
   c = mix(c,c*vec3(.75,.85,.92),uCloud*.6);
-  c *= .99 + waveLight*3.8;
+  c = mix(c * vec3(.54,.64,.82),c,max(uWaveDetail,shoal));
+  c *= .99 + waveLight*3.8*detail;
   c = mix(c,reflection,fresnel*.48);
   float glare = pow(max(dot(reflect(-uSun,N),eye),0.0),23.0);
   float spark = pow(max(dot(reflect(-uSun,N),eye),0.0),111.0);
   vec3 shine = mix(vec3(1.0,.59,.30),vec3(.43,.58,.85),uNight);
-  c += shine*(.32*glare+.84*spark)*(1.0-uDay*.70)*(1.0-uCloud*.88);
+  c += shine*(.32*glare+.84*spark*detail)*(1.0-uDay*.70)*(1.0-uCloud*.88)*mix(.13,1.0,uWaveDetail);
   vec3 farColor = mix(vec3(.61,.66,.59),vec3(.43,.68,.74),uDay);
   farColor = mix(farColor,vec3(.083,.158,.238),uNight);
-  c = mix(c,farColor,smoothstep(42.0,410.0,distanceToEye));
+  c = mix(c,farColor,smoothstep(42.0,410.0,distanceToEye)*mix(.65,1.0,uWaveDetail));
   gl_FragColor = vec4(c,1.0);
   #include <colorspace_fragment>
 }
@@ -146,6 +149,7 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
     uCloud: { value: 0 },
     uSun: { value: new THREE.Vector3(-.60, .15, -.79).normalize() },
     uShoreSize: { value: new THREE.Vector2(...shoreSize) },
+    uWaveDetail: { value: 1 },
   };
   const sky = new THREE.Mesh(
     new THREE.SphereGeometry(465, 28, 15),
@@ -194,12 +198,12 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
         vertexShader: `varying vec2 vUV;
           void main(){vUV=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
         fragmentShader: `varying vec2 vUV;
-          uniform float uTime,uNight,uOpacity,uOffset;
+          uniform float uTime,uNight,uOpacity,uOffset,uWaveDetail;
           void main(){
             float crest=pow(max(sin(vUV.y*3.14159),0.0),1.65);
             float breakup=sin(vUV.x*144.0+uOffset*16.0-uTime*.76)*.29+
               sin(vUV.x*260.0+uTime*.65)*.17+.60;
-            gl_FragColor=vec4(mix(vec3(.78,.94,.87),vec3(.21,.47,.52),uNight),crest*breakup*uOpacity);
+            gl_FragColor=vec4(mix(vec3(.78,.94,.87),vec3(.21,.47,.52),uNight),crest*breakup*uOpacity*uWaveDetail);
             #include <colorspace_fragment>
           }`,
         transparent: true, depthWrite: false, side: THREE.DoubleSide,
@@ -229,18 +233,23 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
 
   const sunTarget = new THREE.Vector3();
   return {
-    update(time, day, night, cloud) {
+    update(time, day, night, cloud, cameraDistance) {
       uniforms.uTime.value = time;
       uniforms.uDay.value = day;
       uniforms.uNight.value = night;
       uniforms.uCloud.value = cloud;
+      const detail = 1 - THREE.MathUtils.smoothstep(cameraDistance, 44, 83);
+      uniforms.uWaveDetail.value = detail;
       sunTarget.set(.21 + day*.075 - night*.26, .054 + day*.037 + night*.108, -.94);
       uniforms.uSun.value.copy(sunTarget).normalize();
       sun.position.copy(sunTarget).multiplyScalar(210);
       sun.lookAt(0, 0, 0);
       sun.material.opacity = (1 - night) * (1 - cloud) ** 2;
       sun.visible = sun.material.opacity > .04;
-      foam.forEach((ring, i) => ring.scale.setScalar(1 + .012 * Math.sin(time * 1.3 - i * .7)));
+      foam.forEach((ring, i) => {
+        ring.visible = detail > .001;
+        ring.scale.setScalar(1 + .012 * detail * Math.sin(time * 1.3 - i * .7));
+      });
       birds.forEach(({ flock, left, right }, i) => {
         const angle = time * .16 + i * .2;
         flock.position.set(Math.sin(angle) * 18 - 1.8, 7.3 + Math.sin(angle * 2 + i) * .58 + i*.34, -13 + Math.cos(angle) * 8);

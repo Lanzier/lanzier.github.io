@@ -639,7 +639,7 @@ function launch() {
     companions.update(currentTime, mode, camera);
     room.update(currentTime, night < .5);
     fireplace.update(currentTime, daylight);
-    coast.update(reduceMotion.matches ? 0 : currentTime, day, night, cloud);
+    coast.update(reduceMotion.matches ? 0 : currentTime, day, night, cloud, camera.position.distanceTo(controls.target));
     island.update(currentTime, daylight);
     companions.room.visible = mode === "room";
     companions.island.visible = mode === "island";

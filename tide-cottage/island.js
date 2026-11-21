@@ -26,7 +26,7 @@ function islandRadius(x, z) {
 
 function terrainHeight(x, z) {
   const radius = islandRadius(x, z);
-  const ripples = Math.sin(x * .8 + z * .34) * .075 + Math.sin(x * .27 - z * 1.04) * .072;
+  const ripples = Math.sin(x * .29 + z * .16) * .023 + Math.sin(x * .17 - z * .31) * .015;
   const shoulder = .88 - .13 * radius + ripples;
   return shoulder - .77 * Math.max(0, (radius - .79) / .21) ** 1.35;
 }
@@ -114,10 +114,12 @@ export function createIsland(THREE, scene, weather) {
 
   const groundPositions = [];
   const groundColors = [];
+  const groundNormals = [];
   const greens = ['#73905a', '#789558', '#698850', '#68874d', '#6e8b51', '#849858', '#5f8050', '#79915c'];
   const stone = ['#8a8a70', '#93937c', '#9a9d87', '#797e69', '#a4a086'];
   const beach = color('#bba67a');
   const shoreStone = color('#8b8b72');
+  const meadow = color('#779055');
   const shade = new THREE.Color();
   function groundTriangle(a, b, c, tint) {
     const grass = color(tint);
@@ -127,9 +129,15 @@ export function createIsland(THREE, scene, weather) {
       const fringe = radius + .018 * Math.sin(x * 1.2 + z * .62) + .011 * Math.cos(z * 2.1 - x * .74);
       const sandBlend = THREE.MathUtils.smoothstep(fringe, .76, .975);
       const stoneBlend = THREE.MathUtils.smoothstep(radius, 1.01, 1.075);
-      shade.copy(grass).lerp(beach, sandBlend).lerp(shoreStone, stoneBlend);
+      shade.copy(meadow).lerp(grass, .22).lerp(beach, sandBlend).lerp(shoreStone, stoneBlend);
+      shade.multiplyScalar(1 + .038 * Math.sin(x * .46 + z * .28) * Math.cos(z * .64));
       groundPositions.push(...point);
       groundColors.push(shade.r, shade.g, shade.b);
+      const step = .055;
+      const dx = terrainHeight(x - step, z) - terrainHeight(x + step, z);
+      const dz = terrainHeight(x, z - step) - terrainHeight(x, z + step);
+      const length = Math.hypot(dx, 2 * step, dz);
+      groundNormals.push(dx / length, 2 * step / length, dz / length);
     }
   }
 
@@ -139,7 +147,7 @@ export function createIsland(THREE, scene, weather) {
       const { x: sx, z: sz } = shorePoint(angle);
       const x = sx * radius;
       const z = sz * radius;
-      return [x, terrainHeight(x, z) + (level > 1 && level < 9 ? range(-.055, .055) : 0), z];
+      return [x, terrainHeight(x, z) + (level > 1 && level < 9 ? range(-.002, .002) : 0), z];
     })
   ));
   for (let index = 0; index < 64; index += 1) {
@@ -156,7 +164,7 @@ export function createIsland(THREE, scene, weather) {
   const groundGeometry = new THREE.BufferGeometry();
   groundGeometry.setAttribute('position', new THREE.Float32BufferAttribute(groundPositions, 3));
   groundGeometry.setAttribute('color', new THREE.Float32BufferAttribute(groundColors, 3));
-  groundGeometry.computeVertexNormals();
+  groundGeometry.setAttribute('normal', new THREE.Float32BufferAttribute(groundNormals, 3));
   mesh(root, groundGeometry, weatherSurface(material('#ffffff', { vertexColors: true }), weather), 0, 0, 0);
 
   const rockItems = [];
