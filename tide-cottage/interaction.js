@@ -24,8 +24,37 @@ function asksAboutActivity(text) {
   return /^(?:Ww[\s，,：:]*)?(?:你)?(?:现在|此刻|这会儿)?在(?:干嘛|干啥|干什么|做什么|做啥|忙什么|忙啥)(?:呢|呀|啊|嘛)?[？?。！!]*$/i.test(text);
 }
 
+function enableChatResize(panel) {
+  const handle = panel.querySelector("#chat-resize");
+  let drag;
+
+  function setSize(width, height) {
+    panel.style.setProperty("--chat-width", `${Math.max(235, Math.min(width, panel.offsetLeft + panel.offsetWidth - 10))}px`);
+    panel.style.setProperty("--chat-height", `${Math.max(205, Math.min(height, panel.offsetTop + panel.offsetHeight - 18))}px`);
+  }
+
+  handle.addEventListener("pointerdown", event => {
+    if (event.button !== 0 || drag) return;
+    handle.setPointerCapture(event.pointerId);
+    drag = { x: event.clientX, y: event.clientY, width: panel.offsetWidth, height: panel.offsetHeight };
+  });
+  handle.addEventListener("pointermove", event => {
+    if (drag && handle.hasPointerCapture(event.pointerId)) {
+      setSize(drag.width + drag.x - event.clientX, drag.height + drag.y - event.clientY);
+    }
+  });
+  handle.addEventListener("lostpointercapture", () => { drag = undefined; });
+  handle.addEventListener("keydown", event => {
+    const delta = { ArrowLeft: [16, 0], ArrowRight: [-16, 0], ArrowUp: [0, 16], ArrowDown: [0, -16] }[event.key];
+    if (!delta) return;
+    event.preventDefault();
+    setSize(panel.offsetWidth + delta[0], panel.offsetHeight + delta[1]);
+  });
+}
+
 export function createChat(elements, { harvest, animate, takePhoto, describeActivity, getView, getLight }) {
   const { panel, launch, close, messages, form, input } = elements;
+  enableChatResize(panel);
   const ownerChat = window.tideOwnerChat;
   const saved = ownerChat ? [] : readStorage("chat", []);
   let history = Array.isArray(saved) ? saved.filter(entry =>

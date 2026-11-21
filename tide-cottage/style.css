@@ -102,11 +102,22 @@ button.glass:hover, .control:not(:disabled):hover { background: #304d46; }
 
 .chat-panel {
   position: absolute; z-index: 7; right: max(30px, env(safe-area-inset-right));
-  bottom: max(87px, calc(env(safe-area-inset-bottom) + 62px)); width: min(340px, calc(100% - 32px));
-  height: min(445px, calc(100% - 155px)); min-height: 180px; padding: 15px;
+  bottom: max(87px, calc(env(safe-area-inset-bottom) + 62px));
+  width: min(var(--chat-width, 340px), calc(100% - max(30px, env(safe-area-inset-right)) - 10px));
+  height: min(var(--chat-height, 445px), calc(100% - max(105px, calc(env(safe-area-inset-bottom) + 80px)))); padding: 15px;
   display: flex; flex-direction: column; border-radius: 23px; background: rgba(24, 42, 38, .94);
   box-shadow: 0 18px 65px #0b25237a; animation: appear .22s ease both;
 }
+.chat-resize {
+  position: absolute; top: 0; left: 0; width: 25px; height: 25px;
+  border: 0; border-radius: 15px 0 0; background: transparent; color: var(--pale);
+  cursor: nwse-resize; touch-action: none;
+}
+.chat-resize::after {
+  content: ""; position: absolute; left: 7px; top: 7px; width: 8px; height: 8px;
+  border-top: 2px solid currentColor; border-left: 2px solid currentColor; border-top-left-radius: 3px;
+}
+.chat-resize:hover, .chat-resize:focus-visible { background: #f8edcb26; }
 @keyframes appear { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 .chat-header { display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #f9ebd01c; padding-bottom: 12px; }
 .chat-header h2 { margin: 0 0 4px; font-size: 16px; line-height: 1.2; }
@@ -149,7 +160,7 @@ noscript { position: fixed; z-index: 9; top: 50%; width: 100%; text-align: cente
   .dock-button { padding: 0 10px; gap: 5px; }
   .chat-launch { padding: 5px 10px 5px 5px; gap: 6px; }
   .chat-launch-icon { display: none; }
-  .chat-panel { right: max(16px, env(safe-area-inset-right)); bottom: max(77px, calc(env(safe-area-inset-bottom) + 56px)); height: min(390px, calc(100% - 120px)); }
+  .chat-panel { right: max(16px, env(safe-area-inset-right)); bottom: max(77px, calc(env(safe-area-inset-bottom) + 56px)); width: min(var(--chat-width, 340px), calc(100% - max(16px, env(safe-area-inset-right)) - 10px)); height: min(var(--chat-height, 390px), calc(100% - max(93px, calc(env(safe-area-inset-bottom) + 72px)))); }
   .furniture-tools, .toast { bottom: 118px; }
   .experience[data-editing="true"] .toast { bottom: 166px; }
 }
@@ -163,7 +174,7 @@ noscript { position: fixed; z-index: 9; top: 50%; width: 100%; text-align: cente
   .brand h1 { font-size: 20px; }
 }
 @media (max-height: 450px) {
-  .chat-panel { bottom: 69px; height: calc(100% - 88px); }
+  .chat-panel { bottom: 69px; height: min(var(--chat-height, 100%), calc(100% - 88px)); }
   .location p { display: none; }
   .topbar { padding-top: 12px; }
   .bottom { padding-bottom: 10px; }

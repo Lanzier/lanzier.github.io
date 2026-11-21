@@ -7,7 +7,7 @@
   <meta name="description" content="在一座海上小岛散步，进小屋坐坐，和岛上的小伙伴Ww聊聊天。">
   <title>潮汐小屋 · Tide Cottage</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
   <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -80,6 +80,7 @@
     </footer>
 
     <aside id="chat-panel" class="chat-panel glass" aria-label="和 Ww聊天" hidden>
+      <button id="chat-resize" class="chat-resize" type="button" aria-label="调节聊天框大小" title="拖动或使用方向键调整大小"></button>
       <div class="chat-header">
         <span class="avatar"><img src="assets/dsh-pet/portrait.webp" width="36" height="36" alt=""></span>
         <div><h2>Ww</h2><p>岛上的小伙伴</p></div>
@@ -106,6 +107,6 @@
     <div id="toast" class="toast glass" role="status" hidden></div>
   </main>
   <noscript>打开 JavaScript 后即可游览潮汐小屋。</noscript>
-  <script src="scene.bundle.js?v=18" defer></script>
+  <script src="scene.bundle.js?v=19" defer></script>
 </body>
 </html>

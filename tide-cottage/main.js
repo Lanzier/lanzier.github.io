@@ -39,6 +39,17 @@ function launch() {
   controls.enablePan = false;
   controls.rotateSpeed = .58;
   controls.zoomSpeed = .73;
+  let wheelDistance;
+  const zoomOffset = new THREE.Vector3();
+
+  canvas.addEventListener("wheel", event => {
+    if (!controls.enabled || !event.deltaY) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const pixels = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? canvas.clientHeight : 1);
+    const distance = wheelDistance ?? camera.position.distanceTo(controls.target);
+    wheelDistance = THREE.MathUtils.clamp(distance * Math.exp(pixels * .00115), controls.minDistance, controls.maxDistance);
+  }, { capture: true, passive: false });
 
   const islandScene = new THREE.Scene();
   const island = createIsland(THREE, islandScene);
@@ -250,6 +261,7 @@ function launch() {
   }
 
   function applyPose(pose, view) {
+    wheelDistance = undefined;
     controls.enableDamping = false;
     controls.minDistance = view === "island" ? 9 : 1.25;
     controls.maxDistance = view === "island" ? 112 : 4.8;
@@ -476,6 +488,7 @@ function launch() {
   }
 
   canvas.addEventListener("pointerdown", event => {
+    wheelDistance = undefined;
     if (!event.isPrimary && event.pointerType === "touch" && gesture) gesture.moved = true;
     if (!event.isPrimary || event.button !== 0 || !ready || transition) return;
     gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false, item: null };
@@ -589,6 +602,17 @@ function launch() {
     startTime ??= now;
     currentTime = (now - startTime) / 1000;
     moveThroughDoor(now);
+    if (controls.enabled && wheelDistance !== undefined) {
+      zoomOffset.copy(camera.position).sub(controls.target);
+      const distance = zoomOffset.length();
+      const blend = reduceMotion.matches ? 1 : 1 - Math.exp(-(now - (previousFrame ?? now)) / 95);
+      const next = THREE.MathUtils.lerp(distance, wheelDistance, blend);
+      const settled = Math.abs(next - wheelDistance) < .003;
+      camera.position.copy(controls.target).add(zoomOffset.setLength(settled ? wheelDistance : next));
+      if (settled) wheelDistance = undefined;
+    } else if (!controls.enabled) {
+      wheelDistance = undefined;
+    }
     if (!transition) controls.update();
     const lightBlend = reduceMotion.matches ? 1 : 1 - Math.exp(-(now - (previousFrame ?? now)) / 175);
     previousFrame = now;
