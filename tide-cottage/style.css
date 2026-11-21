@@ -64,7 +64,21 @@ svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width:
 }
 .time-strip button { padding: 3px 7px; border-radius: 12px; color: var(--ivory); background: #fff2cc19; font-size: 12px; }
 .time-strip button:disabled { opacity: .57; }
-.time-strip input { width: clamp(66px, 10vw, 125px); margin: 0; accent-color: #f2d69e; }
+.time-strip input {
+  --time-track: linear-gradient(90deg, #182943 0%, #253751 21%, #d68a5b 29%, #ffe1a5 44%, #f4f1d9 54%, #ffd093 68%, #c67d61 76%, #263957 84%, #182943 100%);
+  appearance: none; -webkit-appearance: none;
+  width: clamp(66px, 10vw, 125px); height: 24px; margin: 0;
+  background: transparent; cursor: pointer;
+}
+.time-strip input::-webkit-slider-runnable-track { height: 5px; border-radius: 9px; background: var(--time-track); }
+.time-strip input::-moz-range-track { height: 5px; border: 0; border-radius: 9px; background: var(--time-track); }
+.time-strip input::-webkit-slider-thumb {
+  appearance: none; -webkit-appearance: none; width: 15px; height: 15px; margin-top: -5px;
+  border: 2px solid var(--time-thumb, #ffd093); border-radius: 50%; background: #fffaf0;
+}
+.time-strip input::-moz-range-thumb {
+  width: 11px; height: 11px; border: 2px solid var(--time-thumb, #ffd093); border-radius: 50%; background: #fffaf0;
+}
 .time-strip output { min-width: 38px; color: var(--ivory); font-size: 13px; font-variant-numeric: tabular-nums; }
 .weather-panel {
   position: absolute; z-index: 6; top: max(75px, calc(env(safe-area-inset-top) + 57px));
@@ -176,9 +190,9 @@ noscript { position: fixed; z-index: 9; top: 50%; width: 100%; text-align: cente
   .brand-mark { width: 38px; height: 38px; }
   .brand-mark svg { width: 21px; height: 21px; }
   .top-actions { gap: 6px; }
-  .time-strip { position: absolute; right: max(16px, env(safe-area-inset-right)); top: max(61px, calc(env(safe-area-inset-top) + 47px)); min-height: 32px; }
-  .time-strip input { width: 88px; }
-  .weather-panel { top: max(100px, calc(env(safe-area-inset-top) + 86px)); }
+  .time-strip { min-height: 38px; gap: 6px; padding-inline: 7px; }
+  .time-strip input { width: clamp(42px, 12vw, 88px); }
+  .weather-panel { top: max(68px, calc(env(safe-area-inset-top) + 54px)); }
   .top-actions .control { min-height: 38px; }
   .top-actions .icon-control { width: 38px; }
   .light-control { padding: 0 10px; gap: 5px; }
@@ -193,14 +207,26 @@ noscript { position: fixed; z-index: 9; top: 50%; width: 100%; text-align: cente
   .furniture-tools, .toast { bottom: 118px; }
   .experience[data-editing="true"] .toast { bottom: 166px; }
 }
+@media (max-width: 470px) {
+  .topbar { gap: 4px; padding-inline: max(9px, env(safe-area-inset-left)) max(9px, env(safe-area-inset-right)); }
+  .brand { align-self: center; }
+  .brand-mark, .brand p { display: none; }
+  .brand h1 { font-size: clamp(13px, 3.8vw, 18px); letter-spacing: .035em; white-space: nowrap; }
+  .top-actions { gap: 4px; }
+  .top-actions .control { min-height: 34px; }
+  .top-actions .icon-control, .top-actions .light-control { width: 34px; padding: 0; }
+  .light-control span { display: none; }
+  .time-strip { gap: 4px; min-height: 34px; padding-inline: 5px; }
+  .time-strip button { padding-inline: 4px; }
+  .time-strip output { min-width: 33px; font-size: 12px; }
+}
 @media (max-width: 410px) {
   .chat-launch { width: 50px; padding: 5px; justify-content: center; }
   .chat-launch > span:not(.avatar) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 }
 @media (max-width: 360px) {
-  .topbar { padding-inline: 12px; }
-  .top-actions { gap: 4px; }
-  .brand h1 { font-size: 20px; }
+  .time-strip input { width: 36px; }
+  .brand h1 { font-size: 13px; }
 }
 @media (max-height: 450px) {
   .chat-panel { bottom: 69px; height: min(var(--chat-height, 100%), calc(100% - 88px)); }

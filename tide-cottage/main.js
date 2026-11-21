@@ -249,8 +249,8 @@ function launch() {
     const size = Math.max(1, (1.39 / camera.aspect) ** .87);
     return {
       target: islandTarget.clone(),
-      position: new THREE.Vector3(-9.04, 14.1, 29.6).multiplyScalar(size).add(islandTarget),
-      fov: 42,
+      position: new THREE.Vector3(-9.04, 9, 29.6).multiplyScalar(size).add(islandTarget),
+      fov: 48,
     };
   }
 

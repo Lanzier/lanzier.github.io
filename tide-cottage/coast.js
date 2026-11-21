@@ -45,7 +45,7 @@ void main() {
   c = mix(c, mix(vec3(.35,.44,.50),vec3(.048,.084,.14),uNight), uCloud*.63);
   c += vec3(.33,.146,.053)*pow(proximity,12.0)*(1.0-uNight)*(1.0-uDay*.68);
   float sunHalo = pow(proximity,55.0);
-  float sunDisc = smoothstep(.99955,.99978,proximity);
+  float sunDisc = smoothstep(.99950,.99982,proximity);
   c += vec3(.41,.22,.09)*sunHalo*(1.0-uNight);
   c += vec3(.35,.49,.67)*(sunDisc*.78+sunHalo*.17)*uNight;
 
@@ -58,7 +58,7 @@ void main() {
   cloud = mix(cloud,vec3(.88,.91,.88),uDay);
   cloud = mix(cloud,vec3(.12,.17,.28),uNight);
   c = mix(c,cloud,coverage*.78);
-  c = mix(c,vec3(1.0,.88,.59),sunDisc*(1.0-uNight)*.88*(1.0-uCloud));
+  c = mix(c,mix(vec3(1.0,.88,.59),vec3(1.0,.98,.83),uDay),sunDisc*(1.0-uNight)*.97*(1.0-uCloud*.93));
 
   if (uNight > 0.01) {
     vec2 field = d.xz/(h+.27)*147.0;
@@ -85,12 +85,12 @@ void main() {
     sin(dot(p,vec2(.18,1.18))+uTime*.92)*.057+
     sin(dot(p,vec2(1.31,3.77))-uTime*1.51)*.028
   );
-  waves += (vec2(noise(p*3.2+uTime*.30),noise(p*3.5-uTime*.23))-.5)*fine*.06;
+  waves += (vec2(noise(p*3.2+uTime*.30),noise(p*3.5-uTime*.23))-.5)*fine*.018;
   vec3 N = normalize(vec3(waves.x,1.0,waves.y));
   float fresnel = pow(1.0-clamp(dot(eye,N),0.0,1.0),3.0);
   float undulation = sin(p.y*2.6 + p.x*.11 + uTime*1.47 + noise(p*.52)*2.5);
   float micro = sin(p.y*12.5 + sin(p.x*3.4 + uTime*.37) + uTime*1.3);
-  float waveLight = undulation*.024 + micro*.008*fine + (noise(p*vec2(.31,1.75)+uTime*.26)-.5)*.044;
+  float waveLight = undulation*.024 + micro*.002*fine + (noise(p*vec2(.31,1.75)+uTime*.26)-.5)*.014;
 
   vec3 deep = mix(vec3(.015,.105,.25),vec3(.018,.16,.34),uDay);
   vec3 blue = mix(vec3(.12,.52,.68),vec3(.20,.68,.83),uDay);
@@ -229,7 +229,7 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
       uniforms.uDay.value = day;
       uniforms.uNight.value = night;
       uniforms.uCloud.value = cloud;
-      sunTarget.set(-.61 + day*.15 + night*.11, .082 + day*.58 + night*.070, -.79);
+      sunTarget.set(.21 + day*.14 - night*.30, .040 + day*.035 + night*.065, -.94);
       uniforms.uSun.value.copy(sunTarget).normalize();
       foam.forEach((ring, i) => ring.scale.setScalar(1 + .012 * Math.sin(time * 1.3 - i * .7)));
       birds.forEach(({ flock, left, right }, i) => {

@@ -41,6 +41,9 @@ export function createWeatherControls(get) {
     button.querySelector("use").setAttribute("href", minute < 360 || minute >= 1150 ? "#i-moon" : "#i-sun");
     button.setAttribute("aria-label", `天气，${labels[type]}`);
     time.value = minute;
+    const hour = minute / 60;
+    const warmth = Math.max(0, Math.min(1, (hour - 5) / 2, (20 - hour) / 2));
+    time.style.setProperty("--time-thumb", `hsl(${Math.round(215 - warmth * 176)} 82% ${Math.round(67 + warmth * 14)}%)`);
     strength.value = Math.round(intensity * 100);
     get("weather-clock").value = clock;
     get("weather-percent").value = `${strength.value}%`;

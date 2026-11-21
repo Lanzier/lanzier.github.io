@@ -115,11 +115,19 @@ export function createIsland(THREE, scene, weather) {
   const groundPositions = [];
   const groundColors = [];
   const greens = ['#73905a', '#789558', '#698850', '#68874d', '#6e8b51', '#849858', '#5f8050', '#79915c'];
-  const sand = ['#b6a479', '#c0ab7e', '#ab9875', '#a7976d', '#bba883'];
   const stone = ['#8a8a70', '#93937c', '#9a9d87', '#797e69', '#a4a086'];
+  const beach = color('#bba67a');
+  const shoreStone = color('#8b8b72');
+  const shade = new THREE.Color();
   function groundTriangle(a, b, c, tint) {
-    const shade = color(tint);
+    const grass = color(tint);
     for (const point of [a, b, c]) {
+      const [x, , z] = point;
+      const radius = islandRadius(x, z);
+      const fringe = radius + .018 * Math.sin(x * 1.2 + z * .62) + .011 * Math.cos(z * 2.1 - x * .74);
+      const sandBlend = THREE.MathUtils.smoothstep(fringe, .76, .975);
+      const stoneBlend = THREE.MathUtils.smoothstep(radius, 1.01, 1.075);
+      shade.copy(grass).lerp(beach, sandBlend).lerp(shoreStone, stoneBlend);
       groundPositions.push(...point);
       groundColors.push(shade.r, shade.g, shade.b);
     }
@@ -138,7 +146,7 @@ export function createIsland(THREE, scene, weather) {
     const next = (index + 1) % 64;
     groundTriangle([0, terrainHeight(0, 0), 0], rings[0][next], rings[0][index], pick(greens));
     for (let level = 0; level < rings.length - 1; level += 1) {
-      const palette = level < 8 ? greens : level < 11 ? sand : stone;
+      const palette = level < 11 ? greens : stone;
       const inner = rings[level];
       const outer = rings[level + 1];
       groundTriangle(inner[index], inner[next], outer[index], pick(palette));
