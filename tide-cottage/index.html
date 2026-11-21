@@ -86,7 +86,11 @@
         <a class="control icon-control" href="assets/dsh-pet/NOTICE.md" target="_blank" rel="noopener" aria-label="素材与授权" title="素材与授权">ⓘ</a>
         <button id="chat-close" class="control icon-control" type="button" aria-label="关闭聊天"><svg><use href="#i-close"/></svg></button>
       </div>
-      <button id="open-online-private" class="glass control" type="button" hidden>在 github.io 打开私人小屋</button>
+      <p id="owner-status" class="owner-status" role="status"></p>
+      <form id="owner-connect" class="chat-form owner-connect" hidden>
+        <input id="owner-code" type="password" aria-label="AstrBot 连接码" placeholder="AstrBot 连接码" required>
+        <button type="submit" aria-label="连接 AstrBot">连接</button>
+      </form>
       <div id="messages" class="messages" role="log" aria-live="polite"></div>
       <div class="suggestions">
         <button type="button" data-suggestion="今天过得怎么样？">问候</button>
@@ -102,6 +106,6 @@
     <div id="toast" class="toast glass" role="status" hidden></div>
   </main>
   <noscript>打开 JavaScript 后即可游览潮汐小屋。</noscript>
-  <script src="scene.bundle.js?v=13" defer></script>
+  <script src="scene.bundle.js?v=14" defer></script>
 </body>
 </html>

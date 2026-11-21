@@ -1,94 +1,70 @@
-const publicPage = "https://lanzier.github.io/tide-cottage/";
-const publicOrigin = new URL(publicPage).origin;
-const localOrigin = "http://127.0.0.1:6187";
-const channel = "tide-cottage-private";
+const ownerPage = location.origin === "https://lanzier.github.io" &&
+  location.pathname === "/tide-cottage/";
+const storageKey = "tide-cottage:chat-access";
 
-if (location.origin === localOrigin && window.tideOwnerChat) {
-  const button = document.getElementById("open-online-private");
-  button.hidden = false;
-  let pairing;
-  button.addEventListener("click", () => {
-    const nonce = crypto.randomUUID();
-    const tab = window.open(publicPage + "#ww=" + nonce, "_blank");
-    if (!tab) {
-      button.textContent = "请允许打开新标签页";
-      return;
-    }
-    pairing = { nonce, tab };
-  });
+if (ownerPage) {
+  const form = document.getElementById("owner-connect");
+  const code = document.getElementById("owner-code");
+  const status = document.getElementById("owner-status");
+  let access = "";
+  try { access = sessionStorage.getItem(storageKey) || ""; } catch {}
 
-  window.addEventListener("message", async event => {
-    const { data } = event;
-    if (!pairing || event.origin !== publicOrigin || event.source !== pairing.tab ||
-        data?.channel !== channel || data.nonce !== pairing.nonce) return;
-
-    const respond = payload => event.source.postMessage(
-      { channel, nonce: data.nonce, ...payload }, publicOrigin,
-    );
-    if (data.type === "hello") {
-      respond({ type: "ready" });
-    } else if (data.type === "chat" && typeof data.id === "string" &&
-               typeof data.text === "string" && data.text.length <= 180) {
-      try {
-        respond({ type: "result", id: data.id, reply: await window.tideOwnerChat(data.text) });
-      } catch (error) {
-        respond({ type: "result", id: data.id, error: error.message });
-      }
-    }
-  });
-}
-
-const publicCottage = location.origin === publicOrigin && location.pathname === new URL(publicPage).pathname;
-const pairingKey = "tide-cottage:owner-pair";
-let privateNonce;
-if (publicCottage && window.opener) {
-  privateNonce = new URLSearchParams(location.hash.slice(1)).get("ww");
-  try {
-    if (privateNonce) sessionStorage.setItem(pairingKey, privateNonce);
-    else privateNonce = sessionStorage.getItem(pairingKey);
-  } catch {
-    // Pairing still works without storage until the page is refreshed.
+  function update(message) {
+    status.textContent = message;
+    form.hidden = Boolean(access);
   }
-}
-if (publicCottage && privateNonce) {
-  history.replaceState(null, "", location.pathname + location.search);
-  const parentTab = window.opener;
-  const pending = new Map();
-  let ready;
-  const connected = new Promise(resolve => { ready = resolve; });
-  const post = payload => parentTab?.postMessage(
-    { channel, nonce: privateNonce, ...payload }, localOrigin,
-  );
 
-  window.addEventListener("message", event => {
-    const { data } = event;
-    if (event.origin !== localOrigin || event.source !== parentTab ||
-        data?.channel !== channel || data.nonce !== privateNonce) return;
-    if (data.type === "ready") ready(true);
-    if (data.type !== "result" || !pending.has(data.id)) return;
-    const { resolve, reject, timer } = pending.get(data.id);
-    clearTimeout(timer);
-    pending.delete(data.id);
-    if (typeof data.reply === "string") resolve(data.reply);
-    else reject(new Error(data.error || "Ww 暂时无法回复。"));
+  async function request(value, path, body) {
+    let response;
+    try {
+      response = await fetch("http://127.0.0.1:6188/" + path, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + value,
+        },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(105000),
+      });
+    } catch {
+      throw new Error("无法连接本机 AstrBot。请确认桥接正在运行，并在浏览器提示时允许访问本地网络。");
+    }
+    if (response.status === 401) {
+      access = "";
+      try { sessionStorage.removeItem(storageKey); } catch {}
+      update("需要有效的连接码。");
+      throw new Error("连接码无效，请重新连接。");
+    }
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Ww 暂时无法回复。");
+    return result;
+  }
+
+  update(access ? "已保存本次连接" : "输入连接码，连接本机 AstrBot。");
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    const value = code.value.trim();
+    if (!value) return;
+    const button = form.querySelector("button");
+    button.disabled = true;
+    status.textContent = "正在连接 AstrBot…";
+    try {
+      await request(value, "connect", {});
+      access = value;
+      try { sessionStorage.setItem(storageKey, value); } catch {}
+      code.value = "";
+      update("已连接 AstrBot");
+    } catch (error) {
+      update(error.message);
+    } finally {
+      button.disabled = false;
+    }
   });
 
   window.tideOwnerChat = async text => {
-    if (parentTab?.closed || !await Promise.race([
-      connected,
-      new Promise(resolve => setTimeout(resolve, 2500, false)),
-    ])) {
-      throw new Error("私人聊天未连接。请从本机入口重新打开，并保留连接标签页。");
-    }
-    return new Promise((resolve, reject) => {
-      const id = crypto.randomUUID();
-      const timer = setTimeout(() => {
-        pending.delete(id);
-        reject(new Error("等待 Ww 回复超时。"));
-      }, 100000);
-      pending.set(id, { resolve, reject, timer });
-      post({ type: "chat", id, text });
-    });
+    if (!access) throw new Error("先在聊天框上方输入连接码。");
+    const result = await request(access, "chat", { text });
+    status.textContent = "已连接 AstrBot";
+    return result.reply;
   };
-  post({ type: "hello" });
 }

@@ -69,7 +69,7 @@ export function createChat(elements, { harvest, animate, takePhoto, getView, get
   if (history.length) {
     history.forEach(({ role, text }) => message(role, text, false));
   } else {
-    message("amo", ownerChat ? "已打开 Ww 的私人聊天入口。" : "嗨，我是 Ww。可以进来坐坐，也可以和我去菜园摘个西瓜。");
+    if (!ownerChat) message("amo", "嗨，我是 Ww。可以进来坐坐，也可以和我去菜园摘个西瓜。");
   }
 
   function open(focus = false) {
