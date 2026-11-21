@@ -26,6 +26,15 @@ vec3 horizonColor() {
   horizon = mix(horizon,vec3(.016,.035,.077),uNight);
   return mix(horizon,mix(vec3(.36,.44,.50),vec3(.023,.043,.076),uNight),uCloud*.52);
 }
+float twilightStrength() {
+  return (1.0-smoothstep(.018,.10,abs(uSun.y)))*smoothstep(-.075,.005,uSun.y)*(1.0-uCloud*.78);
+}
+vec3 horizonGlow(vec3 ray) {
+  vec2 sunBearing = normalize(uSun.xz);
+  vec2 bearing = normalize(ray.xz + vec2(.00001,0.0));
+  float spread = exp(-23.0*(1.0-clamp(dot(bearing,sunBearing),-1.0,1.0)));
+  return vec3(.37,.15,.052)*spread*exp(-abs(ray.y)*48.0)*twilightStrength();
+}
 `;
 
 const worldVertex = `
@@ -51,12 +60,13 @@ void main() {
   zenith = mix(zenith,mix(vec3(.31,.40,.49),vec3(.012,.024,.052),uNight),uCloud*.63);
   vec3 c = mix(horizon,zenith,1.0-exp(-5.2*h));
   float aboveHorizon = smoothstep(.006,.084,h);
+  float twilight = twilightStrength();
   float dawn = 1.0-smoothstep(.025,.23,uSun.y);
   float sunlight = smoothstep(-.13,.02,uSun.y)*(1.0-uCloud*.75);
   float moonlight = smoothstep(-.04,.045,uMoon.y)*uNight*(1.0-uCloud*.82);
   float solarGlow = exp(-34.0*(1.0-proximity));
   vec3 solarTint = mix(vec3(.94,.91,.73),vec3(1.0,.42,.15),dawn);
-  c += solarTint*solarGlow*sunlight*(.22+dawn*.44)*smoothstep(0.0,.047,d.y);
+  c += solarTint*solarGlow*sunlight*(.22+dawn*.26)*smoothstep(-.006,.025,d.y)*(1.0-twilight*.75);
   c += vec3(.14,.23,.39)*pow(moonProximity,76.0)*moonlight*.57*aboveHorizon;
 
   vec2 cloudUV = d.xz/(h+.19)*1.72 + vec2(3.7,uTime*.012);
@@ -68,11 +78,13 @@ void main() {
   cloud = mix(cloud,vec3(.88,.91,.88),uDay);
   cloud = mix(cloud,vec3(.027,.043,.077),uNight);
   c = mix(c,cloud,coverage*.78);
-  float skyMask = smoothstep(-.003,.009,d.y);
-  float solarCore = exp(-1750.0*(1.0-proximity));
-  float solarBloom = exp(-220.0*(1.0-proximity));
+  float skyMask = smoothstep(-.0015,.0025,d.y);
+  float heightGap = d.y-uSun.y;
+  float solarCore = exp(-1750.0*(1.0-proximity)-heightGap*heightGap*twilight*3750.0);
+  float solarBloom = exp(-220.0*(1.0-proximity)-heightGap*heightGap*twilight*710.0);
   c += (vec3(1.0,.97,.87)*solarCore*.78+solarTint*solarBloom*.31)
     * sunlight*skyMask*(1.0-coverage*.74);
+  c += horizonGlow(d);
 
   if (moonProximity > .9988 && moonlight > .001) {
     vec3 side = normalize(cross(vec3(0.0,1.0,0.0),uMoon));
@@ -202,8 +214,9 @@ void main() {
     foamLine += band*breakup*(.50-line*.14)*min(1.0,.007/foamAA);
   }
   c = mix(c,mix(vec3(.60,.87,.83),vec3(.14,.27,.31),uNight),foamLine*uWaveDetail);
-  float horizonMist = max(smoothstep(100.0,680.0,distanceToEye),1.0-smoothstep(.011,.10,eye.y));
-  c = mix(c,horizonColor(),horizonMist);
+  float twilight = twilightStrength();
+  float horizonMist = max(smoothstep(mix(100.0,190.0,twilight),680.0,distanceToEye),1.0-smoothstep(.003,mix(.10,.041,twilight),eye.y));
+  c = mix(c,horizonColor()+horizonGlow(-eye),horizonMist);
   gl_FragColor = vec4(c,1.0);
   #include <colorspace_fragment>
 }
