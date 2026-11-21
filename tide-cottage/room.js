@@ -347,12 +347,17 @@ export function createRoom(THREE, scene) {
   }));
   cylinder(pendant, 0.383, 0.383, 0.026, 0, -0.385, 0, bulbMaterial);
   sphere(pendant, 0.085, 0.05, 0.085, 0, -0.401, 0, bulbMaterial);
-  const lamp = new THREE.PointLight('#ffc47c', 10.2, 7, 2);
+  const lamp = new THREE.SpotLight('#ffc47c', 22, 5.8, 1.16, .61, 2);
   lamp.position.set(0, -0.47, 0);
-  pendant.add(lamp);
-  const windowFill = new THREE.PointLight('#accbd6', 5.2, 6.4, 1.65);
+  lamp.target.position.set(.05, -2.2, -.1);
+  lamp.castShadow = true;
+  lamp.shadow.mapSize.set(512, 512);
+  lamp.shadow.normalBias = .018;
+  pendant.add(lamp, lamp.target);
+  const windowFill = new THREE.SpotLight('#accbd6', 6.8, 3.8, .78, .70, 1.65);
   windowFill.position.set(sideX + 0.26, windowY + 0.19, windowZ);
-  contents.add(windowFill);
+  windowFill.target.position.set(-1.2, .6, -.28);
+  contents.add(windowFill, windowFill.target);
 
   const picture = (x, y, width, height, color) => {
     box(contents, width, height, 0.075, x, y, back + 0.068, trim);
@@ -396,8 +401,8 @@ export function createRoom(THREE, scene) {
     table,
     bed,
     update(time, daylight = true) {
-      windowFill.intensity = daylight ? 5.2 : 2.2;
-      lamp.intensity = (daylight ? 10.2 : 15.5) + Math.sin(time * 1.39) * 0.28;
+      windowFill.intensity = daylight ? 6.8 : 2.5;
+      lamp.intensity = (daylight ? 22 : 28) + Math.sin(time * 1.39) * 0.28;
       for (let i = 0; i < fernLeaves.length; i += 1) {
         fernLeaves[i].rotation.z = Math.sin(time * 0.91 + i * 1.6) * 0.052;
       }

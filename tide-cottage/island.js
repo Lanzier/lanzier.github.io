@@ -267,10 +267,10 @@ export function createIsland(THREE, scene, weather) {
   const mortar = material('#ac9176');
   const porchShade = material('#d9a675');
   const stucco = material('#e4c7a6');
-  const innerGold = material('#dfb789', { emissive: '#cc7b35', emissiveIntensity: .20 });
+  const rearStucco = material('#cdbb9f');
   const slate = weatherSurface(material('#3d5256'), weather);
   const floor = material('#ad7854');
-  box(house, mortar, 0, .89, (front + back) / 2, 7.98, .36, 5.50);
+  box(house, mortar, 0, .81, (front + back) / 2, 7.98, .52, 5.50);
   box(house, floor, 0, floorY - .065, roofMiddle, wallSpan, .13, 5.24);
   const foundation = [];
   for (let row = 0; row < 2; row += 1) {
@@ -283,7 +283,7 @@ export function createIsland(THREE, scene, weather) {
   }
   batch(house, cube, foundation);
 
-  box(house, innerGold, 0, (bottom + eave) / 2, back, wallSpan, eave - bottom, .16);
+  box(house, rearStucco, 0, (bottom + eave) / 2, back, wallSpan, eave - bottom, .18);
   for (const side of [-1, 1]) {
     const x = side * 3.88;
     box(house, stucco, x, (bottom + eave) / 2, -3.15, .15, eave - bottom, 1.8);
@@ -418,9 +418,10 @@ export function createIsland(THREE, scene, weather) {
   }
   lantern(house, -2.94, 2.97, 1.46, .31);
   box(house, black, -2.94, 3.24, 1.37, .053, .067, .27);
-  const porchLamp = new THREE.PointLight('#ffac57', 8.5, 5.3, 1.8);
+  const porchLamp = new THREE.SpotLight('#ffac57', 13, 5.3, .79, .70, 1.8);
   porchLamp.position.set(-2.94, 2.92, 1.66);
-  house.add(porchLamp);
+  porchLamp.target.position.set(-2.70, .84, 3.25);
+  house.add(porchLamp, porchLamp.target);
   lantern(dock, .02, .90, 7.65, .19);
 
   const leafColors = ['#48734b', '#537c4c', '#65894e', '#719155', '#7b9c5d', '#5d814e', '#3a694f', '#91a860'];
@@ -687,7 +688,7 @@ export function createIsland(THREE, scene, weather) {
       puff.scale.set(scale * 1.14, scale, scale * 1.2);
       puff.material.opacity = Math.sin(life * Math.PI) * .11;
     }
-    porchLamp.intensity = (8.5 + Math.sin(time * 5.1) * .45) * (2.45 - daylight * 1.30);
+    porchLamp.intensity = (13 + Math.sin(time * 5.1) * .45) * (2.45 - daylight * 1.30);
     windowGlass.emissiveIntensity = .35 + (1 - daylight) * .71;
     doorGlass.emissiveIntensity = .64 + (1 - daylight) * .62;
     windowGlass.opacity = .21 - daylight * .09;

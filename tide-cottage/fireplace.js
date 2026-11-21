@@ -188,10 +188,11 @@ export function createFireplace(THREE, { flueHeight = 3.45, light = true } = {})
   }));
 
   const sparks = Array.from({ length: 6 }, (_, index) => mesh(roundCoal, index % 2 ? ember : innerFlame, 0, 0, 0));
-  const lamp = light ? new THREE.PointLight('#ff9b53', 2.8, 4.2, 2) : null;
+  const lamp = light ? new THREE.SpotLight('#ff9b53', 4.6, 3.1, 1.02, .83, 2) : null;
   if (lamp) {
     lamp.position.set(0, 0.38, 0.39);
-    group.add(lamp);
+    lamp.target.position.set(0, .42, 2.2);
+    group.add(lamp, lamp.target);
   }
 
   function update(time, daylight = 1) {
