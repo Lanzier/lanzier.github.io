@@ -68,8 +68,7 @@ function enableChatResize(panel) {
 export function createChat(elements, { harvest, animate, takePhoto, describeActivity, getView, getLight }) {
   const { panel, launch, close, messages, form, input } = elements;
   enableChatResize(panel);
-  const ownerChat = window.tideOwnerChat;
-  const saved = ownerChat ? [] : readStorage("chat", []);
+  const saved = readStorage("chat", []);
   let history = Array.isArray(saved) ? saved.filter(entry =>
     typeof entry?.text === "string" && ["guest", "amo"].includes(entry.role)
   ).slice(-40) : [];
@@ -106,7 +105,7 @@ export function createChat(elements, { harvest, animate, takePhoto, describeActi
       oldest.remove();
     }
     messages.scrollTop = messages.scrollHeight;
-    if (persist && !ownerChat) {
+    if (persist) {
       history = [...history, { role, text }].slice(-40);
       writeStorage("chat", history);
     }
@@ -115,7 +114,7 @@ export function createChat(elements, { harvest, animate, takePhoto, describeActi
   if (history.length) {
     history.forEach(({ role, text }) => message(role, text, false));
   } else {
-    if (!ownerChat) message("amo", "嗨，我是 Ww。可以进来坐坐，也可以和我去菜园摘个西瓜。");
+    message("amo", "嗨，我是 Ww。可以进来坐坐，也可以和我去菜园摘个西瓜。");
   }
 
   function open(focus = false) {
@@ -170,7 +169,7 @@ export function createChat(elements, { harvest, animate, takePhoto, describeActi
     const contextual = contextPhoto(text);
     const photo = photoRequest(text, contextual);
     const activity = !photo && asksAboutActivity(text);
-    if (!text || (ownerChat && outstanding && !photo && !activity)) return;
+    if (!text) return;
     message("guest", text, !photo && !activity);
     input.value = "";
     const description = activity || contextual ? describeActivity() : null;
@@ -185,17 +184,6 @@ export function createChat(elements, { harvest, animate, takePhoto, describeActi
         message("amo", description ?? (firstPerson ? "这是我现在看到的。" : "这是我现在的样子。"), false, image);
       } catch {
         message("amo", description ?? "刚才没拍成功，再试一次吧。", false);
-      }
-      return;
-    }
-    if (ownerChat) {
-      outstanding++;
-      try {
-        message("amo", await ownerChat(text));
-      } catch (error) {
-        message("amo", error.message || "Ww 暂时无法回复。", false);
-      } finally {
-        outstanding--;
       }
       return;
     }

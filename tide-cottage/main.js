@@ -793,4 +793,3 @@ function launch() {
   resize();
   rafId = requestAnimationFrame(frame);
 }
-import "./owner-link.js";
