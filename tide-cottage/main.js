@@ -713,7 +713,8 @@ function launch() {
     actor = activities.update(currentTime, hinge.rotation.y);
     hinge.rotation.y = advanceDoor(hinge.rotation.y, actor.doorOpen || Boolean(transition), reduceMotion.matches ? Infinity : delta);
     companions.update(currentTime, mode, camera, actor);
-    room.update(currentTime, night < .5);
+    room.update(currentTime, night < .5,
+      actor.sceneMode === "room" && actor.onBed && !actor.moving && actor.activity === "sleep");
     fireplace.update(currentTime, daylight);
     coast.update(reduceMotion.matches ? 0 : currentTime, minute, day, night, cloud, camera.position.distanceTo(controls.target));
     island.update(currentTime, daylight);

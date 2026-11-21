@@ -273,7 +273,10 @@ export function createRoom(THREE, scene) {
   box(bed, 1.99, 0.192, 2.43, 0, 0.52, 0.025, cream);
   const quiltMap = texture(256, 256, drawQuilt);
   quiltMap.anisotropy = 2;
-  mesh(bed, makeQuilt(THREE), standard('#ffffff', { map: quiltMap, roughness: .97 }), 0, 0, 0);
+  const quiltMaterial = standard('#ffffff', { map: quiltMap, roughness: .97 });
+  const quilt = mesh(bed, makeQuilt(THREE), quiltMaterial, 0, 0, 0);
+  const sleepingQuilt = mesh(bed, makeQuilt(THREE, true), quiltMaterial, 0, 0, 0);
+  sleepingQuilt.visible = false;
   for (const x of [-0.496, 0.485]) {
     const pillow = sphere(bed, 0.43, 0.116, 0.272, x, 0.689, -0.86, beige);
     pillow.rotation.y = x * 0.20;
@@ -381,7 +384,9 @@ export function createRoom(THREE, scene) {
     furniture,
     table,
     bed,
-    update(time, daylight = true) {
+    update(time, daylight = true, sleeping = false) {
+      quilt.visible = !sleeping;
+      sleepingQuilt.visible = sleeping;
       windowFill.intensity = daylight ? 6.8 : 2.5;
       lamp.intensity = (daylight ? 22 : 28) + Math.sin(time * 1.39) * 0.28;
       for (let i = 0; i < fernLeaves.length; i += 1) {

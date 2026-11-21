@@ -97,7 +97,7 @@ export function makeRidgeCap(THREE) {
   return cap.translate(0, 0, -.5).rotateY(Math.PI / 2);
 }
 
-export function makeQuilt(THREE) {
+export function makeQuilt(THREE, occupied = false) {
   const quilt = new THREE.PlaneGeometry(1, 1, 28, 26);
   const vertices = quilt.getAttribute('position');
   const uv = quilt.getAttribute('uv');
@@ -112,7 +112,10 @@ export function makeQuilt(THREE) {
     const sag = .158 * Math.max(1 - Math.cos(sideAngle), 1 - Math.cos(footAngle));
     const tuft = .009 * Math.sin(Math.PI * (u * 7 + v * 4)) ** 2 * Math.sin(Math.PI * (u * 7 - v * 4)) ** 2;
     const fold = .006 * Math.cos(u * 27 + v * 8) + .004 * Math.sin(v * 22 - u * 11);
-    vertices.setXYZ(i, x, .715 - sag + tuft + fold, z);
+    const body = occupied ? 1 - THREE.MathUtils.smoothstep(Math.abs(x), .43, .89) : 0;
+    const lift = body * (1 - THREE.MathUtils.smoothstep(z, .48, 1.06));
+    const pulledEdge = body * (1 - THREE.MathUtils.smoothstep(v, 0, .47));
+    vertices.setXYZ(i, x, .715 - sag + tuft + fold + .128 * lift, z + .44 * pulledEdge);
   }
   quilt.computeVertexNormals();
   return quilt;
