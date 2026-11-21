@@ -68,7 +68,7 @@ export function createCompanions(THREE, roomScene, islandScene) {
     addShadow(walker, .93, .64);
     const sprite = pet.sprite();
     walker.add(sprite);
-    return { walker, sprite, action: null, clip: 'idle', mirrored: false, heading: new THREE.Vector3(0, 0, -1) };
+    return { walker, sprite, mirrored: false, heading: new THREE.Vector3(0, 0, -1) };
   }
 
   function addCat(parent, x, z) {
@@ -122,112 +122,39 @@ export function createCompanions(THREE, roomScene, islandScene) {
 
   const room = addCompanions(roomScene, true);
   const island = addCompanions(islandScene, false);
-  let lastTime = 0;
+  const local = new THREE.Vector3();
 
-  function ease(value) {
-    const t = THREE.MathUtils.clamp(value, 0, 1);
-    return t * t * (3 - 2 * t);
-  }
-
-  function idlePose(time, isRoom) {
-    const phase = (time + (isRoom ? 13 : 0)) % 24;
-    const easing = ease((phase - 6) / 3) * (1 - ease((phase - 16) / 3));
-    const walking = (phase > 6 && phase < 9) || (phase > 16 && phase < 19);
-    return {
-      x: easing * (isRoom ? 0 : .35),
-      z: easing * (isRoom ? -.39 : -.16),
-      clip: walking ? 'walk' : 'idle',
-      elapsed: walking ? phase - (phase < 16 ? 6 : 16) : time,
-    };
-  }
-
-  function actionPose(pose, action, elapsed) {
-    const recover = ease((elapsed - action.duration + .45) / .45);
-    if (action.name !== 'harvest') {
-      pose.x = THREE.MathUtils.lerp(action.x, pose.x, recover);
-      pose.z = THREE.MathUtils.lerp(action.z, pose.z, recover);
-      pose.clip = action.name === 'greet' ? 'wave' : 'eat';
-      pose.elapsed = elapsed;
-      return;
+  function update(time, sceneMode, camera, actor) {
+    for (const state of [room, island]) {
+      const { anchor, critter, cat, isRoom } = state;
+      const mode = isRoom ? 'room' : 'island';
+      const active = mode === actor.sceneMode;
+      critter.walker.visible = active;
+      if (active) {
+        anchor.worldToLocal(local.copy(actor.position));
+        critter.walker.position.copy(local);
+        critter.heading.copy(actor.heading);
+        const cameraAxes = camera.matrixWorld.elements;
+        const facing = actor.heading.x * cameraAxes[0] + actor.heading.z * cameraAxes[2];
+        if (Math.abs(facing) > .01) critter.mirrored = facing > 0;
+        const sleeping = !actor.moving && actor.activity === 'sleep';
+        critter.sprite.material.rotation = sleeping ? -.97 : 0;
+        pet.display(critter.sprite, actor.clip, actor.clipTime, time, critter.mirrored);
+      } else {
+        critter.sprite.visible = false;
+      }
+      const ground = anchor.userData.groundHeight;
+      if (ground) cat.anchor.position.y = ground(anchor.position.x + cat.x, anchor.position.z + cat.z) - anchor.position.y;
+      cat.anchor.visible = mode === sceneMode;
+      cat.body.scale.y = 1 + .039 * Math.sin(time * 2.25 + 1);
+      cat.tail.rotation.y = .31 * Math.sin(time * 1.52);
+      cat.anchor.rotation.y = -.18 + .16 * Math.sin(time * .68);
     }
-
-    const reach = ease(elapsed / 2.45) * (1 - ease((elapsed - 3.10) / 2.55));
-    const x = THREE.MathUtils.lerp(action.x, action.destinationX, reach);
-    const z = THREE.MathUtils.lerp(action.z, action.destinationZ, reach) + .32 * Math.sin(Math.PI * reach);
-    pose.x = THREE.MathUtils.lerp(x, pose.x, recover);
-    pose.z = THREE.MathUtils.lerp(z, pose.z, recover);
-    if (elapsed < 2.45 || (elapsed > 3.10 && elapsed < 5.65)) {
-      pose.clip = 'walk';
-      pose.elapsed = elapsed < 2.45 ? elapsed : elapsed - 3.10;
-    } else if (elapsed >= 2.65) {
-      pose.clip = 'eat';
-      pose.elapsed = elapsed >= 5.65 ? elapsed - 5.65 : elapsed - 2.65;
-    } else {
-      pose.clip = 'idle';
-    }
-  }
-
-  function updateCompanions(state, time, active, camera) {
-    const { anchor, critter, cat, isRoom } = state;
-    const pose = idlePose(time, isRoom);
-    if (critter.action) {
-      const action = critter.action;
-      const elapsed = time - action.started;
-      if (elapsed > action.duration) critter.action = null;
-      else actionPose(pose, action, elapsed);
-    }
-
-    const cameraAxes = camera?.matrixWorld.elements;
-    const dx = pose.x - critter.walker.position.x;
-    const dz = pose.z - critter.walker.position.z;
-    if (active && pose.clip === 'walk' && Math.hypot(dx, dz) > .0001) {
-      critter.heading.set(dx, 0, dz).normalize();
-    }
-    const direction = dx * (cameraAxes?.[0] ?? 1) + dz * (cameraAxes?.[2] ?? 0);
-    if (active && pose.clip === 'walk' && Math.abs(direction) > .0001) critter.mirrored = direction > 0;
-
-    const groundHeight = anchor.userData.groundHeight;
-    critter.walker.position.set(pose.x, 0, pose.z);
-    if (groundHeight) {
-      critter.walker.position.y = groundHeight(anchor.position.x + pose.x, anchor.position.z + pose.z) - anchor.position.y;
-      cat.anchor.position.y = groundHeight(anchor.position.x + cat.x, anchor.position.z + cat.z) - anchor.position.y;
-    }
-    if (active) {
-      critter.clip = pose.clip;
-      pet.display(critter.sprite, pose.clip, pose.elapsed, time, critter.mirrored);
-    }
-
-    cat.body.scale.y = 1 + .039 * Math.sin(time * 2.25 + 1);
-    cat.tail.rotation.y = .31 * Math.sin(time * 1.52);
-    cat.anchor.rotation.y = -.18 + .16 * Math.sin(time * .68);
-  }
-
-  function update(timeSeconds, sceneMode, camera) {
-    lastTime = timeSeconds;
-    updateCompanions(room, timeSeconds, sceneMode === 'room', camera);
-    updateCompanions(island, timeSeconds, sceneMode !== 'room', camera);
-  }
-
-  function trigger(action, sceneMode) {
-    const { anchor, critter, isRoom } = sceneMode === 'room' ? room : island;
-    const target = anchor.userData.harvestTarget;
-    const durations = { greet: 2.15, eat: 4.4, harvest: 7.2 };
-    if (!Object.prototype.hasOwnProperty.call(durations, action) || (isRoom && action === 'harvest')) return;
-    pet.preload(action === 'greet' ? 'wave' : 'eat');
-    critter.action = {
-      name: action,
-      started: lastTime,
-      duration: durations[action],
-      x: critter.walker.position.x,
-      z: critter.walker.position.z,
-      destinationX: target ? target.x - anchor.position.x : isRoom ? -2.16 : -4.05,
-      destinationZ: target ? target.z - anchor.position.z : isRoom ? 1.11 : .19
-    };
   }
 
   function photoSubject(sceneMode) {
     return (sceneMode === 'room' ? room : island).critter;
   }
 
-  return { room: room.anchor, island: island.anchor, update, trigger, photoSubject };
+  return { room: room.anchor, island: island.anchor, update, photoSubject };
 }

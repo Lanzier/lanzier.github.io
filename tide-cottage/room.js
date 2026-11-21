@@ -393,6 +393,8 @@ export function createRoom(THREE, scene) {
   return {
     contents,
     furniture,
+    table,
+    bed,
     update(time, daylight = true) {
       windowFill.intensity = daylight ? 5.2 : 2.2;
       lamp.intensity = (daylight ? 10.2 : 15.5) + Math.sin(time * 1.39) * 0.28;

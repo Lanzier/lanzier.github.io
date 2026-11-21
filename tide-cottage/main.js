@@ -6,6 +6,7 @@ import { createFireplace } from "./fireplace.js";
 import { createIsland } from "./island.js";
 import { createRoom } from "./room.js";
 import { createCompanions } from "./companions.js";
+import { createActivities } from "./activities.js";
 import { createChat, createSurf, readStorage, writeStorage } from "./interaction.js";
 import { createWeatherControls, createWeatherEffects } from "./weather.js";
 
@@ -67,7 +68,8 @@ function launch() {
   room.contents.add(fireplace.group);
   const companions = createCompanions(THREE, island.roomMount, islandScene);
   companions.island.userData.groundHeight = island.terrainHeight;
-  companions.island.userData.harvestTarget = island.harvestSpot;
+  const activities = createActivities(THREE, islandScene, island, room, fireplace.group);
+  let actor = activities.update(0);
   const coast = createCoast(THREE, islandScene, island.shorePoint, island.shoreSize);
 
   const skyFill = new THREE.HemisphereLight("#d3e9dd", "#a18757", 2.05);
@@ -113,8 +115,8 @@ function launch() {
   let edit = false;
   let selected = null;
   let gesture = null;
-  let harvestStarted = null;
   let pickedMelon = null;
+  let lastHarvest = null;
   let melonRegrowth = 0;
   let toastTimer;
   let ready = false;
@@ -168,16 +170,11 @@ function launch() {
   }, { harvest, animate, takePhoto, describeActivity, getView: () => mode, getLight: () => light });
 
   function describeActivity() {
-    const { clip, action } = companions.photoSubject(mode);
-    if (clip === "eat") return "我正在吃西瓜，要不要来一块？";
-    if (clip === "wave") return "刚在跟你挥手呢。";
-    if (action?.name === "harvest") return "我在菜园这边摘西瓜呢。";
-    if (clip === "walk") return mode === "room" ? "我在屋里走走。" : "我在岛上散步呢。";
-    return mode === "room" ? "我在屋里歇一会儿。" : "我在海岛上吹风呢。";
+    return activities.describe(actor);
   }
 
   function takePhoto(firstPerson) {
-    const { walker, sprite, heading } = companions.photoSubject(mode);
+    const { walker, sprite, heading } = companions.photoSubject(actor.sceneMode);
     const feet = walker.getWorldPosition(new THREE.Vector3());
     const photoCamera = new THREE.PerspectiveCamera(firstPerson ? 66 : 53, camera.aspect, .085, camera.far);
     const target = feet.clone();
@@ -188,7 +185,7 @@ function launch() {
     } else {
       target.y += .53;
       photoCamera.position.copy(feet).add(new THREE.Vector3(-1.65, 1.46, 2.35));
-      if (mode === "room") {
+      if (actor.sceneMode === "room") {
         const { back, front } = COTTAGE;
         photoCamera.position.z = THREE.MathUtils.clamp(photoCamera.position.z, roomOrigin.z + back + .22, roomOrigin.z + front - .22);
       }
@@ -374,21 +371,14 @@ function launch() {
   }
 
   function animate(action) {
-    if (mode === "island" && harvestStarted !== null && action !== "harvest") return;
-    companions.trigger(action, mode);
+    if (action === "greet") activities.greet();
+    else activities.request(action);
   }
 
   function harvest() {
-    if (!ready || transition || harvestStarted !== null) return false;
-    function start() {
-      if (pickedMelon) pickedMelon.visible = true;
-      pickedMelon = null;
-      harvestStarted = currentTime;
-      gardenMarker.disabled = true;
-      animate("harvest");
-      notify("Ww去菜园摘西瓜了");
-    }
-    return switchScene("island", start);
+    if (!ready || transition || !activities.request("harvest")) return false;
+    notify("Ww准备去菜园摘西瓜");
+    return true;
   }
 
   function setFurniturePosition(item, x, z) {
@@ -636,13 +626,15 @@ function launch() {
     rim.intensity = (.72 - .57 * night) * (1 - cloud * .34);
 
     const daylight = THREE.MathUtils.clamp(.65 + .35 * day - .57 * night, 0, 1);
-    companions.update(currentTime, mode, camera);
+    actor = activities.update(currentTime);
+    if (!transition) {
+      island.doorHinge.rotation.y = THREE.MathUtils.lerp(island.doorHinge.rotation.y, actor.doorOpen ? -1.30 : 0, lightBlend);
+    }
+    companions.update(currentTime, mode, camera, actor);
     room.update(currentTime, night < .5);
     fireplace.update(currentTime, daylight);
     coast.update(reduceMotion.matches ? 0 : currentTime, minute, day, night, cloud, camera.position.distanceTo(controls.target));
     island.update(currentTime, daylight);
-    companions.room.visible = mode === "room";
-    companions.island.visible = mode === "island";
     if (mode === "room") {
       const position = camera.position;
       position.x = THREE.MathUtils.clamp(position.x, -COTTAGE.halfWidth + .19, COTTAGE.halfWidth - .19);
@@ -655,18 +647,13 @@ function launch() {
       else lastRoomPosition.copy(position);
       camera.lookAt(controls.target);
     }
-    if (harvestStarted !== null && currentTime - harvestStarted >= 2.65 && !pickedMelon) {
+    if (actor.activity === "harvest" && !actor.moving && actor.arrivedAt !== lastHarvest && currentTime - actor.arrivedAt > 2) {
+      lastHarvest = actor.arrivedAt;
       pickedMelon = island.melons[Math.floor(island.melons.length / 2)];
       if (pickedMelon) pickedMelon.visible = false;
+      melonRegrowth = currentTime + 28;
     }
-    if (harvestStarted !== null && currentTime - harvestStarted >= 5.65) {
-      harvestStarted = null;
-      melonRegrowth = currentTime + 14;
-      gardenMarker.disabled = false;
-      if (chat.isOpen) chat.message("amo", "摘回来啦！等会儿切给你一块。");
-      notify("Ww带回了一颗西瓜");
-    }
-    if (harvestStarted === null && pickedMelon && currentTime >= melonRegrowth) {
+    if (pickedMelon && currentTime >= melonRegrowth) {
       pickedMelon.visible = true;
       pickedMelon = null;
     }
