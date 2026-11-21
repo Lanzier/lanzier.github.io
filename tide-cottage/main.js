@@ -562,6 +562,7 @@ function launch() {
     coast.update(reduceMotion.matches ? 0 : currentTime, day, night);
     island.update(currentTime, daylight);
     companions.room.visible = mode === "room";
+    companions.island.visible = mode === "island";
     if (mode === "room") {
       const position = camera.position;
       position.x = THREE.MathUtils.clamp(position.x, -COTTAGE.halfWidth + .19, COTTAGE.halfWidth - .19);
