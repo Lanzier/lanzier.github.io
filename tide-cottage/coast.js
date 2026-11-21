@@ -58,7 +58,6 @@ void main() {
   cloud = mix(cloud,vec3(.88,.91,.88),uDay);
   cloud = mix(cloud,vec3(.12,.17,.28),uNight);
   c = mix(c,cloud,coverage*.78);
-  c = mix(c,mix(vec3(1.0,.88,.59),vec3(1.0,.98,.83),uDay),sunDisc*(1.0-uNight)*.97*(1.0-uCloud*.93));
 
   if (uNight > 0.01) {
     vec2 field = d.xz/(h+.27)*147.0;
@@ -155,6 +154,12 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
   sky.renderOrder = -2;
   sky.frustumCulled = false;
   scene.add(sky);
+  const sun = new THREE.Mesh(
+    new THREE.CircleGeometry(4.3, 40),
+    new THREE.MeshBasicMaterial({ color: "#fff1b9", transparent: true, depthWrite: false, toneMapped: false }),
+  );
+  sun.renderOrder = -1;
+  scene.add(sun);
 
   const ocean = new THREE.Mesh(
     new THREE.PlaneGeometry(850, 850).rotateX(-Math.PI / 2),
@@ -229,8 +234,12 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
       uniforms.uDay.value = day;
       uniforms.uNight.value = night;
       uniforms.uCloud.value = cloud;
-      sunTarget.set(.21 + day*.14 - night*.30, .040 + day*.035 + night*.065, -.94);
+      sunTarget.set(.21 + day*.075 - night*.26, .054 + day*.037 + night*.108, -.94);
       uniforms.uSun.value.copy(sunTarget).normalize();
+      sun.position.copy(sunTarget).multiplyScalar(210);
+      sun.lookAt(0, 0, 0);
+      sun.material.opacity = (1 - night) * (1 - cloud) ** 2;
+      sun.visible = sun.material.opacity > .04;
       foam.forEach((ring, i) => ring.scale.setScalar(1 + .012 * Math.sin(time * 1.3 - i * .7)));
       birds.forEach(({ flock, left, right }, i) => {
         const angle = time * .16 + i * .2;
