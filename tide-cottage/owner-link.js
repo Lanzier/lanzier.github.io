@@ -16,6 +16,11 @@ if (ownerPage) {
     form.hidden = Boolean(access);
   }
 
+  function connectionError() {
+    endpoint = undefined;
+    return Object.assign(new Error("暂时连不上 Ww，请稍后再试。"), { retryable: true });
+  }
+
   async function request(value, path, body) {
     let response;
     const headers = {
@@ -35,11 +40,10 @@ if (ownerPage) {
         headers,
         body: JSON.stringify(body),
         redirect: "error",
-        signal: AbortSignal.timeout(105000),
+        signal: AbortSignal.timeout(10000),
       });
     } catch {
-      endpoint = undefined;
-      throw new Error("暂时连不上 Ww。请确认运行 AstrBot 的电脑在线，再试一次。");
+      throw connectionError();
     }
     if (response.status === 401) {
       access = "";
@@ -51,8 +55,7 @@ if (ownerPage) {
     try {
       result = await response.json();
     } catch {
-      endpoint = undefined;
-      throw new Error("Ww 的连接暂时不可用，请稍后再试。");
+      throw connectionError();
     }
     if (!response.ok) throw new Error(result.error || "Ww 暂时无法回复。");
     return result;
@@ -81,8 +84,33 @@ if (ownerPage) {
 
   window.tideOwnerChat = async text => {
     if (!access) throw new Error("先在聊天框上方输入连接码。");
-    const result = await request(access, "chat", { text });
-    status.textContent = "已连接 AstrBot";
-    return result.reply;
+    const id = crypto.randomUUID();
+    status.textContent = "正在发送…";
+    try {
+      try {
+        await request(access, "chat/start", { id, text });
+      } catch (error) {
+        if (!error.retryable) throw error;
+        await request(access, "chat/start", { id, text });
+      }
+      status.textContent = "消息已送达，等 Ww 回复…";
+      const deadline = Date.now() + 105000;
+      while (Date.now() < deadline) {
+        await new Promise(resolve => setTimeout(resolve, 1800));
+        try {
+          const result = await request(access, "chat/result", { id });
+          if (typeof result.reply === "string") {
+            status.textContent = "已连接 AstrBot";
+            return result.reply;
+          }
+        } catch (error) {
+          if (!error.retryable) throw error;
+        }
+      }
+      throw new Error("消息已送达，等待 Ww 回复超时。");
+    } catch (error) {
+      if (access) status.textContent = "本次聊天未完成";
+      throw error;
+    }
   };
 }
