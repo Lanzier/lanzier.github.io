@@ -16,7 +16,8 @@ export function writeStorage(key, value) {
 
 export function createChat(elements, { harvest, animate, getView, getLight }) {
   const { panel, launch, close, messages, form, input } = elements;
-  const saved = readStorage("chat", []);
+  const ownerChat = window.tideOwnerChat;
+  const saved = ownerChat ? [] : readStorage("chat", []);
   let history = Array.isArray(saved) ? saved.filter(entry =>
     typeof entry?.text === "string" && ["guest", "amo"].includes(entry.role)
   ).slice(-40) : [];
@@ -36,7 +37,7 @@ export function createChat(elements, { harvest, animate, getView, getLight }) {
     messages.append(bubble);
     while (messages.childElementCount > 40) messages.firstElementChild.remove();
     messages.scrollTop = messages.scrollHeight;
-    if (persist) {
+    if (persist && !ownerChat) {
       history = [...history, { role, text }].slice(-40);
       writeStorage("chat", history);
     }
@@ -45,7 +46,7 @@ export function createChat(elements, { harvest, animate, getView, getLight }) {
   if (history.length) {
     history.forEach(({ role, text }) => message(role, text, false));
   } else {
-    message("amo", "嗨，我是阿沫。可以进来坐坐，也可以和我去菜园摘个西瓜。");
+    message("amo", ownerChat ? "已打开 Ww 的私人聊天入口。" : "嗨，我是 Ww。可以进来坐坐，也可以和我去菜园摘个西瓜。");
   }
 
   function open(focus = false) {
@@ -95,11 +96,22 @@ export function createChat(elements, { harvest, animate, getView, getLight }) {
     return options[Math.floor(Math.random() * options.length)];
   }
 
-  function send(value) {
+  async function send(value) {
     const text = value.trim().slice(0, 180);
-    if (!text) return;
+    if (!text || (ownerChat && outstanding)) return;
     message("guest", text);
     input.value = "";
+    if (ownerChat) {
+      outstanding++;
+      try {
+        message("amo", await ownerChat(text));
+      } catch (error) {
+        message("amo", error.message || "Ww 暂时无法回复。", false);
+      } finally {
+        outstanding--;
+      }
+      return;
+    }
     window.setTimeout(() => {
       lastReply = reply(text);
       message("amo", lastReply);

@@ -63,7 +63,7 @@ export function createCompanions(THREE, roomScene, islandScene) {
 
   function addCritter(parent) {
     const walker = new THREE.Group();
-    walker.name = '阿沫';
+    walker.name = 'Ww';
     parent.add(walker);
     addShadow(walker, .93, .64);
     const sprite = pet.sprite();

@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#182d2d">
-  <meta name="description" content="在一座海上小岛散步，进小屋坐坐，和岛上的小伙伴阿沫聊聊天。">
+  <meta name="description" content="在一座海上小岛散步，进小屋坐坐，和岛上的小伙伴Ww聊聊天。">
   <title>潮汐小屋 · Tide Cottage</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
   <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -75,35 +75,31 @@
         <button class="dock-button" id="edit-room" type="button" aria-pressed="false" hidden><svg><use href="#i-move"/></svg><span>布置</span></button>
       </nav>
       <button class="glass chat-launch" id="chat-launch" type="button" aria-expanded="false" aria-controls="chat-panel">
-        <span class="avatar"><img src="assets/dsh-pet/portrait.webp" width="36" height="36" alt=""></span><span>和阿沫聊聊</span><svg class="chat-launch-icon"><use href="#i-chat"/></svg>
+        <span class="avatar"><img src="assets/dsh-pet/portrait.webp" width="36" height="36" alt=""></span><span>和 Ww聊聊</span><svg class="chat-launch-icon"><use href="#i-chat"/></svg>
       </button>
     </footer>
 
-    <aside id="chat-panel" class="chat-panel glass" aria-label="和阿沫聊天" hidden>
+    <aside id="chat-panel" class="chat-panel glass" aria-label="和 Ww聊天" hidden>
       <div class="chat-header">
         <span class="avatar"><img src="assets/dsh-pet/portrait.webp" width="36" height="36" alt=""></span>
-        <div><h2>阿沫</h2><p>岛上的小伙伴</p>
-        <div class="asset-credit">
-          <a href="https://github.com/PC2005-cloud/dsh-pet" target="_blank" rel="noopener noreferrer">角色素材 · dsh-pet</a>
-          <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer" aria-label="素材许可 CC BY-NC-SA 4.0">许可</a>
-          <a href="assets/dsh-pet/NOTICE.md" target="_blank" rel="noopener">署名</a>
-        </div>
-        </div>
+        <div><h2>Ww</h2><p>岛上的小伙伴</p></div>
+        <a class="control icon-control" href="assets/dsh-pet/NOTICE.md" target="_blank" rel="noopener" aria-label="素材与授权" title="素材与授权">ⓘ</a>
         <button id="chat-close" class="control icon-control" type="button" aria-label="关闭聊天"><svg><use href="#i-close"/></svg></button>
       </div>
+      <button id="open-online-private" class="glass control" type="button" hidden>在 github.io 打开私人小屋</button>
       <div id="messages" class="messages" role="log" aria-live="polite"></div>
       <div class="suggestions">
         <button type="button" data-suggestion="今天过得怎么样？">问候</button>
         <button type="button" data-suggestion="我们去摘西瓜吧">去摘西瓜</button>
       </div>
       <form id="chat-form" class="chat-form">
-        <input id="chat-input" type="text" maxlength="180" placeholder="和阿沫说点什么…" aria-label="聊天消息" autocomplete="off" required>
+        <input id="chat-input" type="text" maxlength="180" placeholder="和 Ww说点什么…" aria-label="聊天消息" autocomplete="off" required>
         <button type="submit" aria-label="发送消息"><svg><use href="#i-send"/></svg></button>
       </form>
     </aside>
     <div id="toast" class="toast glass" role="status" hidden></div>
   </main>
   <noscript>打开 JavaScript 后即可游览潮汐小屋。</noscript>
-  <script src="scene.bundle.js?v=9" defer></script>
+  <script src="scene.bundle.js?v=10" defer></script>
 </body>
 </html>

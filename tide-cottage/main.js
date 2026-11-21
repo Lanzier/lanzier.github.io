@@ -330,7 +330,7 @@ function launch() {
       harvestStarted = currentTime;
       gardenMarker.disabled = true;
       animate("harvest");
-      notify("阿沫去菜园摘西瓜了");
+      notify("Ww去菜园摘西瓜了");
     }
     return switchScene("island", start);
   }
@@ -583,7 +583,7 @@ function launch() {
       melonRegrowth = currentTime + 14;
       gardenMarker.disabled = false;
       if (chat.isOpen) chat.message("amo", "摘回来啦！等会儿切给你一块。");
-      notify("阿沫带回了一颗西瓜");
+      notify("Ww带回了一颗西瓜");
     }
     if (harvestStarted === null && pickedMelon && currentTime >= melonRegrowth) {
       pickedMelon.visible = true;
@@ -621,3 +621,4 @@ function launch() {
   resize();
   rafId = requestAnimationFrame(frame);
 }
+import "./owner-link.js";
