@@ -20,6 +20,11 @@ uniform float uDay;
 uniform float uCloud;
 uniform vec3 uSun;
 varying vec3 vWorld;
+vec3 horizonColor() {
+  vec3 horizon = mix(vec3(.64,.51,.42),vec3(.45,.68,.77),uDay);
+  horizon = mix(horizon,vec3(.016,.035,.077),uNight);
+  return mix(horizon,mix(vec3(.36,.44,.50),vec3(.023,.043,.076),uNight),uCloud*.52);
+}
 `;
 
 const worldVertex = `
@@ -37,17 +42,16 @@ void main() {
   vec3 d = normalize(vWorld-cameraPosition);
   float h = max(d.y, 0.0);
   float proximity = max(0.0,dot(d,uSun));
-  vec3 horizon = mix(vec3(.79,.62,.46),vec3(.49,.76,.79),uDay);
+  vec3 horizon = horizonColor();
   vec3 zenith = mix(vec3(.135,.32,.55),vec3(.19,.49,.73),uDay);
-  horizon = mix(horizon,vec3(.09,.17,.25),uNight);
-  zenith = mix(zenith,vec3(.022,.046,.105),uNight);
+  zenith = mix(zenith,vec3(.004,.012,.032),uNight);
+  zenith = mix(zenith,mix(vec3(.31,.40,.49),vec3(.012,.024,.052),uNight),uCloud*.63);
   vec3 c = mix(horizon,zenith,1.0-exp(-5.2*h));
-  c = mix(c, mix(vec3(.35,.44,.50),vec3(.048,.084,.14),uNight), uCloud*.63);
-  c += vec3(.33,.146,.053)*pow(proximity,12.0)*(1.0-uNight)*(1.0-uDay*.68);
+  float aboveHorizon = smoothstep(.006,.084,h);
+  c += vec3(.33,.146,.053)*pow(proximity,12.0)*(1.0-uNight)*(1.0-uDay*.68)*aboveHorizon;
   float sunHalo = pow(proximity,55.0);
-  float sunDisc = smoothstep(.99950,.99982,proximity);
-  c += vec3(.41,.22,.09)*sunHalo*(1.0-uNight);
-  c += vec3(.35,.49,.67)*(sunDisc*.78+sunHalo*.17)*uNight;
+  c += vec3(.41,.22,.09)*sunHalo*(1.0-uNight)*aboveHorizon;
+  c += vec3(.14,.23,.39)*sunHalo*.64*uNight*aboveHorizon;
 
   vec2 cloudUV = d.xz/(h+.19)*1.72 + vec2(3.7,uTime*.012);
   float f = clouds(cloudUV);
@@ -56,7 +60,7 @@ void main() {
   vec3 cloud = mix(vec3(.40,.32,.36),vec3(.94,.54,.38),pow(proximity,6.0));
   cloud += vec3(.19,.15,.10)*smoothstep(.40,.70,strand);
   cloud = mix(cloud,vec3(.88,.91,.88),uDay);
-  cloud = mix(cloud,vec3(.12,.17,.28),uNight);
+  cloud = mix(cloud,vec3(.027,.043,.077),uNight);
   c = mix(c,cloud,coverage*.78);
 
   if (uNight > 0.01) {
@@ -97,9 +101,9 @@ void main() {
   vec3 deep = mix(vec3(.015,.105,.25),vec3(.018,.16,.34),uDay);
   vec3 blue = mix(vec3(.12,.52,.68),vec3(.20,.68,.83),uDay);
   vec3 reflection = mix(vec3(.35,.52,.49),vec3(.36,.63,.71),uDay);
-  deep = mix(deep,vec3(.014,.050,.105),uNight);
-  blue = mix(blue,vec3(.027,.175,.215),uNight);
-  reflection = mix(reflection,vec3(.081,.15,.238),uNight);
+  deep = mix(deep,vec3(.006,.019,.049),uNight);
+  blue = mix(blue,vec3(.020,.105,.145),uNight);
+  reflection = mix(reflection,vec3(.025,.058,.105),uNight);
   vec2 scaled = p/uShoreSize;
   float a = atan(scaled.y,scaled.x);
   float coast = (1.0 + .077*cos(a*3.0+.8) + .062*sin(a*5.0-.5)
@@ -139,9 +143,8 @@ void main() {
   float spark = pow(max(dot(reflect(-uSun,N),eye),0.0),111.0);
   vec3 shine = mix(vec3(1.0,.59,.30),vec3(.43,.58,.85),uNight);
   c += shine*(.32*glare+.84*spark*detail)*(1.0-uDay*.70)*(1.0-uCloud*.88)*mix(.13,1.0,uWaveDetail)*(1.0-clarity*.63);
-  vec3 farColor = mix(vec3(.61,.66,.59),vec3(.43,.68,.74),uDay);
-  farColor = mix(farColor,vec3(.083,.158,.238),uNight);
-  c = mix(c,farColor,smoothstep(42.0,410.0,distanceToEye)*mix(.65,1.0,uWaveDetail));
+  float horizonMist = max(smoothstep(100.0,680.0,distanceToEye),1.0-smoothstep(.011,.10,eye.y));
+  c = mix(c,horizonColor(),horizonMist);
   gl_FragColor = vec4(c,1.0);
   #include <colorspace_fragment>
 }
@@ -231,15 +234,17 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
   sky.renderOrder = -2;
   sky.frustumCulled = false;
   scene.add(sky);
-  const sun = new THREE.Mesh(
+  const celestialDisc = new THREE.Mesh(
     new THREE.CircleGeometry(4.3, 40),
     new THREE.MeshBasicMaterial({ color: "#fff1b9", transparent: true, depthWrite: false, toneMapped: false }),
   );
-  sun.renderOrder = -1;
-  scene.add(sun);
+  celestialDisc.renderOrder = -1;
+  scene.add(celestialDisc);
+  const daylightDisc = new THREE.Color("#fff1b9");
+  const moonlightDisc = new THREE.Color("#e1edff");
 
   const ocean = new THREE.Mesh(
-    new THREE.PlaneGeometry(850, 850).rotateX(-Math.PI / 2),
+    new THREE.PlaneGeometry(6400, 6400).rotateX(-Math.PI / 2),
     new THREE.ShaderMaterial({ uniforms, vertexShader: worldVertex, fragmentShader: oceanFragment }),
   );
   scene.add(ocean);
@@ -313,12 +318,14 @@ export function createCoast(THREE, scene, shorePoint, shoreSize) {
       uniforms.uCloud.value = cloud;
       const detail = 1 - THREE.MathUtils.smoothstep(cameraDistance, 44, 83);
       uniforms.uWaveDetail.value = detail;
-      sunTarget.set(.21 + day*.075 - night*.26, .054 + day*.037 + night*.108, -.94);
+      sunTarget.set(.21 + day*.075 - night*.08, .054 + day*.037 + night*.041, -.94);
       uniforms.uSun.value.copy(sunTarget).normalize();
-      sun.position.copy(sunTarget).multiplyScalar(210);
-      sun.lookAt(0, 0, 0);
-      sun.material.opacity = (1 - night) * (1 - cloud) ** 2;
-      sun.visible = sun.material.opacity > .04;
+      celestialDisc.position.copy(sunTarget).multiplyScalar(210);
+      celestialDisc.lookAt(0, 0, 0);
+      celestialDisc.scale.setScalar(1 + night*.18);
+      celestialDisc.material.color.copy(daylightDisc).lerp(moonlightDisc,night);
+      celestialDisc.material.opacity = (1 - cloud) ** 2;
+      celestialDisc.visible = celestialDisc.material.opacity > .04;
       foam.forEach((ring, i) => {
         ring.visible = detail > .001;
         ring.scale.setScalar(1 + .012 * detail * Math.sin(time * 1.3 - i * .7));

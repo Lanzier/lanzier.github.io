@@ -431,25 +431,41 @@ export function createIsland(THREE, scene, weather) {
     [-10.7, -1.9, .55], [-9.3, 3.2, .62], [-7.25, 3.1, .46], [-6.95, 5.18, .48],
     [-5.93, 5.91, .38], [-7.7, -.7, .43], [9.75, 2.04, .54], [10.55, -2.0, .55],
     [7.2, 3.48, .50], [5.3, 4.95, .44], [3.7, 3.12, .30], [6.27, 5.12, .39],
-    [-2.52, 5.75, .32], [5.13, -1.62, .39], [-4.63, 2.79, .36], [-5.74, -.08, .50],
+    [-2.52, 5.75, .32], [6.90, -2.63, .39], [-4.63, 2.79, .36], [-5.74, -.08, .50],
     [2.47, 6.11, .43], [-3.62, -.5, .24], [4.90, -6.06, .48], [-6.25, -6.05, .39],
   ];
   for (const [x, z, scale] of shrubBeds) {
-    for (let index = 0; index < 7; index += 1) {
-      const px = x + range(-.95, .95) * scale;
-      const pz = z + range(-.95, .95) * scale;
-      leafItems.push({ x: px, y: terrainHeight(px, pz) + .22 * scale, z: pz, sx: scale * range(.42, 1.09), sy: scale * range(.32, .73), sz: scale * range(.39, .81), ry: range(0, TAU), tint: pick(leafColors) });
+    for (let index = 0; index < 15; index += 1) {
+      const crown = index < 5;
+      const angle = index * 2.39996;
+      const radius = scale * (crown ? .45 : range(.64, 1.18));
+      const px = x + Math.cos(angle) * radius;
+      const pz = z + Math.sin(angle) * radius;
+      const lobe = scale * (crown ? range(.59, .85) : range(.29, .50));
+      leafItems.push({ x: px, y: terrainHeight(px, pz) + scale * (crown ? .56 : .29), z: pz,
+        sx: lobe, sy: lobe * .68, sz: lobe * .83, ry: angle,
+        tint: pick(crown ? leafColors.slice(2, 6) : leafColors.slice(0, 4)) });
     }
   }
-  batch(root, foliage, leafItems);
+  const shrubGeometry = new THREE.IcosahedronGeometry(1, 2);
+  const shrubVertices = shrubGeometry.getAttribute('position');
+  const shrubColors = [];
+  for (let i = 0; i < shrubVertices.count; i++) {
+    const x = shrubVertices.getX(i), y = shrubVertices.getY(i), z = shrubVertices.getZ(i);
+    const contour = 1 + .08 * Math.sin(x * 7 + z * 4) * Math.cos(y * 5 - z * 6);
+    shrubVertices.setXYZ(i, x * contour, y * contour, z * contour);
+    const light = .84 + .15 * y + .043 * Math.cos(x * 8 + z * 7);
+    shrubColors.push(light, light, light * .955);
+  }
+  shrubGeometry.setAttribute('color', new THREE.Float32BufferAttribute(shrubColors, 3));
+  batch(root, shrubGeometry, leafItems, material('#ffffff', { vertexColors: true }));
 
   const garden = new THREE.Group();
   root.add(garden);
-  const gardenX = 6.48;
-  const gardenZ = .30;
+  const gardenX = 5.98;
+  const gardenZ = -.38;
   const gardenY = terrainHeight(gardenX, gardenZ);
   garden.position.set(gardenX, gardenY, gardenZ);
-  garden.rotation.y = -.15;
   const inGarden = (x, z) => Math.abs(x - gardenX) < 1.95 && Math.abs(z - gardenZ) < 1.62;
   const soil = material('#735743');
   const darkSoil = material('#5b4835');
@@ -458,23 +474,43 @@ export function createIsland(THREE, scene, weather) {
   for (const z of [-1.35, 1.35]) box(garden, woodLight, 0, .092, z, 3.42, .15, .104);
   for (const x of [-1.1, 0, 1.1]) mesh(garden, foliage, soil, x, .117, 0, .46, .16, 1.29);
   const vines = [];
-  const melonBase = new THREE.SphereGeometry(1, 13, 8);
-  const melonColors = [];
-  const melonUV = melonBase.getAttribute('uv');
-  for (let index = 0; index < melonUV.count; index += 1) {
-    const band = Math.sin(melonUV.getX(index) * TAU * 6 + Math.sin(melonUV.getY(index) * TAU * 2) * .63);
-    const shade = color(band > .15 ? '#3c8261' : '#78aa59');
-    melonColors.push(shade.r, shade.g, shade.b);
+  const melonBase = new THREE.SphereGeometry(1, 30, 20);
+  const rind = document.createElement('canvas');
+  rind.width = 256;
+  rind.height = 128;
+  const rindContext = rind.getContext('2d');
+  const pixels = rindContext.createImageData(rind.width, rind.height);
+  for (let y = 0; y < rind.height; y++) {
+    for (let x = 0; x < rind.width; x++) {
+      const u = x / rind.width, v = y / rind.height;
+      const stripe = Math.sin(u * TAU * 8 + Math.sin(v * 18 + u * TAU * 3) * .53 + Math.sin(v * 35 - u * TAU * 7) * .24);
+      const band = THREE.MathUtils.smoothstep(stripe, -.18, .53);
+      const mottle = Math.sin(x * .37 + y * .51) * Math.sin(y * .31 - x * .25) * 10;
+      pixels.data.set([97 - 62 * band + mottle, 151 - 57 * band + mottle, 61 - 33 * band + mottle * .5, 255], (y * rind.width + x) * 4);
+    }
   }
-  melonBase.setAttribute('color', new THREE.Float32BufferAttribute(melonColors, 3));
-  const melonMaterial = material('#ffffff', { vertexColors: true });
+  rindContext.putImageData(pixels, 0, 0);
+  const rindTexture = new THREE.CanvasTexture(rind);
+  rindTexture.colorSpace = THREE.SRGBColorSpace;
+  const melonMaterial = material('#ffffff', { map: rindTexture, roughness: .34 });
+  const vineLeaf = new THREE.BufferGeometry();
+  const leafOutline = [[0,-.97],[-.52,-.68],[-.67,-.26],[-1,.02],[-.71,.26],[-.81,.54],[-.38,.50],[0,.95],[.39,.5],[.84,.52],[.69,.24],[1,.01],[.68,-.25],[.49,-.65]];
+  const blade = [], bladeColors = [];
+  leafOutline.forEach(([x, z], i) => {
+    const [nx, nz] = leafOutline[(i + 1) % leafOutline.length];
+    blade.push(0, .49, -.05, x, .05, z, nx, .05, nz);
+    bladeColors.push(.95, 1, .85, .55, .77, .51, .69, .85, .61);
+  });
+  vineLeaf.setAttribute('position', new THREE.Float32BufferAttribute(blade, 3));
+  vineLeaf.setAttribute('color', new THREE.Float32BufferAttribute(bladeColors, 3));
+  vineLeaf.computeVertexNormals();
   const melons = [];
   for (const row of [-1.10, 0, 1.10]) {
     for (let column = 0; column < 3; column += 1) {
       const x = row + range(-.15, .13);
       const z = -.80 + column * .80 + range(-.20, .15);
-      const size = range(.19, .30);
-      const melon = mesh(garden, melonBase, melonMaterial, x, .23 + size * .51, z, size * 1.23, size * .86, size);
+      const size = range(.22, .34);
+      const melon = mesh(garden, melonBase, melonMaterial, x, .12 + size * .88, z, size * 1.19, size * .88, size);
       melon.rotation.set(.15, range(0, TAU), range(-.37, .37));
       melons.push(melon);
       for (let leaf = 0; leaf < 12; leaf += 1) {
@@ -482,7 +518,7 @@ export function createIsland(THREE, scene, weather) {
       }
     }
   }
-  batch(garden, foliage, vines);
+  batch(garden, vineLeaf, vines, material('#ffffff', { vertexColors: true, side: THREE.DoubleSide }));
   const signCanvas = document.createElement('canvas');
   signCanvas.width = 192;
   signCanvas.height = 100;
@@ -651,7 +687,9 @@ export function createIsland(THREE, scene, weather) {
       puff.scale.set(scale * 1.14, scale, scale * 1.2);
       puff.material.opacity = Math.sin(life * Math.PI) * .11;
     }
-    porchLamp.intensity = (8.5 + Math.sin(time * 5.1) * .45) * (1.66 - daylight * .62);
+    porchLamp.intensity = (8.5 + Math.sin(time * 5.1) * .45) * (2.45 - daylight * 1.30);
+    windowGlass.emissiveIntensity = .35 + (1 - daylight) * .71;
+    doorGlass.emissiveIntensity = .64 + (1 - daylight) * .62;
     windowGlass.opacity = .21 - daylight * .09;
   }
 
@@ -662,7 +700,7 @@ export function createIsland(THREE, scene, weather) {
     garden,
     doorAnchor: new THREE.Vector3(-1.94, 2.58, 1.48),
     gardenAnchor: new THREE.Vector3(gardenX, gardenY + .77, gardenZ),
-    harvestSpot: new THREE.Vector3(gardenX - .63, gardenY, gardenZ + 1.85),
+    harvestSpot: new THREE.Vector3(gardenX - .32, gardenY, gardenZ + 2.60),
     melons,
     shorePoint,
     shoreSize: [coastX, coastZ],

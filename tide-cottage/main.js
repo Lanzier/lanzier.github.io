@@ -33,7 +33,7 @@ function launch() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-  const camera = new THREE.PerspectiveCamera(42, 1, .075, 700);
+  const camera = new THREE.PerspectiveCamera(42, 1, .075, 1400);
   const controls = new OrbitControls(camera, canvas);
   controls.enableDamping = !reduceMotion.matches;
   controls.dampingFactor = .08;
@@ -631,9 +631,9 @@ function launch() {
     if (period !== light) experience.dataset.light = light = period;
     const cloud = weather.update(currentTime, delta, type, intensity);
     sunlight.color.copy(duskTint).lerp(dayTint, day).lerp(nightTint, night);
-    sunlight.intensity = (2.7 + .21 * day - 1.94 * night) * (1 - cloud * .49);
-    skyFill.intensity = (1.79 + .19 * day - 1.23 * night) * (1 - cloud * .14);
-    rim.intensity = (.72 - .40 * night) * (1 - cloud * .34);
+    sunlight.intensity = (2.7 + .21 * day - 2.16 * night) * (1 - cloud * .49);
+    skyFill.intensity = (1.79 + .19 * day - 1.57 * night) * (1 - cloud * .14);
+    rim.intensity = (.72 - .57 * night) * (1 - cloud * .34);
 
     const daylight = THREE.MathUtils.clamp(.65 + .35 * day - .57 * night, 0, 1);
     companions.update(currentTime, mode, camera);
